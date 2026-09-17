@@ -1,0 +1,15 @@
+.env
+_backups/
+*.log
+Thumbs.db
+Desktop.ini
+.DS_Store
+v1/uploads/documents/
+v1/code.jquery.com/cpd/dompdf/
+v1/code.jquery.com/cpd/vendor/
+v1/PHPMailer/
+v1/PHPMailer-master/
+v1/registration/PHPMailer/
+v1/code.jquery.com/cpd/PHPMailer/
+eca-pages/img/
+v1/img/

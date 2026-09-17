@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>E.C.A | Resources</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="Eswatini Contractors’ Official Website" name="description">
+
+  <link href="img/favicon.ico" rel="icon">
+
+  <!-- Google Web Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com/">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&family=Roboto:wght@500;700;900&display=swap" rel="stylesheet">
+
+  <!-- Icon Font Stylesheet (FIXED: add https://) -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Libraries Stylesheet -->
+  <link href="lib/animate/animate.min.css" rel="stylesheet">
+  <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+  <link href="lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+  <!-- Bootstrap -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Template -->
+  <link href="css/style.css" rel="stylesheet">
+    <link href="css/theme.css?v=10" rel="stylesheet">
+
+  <style>
+    .header-custom{ background:#192754; color:#fff; }
+    .header-custom small{ color:#fff; }
+
+    .faq-btn-ui{
+      display:inline-block;
+      background:#ffffff;
+      color:#b30000;
+      padding:10px 18px;
+      border-radius:8px;
+      font-weight:600;
+      text-decoration:none;
+      border:2px solid #b30000;
+      transition:0.3s;
+      box-shadow:0 4px 12px rgba(0,0,0,0.08);
+      margin-left:6px;
+    }
+    .faq-btn-ui:hover{ background:#b30000; color:#fff; transform:translateY(-2px); }
+
+    .resource-card{
+      border:0;
+      border-radius:14px;
+      overflow:hidden;
+      box-shadow:0 10px 30px rgba(0,0,0,.10);
+      transition:transform .2s ease, box-shadow .2s ease;
+      height:100%;
+    }
+    .resource-card:hover{
+      transform: translateY(-6px);
+      box-shadow:0 18px 45px rgba(0,0,0,.18);
+    }
+    .resource-thumb{
+      width:100%;
+      height:160px;
+      object-fit:cover;
+      border-bottom:1px solid rgba(0,0,0,.06);
+    }
+    .mini-muted{ font-size:.85rem; color:#6c757d; }
+
+    .like-btn:hover{ transform: scale(1.05); }
+    .like-btn{ transition: transform .15s ease; }
+  </style>
+</head>
+
+<body>
+<!-- Spinner -->
+<div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center" style="z-index:9999;">
+  <div class="spinner-grow text-primary" style="width:3rem;height:3rem;" role="status">
+    <span class="sr-only">Loading...</span>
+  </div>
+</div>
+<div class="eca-landing eca-landing-inner eca-public" data-eca-landing>
+    <header class="eca-public-header">
+        <div class="eca-utility">
+            <div class="eca-utility-inner">
+                <div class="eca-utility-left">
+                    <span class="eca-utility-brand">Eswatini Contractors Association</span>
+                    <div class="eca-utility-social" aria-label="Social media">
+                        <a href="https://www.facebook.com/people/Eswatini-Contractors-Association/61582863643851/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+                        <a href="https://www.instagram.com/eca.sz/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
+                        <a href="https://www.linkedin.com/company/eswatini-contractors-association-eca" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
+                    </div>
+                </div>
+                <div class="eca-utility-tools">
+                    <form class="eca-utility-search" action="directory.html" method="get" role="search">
+                        <label class="eca-sr-only" for="ecaSiteSearch">Search the member directory</label>
+                        <input id="ecaSiteSearch" type="search" name="search" placeholder="Search contractors" value="">
+                        <button type="submit" aria-label="Search directory"><i class="bi bi-search" aria-hidden="true"></i></button>
+                    </form>
+                    <div class="eca-nav-drop eca-login-drop" data-eca-login-drop>
+                        <button class="eca-nav-link eca-nav-login" type="button" aria-expanded="false" aria-haspopup="menu" aria-controls="ecaLoginMenu">
+                            Login <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                        </button>
+                        <div class="eca-nav-menu" id="ecaLoginMenu" role="menu">
+                            <a href="/admin/login.php" role="menuitem">Admin</a>
+                            <a href="/client/" role="menuitem">Member portal</a>
+                            <a href="/cpd/login.php" role="menuitem">CPD contractor</a>
+                            <a href="/cpd/admin_login.php" role="menuitem">CPD staff</a>
+                        </div>
+                    </div>
+                    <script src="/js/login-menu.js" defer></script>
+                </div>
+            </div>
+        </div>
+        <div class="eca-masthead">
+            <a class="eca-landing-logo" href="index.html">
+                <img src="img/ecalogo.png" alt="Eswatini Contractors Association">
+            </a>
+            <button class="eca-landing-toggle" type="button" aria-expanded="false" aria-controls="ecaLandingNav" aria-label="Open menu">
+                <i class="bi bi-list"></i>
+            </button>
+            <nav class="eca-landing-nav eca-mega-nav" id="ecaLandingNav">
+                <a href="index.html" class="">Home</a>
+                <div class="eca-nav-drop eca-mega-drop">
+                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">About ECA <i class="bi bi-chevron-down"></i></button>
+                    <div class="eca-nav-menu eca-mega-menu">
+                        <p class="eca-mega-label">The association</p>
+                        <a href="about.html">About ECA</a>
+                        <a href="about-bod.html">Executive committee</a>
+                        <a href="about-by-laws.php">Bylaws</a>
+                        <a href="contact.html">Contact</a>
+                    </div>
+                </div>
+                <div class="eca-nav-drop eca-mega-drop">
+                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Connect <i class="bi bi-chevron-down"></i></button>
+                    <div class="eca-nav-menu eca-mega-menu">
+                        <p class="eca-mega-label">Find a contractor</p>
+                        <a href="directory.html">Member directory</a>
+                        <a href="balingani-directory.html">Balingani</a>
+                    </div>
+                </div>
+                <div class="eca-nav-drop eca-mega-drop">
+                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Membership <i class="bi bi-chevron-down"></i></button>
+                    <div class="eca-nav-menu eca-mega-menu eca-mega-menu-wide">
+                        <div class="eca-mega-col">
+                            <p class="eca-mega-label">Join ECA</p>
+                            <a href="application.html">Apply</a>
+                            <a href="apply_artisan.php">Artisan application</a>
+                            <a href="renewal.html">Renew</a>
+                        </div>
+                        <div class="eca-mega-col">
+                            <p class="eca-mega-label">Members</p>
+                            <a href="directory.html">Member directory</a>
+                            <a href="checklist.html">Membership checklist</a>
+                            <a href="pricing.html">Pricing</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="eca-nav-drop eca-mega-drop is-current">
+                    <button class="eca-nav-link is-active" type="button" aria-expanded="false" aria-haspopup="true">Education <i class="bi bi-chevron-down"></i></button>
+                    <div class="eca-nav-menu eca-mega-menu eca-mega-menu-wide">
+                        <div class="eca-mega-col">
+                            <p class="eca-mega-label">Learning</p>
+                            <a href="resources.html">Resources</a>
+                            <a href="/documents/">Documents</a>
+                            <a href="faq.html">FAQ</a>
+                        </div>
+                        <div class="eca-mega-col">
+                            <p class="eca-mega-label">CPD training</p>
+                            <a href="/cpd/login.php">CPD contractor</a>
+                            <a href="/cpd/admin_login.php">CPD staff</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="eca-nav-drop eca-mega-drop">
+                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">News <i class="bi bi-chevron-down"></i></button>
+                    <div class="eca-nav-menu eca-mega-menu">
+                        <p class="eca-mega-label">Updates</p>
+                        <a href="news.html">News</a>
+                        <a href="gallery.html">Gallery</a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <script src="/js/public-nav.js" defer></script>
+</div>
+
+<section class="eca-inner-hero">
+    <div class="container eca-inner-hero-inner">
+        <div>
+            <p class="eca-kicker">Documents</p>
+            <h1>ECA resources</h1>
+                            <p>Download important ECA forms, guides and association documents.</p>
+                    </div>
+        <nav class="eca-inner-crumb" aria-label="breadcrumb">
+            <a href="index.html">Home</a>
+            <span>/</span>
+            Resources        </nav>
+    </div>
+</section>
+<style>
+.eca-inner-hero {
+    padding: 48px 0 28px;
+    background:
+        radial-gradient(circle at 88% 18%, rgba(213, 13, 14, 0.05), transparent 22%),
+        radial-gradient(circle at 8% 80%, rgba(25, 39, 84, 0.05), transparent 24%),
+        #f4f6f9;
+}
+.eca-inner-hero-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+}
+.eca-inner-hero h1 {
+    margin: 0 0 8px;
+    color: #192754;
+    font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+.eca-inner-hero p:not(.eca-kicker) {
+    margin: 0;
+    max-width: 640px;
+    color: #667085;
+    line-height: 1.7;
+}
+.eca-inner-crumb {
+    color: #667085;
+    font-size: 13px;
+    font-weight: 700;
+}
+.eca-inner-crumb a { color: #192754; text-decoration: none; }
+.eca-inner-crumb a:hover { color: #d50d0e; }
+.eca-inner-crumb span { margin: 0 8px; }
+</style>
+
+<!-- Resources -->
+<div class="container-xxl py-5">
+  <div class="container">
+    <div class="eca-page-intro">
+      <p class="eca-kicker">Downloads</p>
+      <h2>ECA documents</h2>
+      <p>Forms, guides and association documents for members and applicants.</p>
+    </div>
+
+    <div class="row g-4">
+
+            <div class="col-md-6 col-lg-3">
+        <div class="card resource-card text-center">
+          <img src="img/book.PNG" class="resource-thumb" alt="Resource">
+          <div class="card-body">
+            <h5 class="card-title">ECA Constitution</h5>
+            <p class="card-text small">The Eswatini Contractors Association official constitution.</p>
+
+            <a href="download.html?file=Eca-Constitution.pdf class="btn btn-primary w-100 mb-2">
+              <i class="bi bi-download me-1"></i> Download
+            </a>
+
+            <div class="mini-muted mb-2">
+              <i class="bi bi-bar-chart me-1"></i>
+              <span class="download-count" data-file="Eca-Constitution.pdf">0</span> downloads
+            </div>
+
+            <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+              <button class="btn btn-outline-primary btn-sm like-btn" data-file="Eca-Constitution.pdf">
+                <i class="fa fa-thumbs-up me-1"></i>
+                Like (<span class="like-count">0</span>)
+              </button>
+
+              <a href="https://facebook.com" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="fab fa-facebook-f"></i>
+              </a>
+              <a href="https://twitter.com" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="fab fa-twitter"></i>
+              </a>
+              <a href="https://linkedin.com" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="fab fa-linkedin-in"></i>
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+            <div class="col-md-6 col-lg-3">
+        <div class="card resource-card text-center">
+          <img src="img/BYLAWS.png" class="resource-thumb" alt="Resource">
+          <div class="card-body">
+            <h5 class="card-title">BYLAWS</h5>
+            <p class="card-text small">A Wing of the Eswatini Contractors Association (ECA).</p>
+
+            <a href="download.html?file=BYLAWS.pdf class="btn btn-primary w-100 mb-2">
+              <i class="bi bi-download me-1"></i> Download
+            </a>
+
+            <div class="mini-muted mb-2">
+              <i class="bi bi-bar-chart me-1"></i>
+              <span class="download-count" data-file="BYLAWS.pdf">0</span> downloads
+            </div>
+
+            <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+              <button class="btn btn-outline-primary btn-sm like-btn" data-file="BYLAWS.pdf">
+                <i class="fa fa-thumbs-up me-1"></i>
+                Like (<span class="like-count">0</span>)
+              </button>
+
+              <a href="https://facebook.com" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="fab fa-facebook-f"></i>
+              </a>
+              <a href="https://twitter.com" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="fab fa-twitter"></i>
+              </a>
+              <a href="https://linkedin.com" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="fab fa-linkedin-in"></i>
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+            <div class="col-md-6 col-lg-3">
+        <div class="card resource-card text-center">
+          <img src="img/report.png" class="resource-thumb" alt="Resource">
+          <div class="card-body">
+            <h5 class="card-title">Training Report</h5>
+            <p class="card-text small">Contractor Development Training on Fundamentals of Tendering: Level 2</p>
+
+            <a href="download.html?file=Training-Report-2025.pdf class="btn btn-primary w-100 mb-2">
+              <i class="bi bi-download me-1"></i> Download
+            </a>
+
+            <div class="mini-muted mb-2">
+              <i class="bi bi-bar-chart me-1"></i>
+              <span class="download-count" data-file="Training-Report-2025.pdf">0</span> downloads
+            </div>
+
+            <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+              <button class="btn btn-outline-primary btn-sm like-btn" data-file="Training-Report-2025.pdf">
+                <i class="fa fa-thumbs-up me-1"></i>
+                Like (<span class="like-count">0</span>)
+              </button>
+
+              <a href="https://facebook.com" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="fab fa-facebook-f"></i>
+              </a>
+              <a href="https://twitter.com" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="fab fa-twitter"></i>
+              </a>
+              <a href="https://linkedin.com" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="fab fa-linkedin-in"></i>
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+            <div class="col-md-6 col-lg-3">
+        <div class="card resource-card text-center">
+          <img src="img/Procurement.png" class="resource-thumb" alt="Resource">
+          <div class="card-body">
+            <h5 class="card-title">Unlocking Inclusive Procurement</h5>
+            <p class="card-text small">Unlocking Inclusive Procurement: Reforming Eswatini’s
+Framework for Donor-Funded Infrastructure</p>
+
+            <a href="download.html?file=ECA-WHITE-PAPER-2025.pdf class="btn btn-primary w-100 mb-2">
+              <i class="bi bi-download me-1"></i> Download
+            </a>
+
+            <div class="mini-muted mb-2">
+              <i class="bi bi-bar-chart me-1"></i>
+              <span class="download-count" data-file="ECA-WHITE-PAPER-2025.pdf">0</span> downloads
+            </div>
+
+            <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+              <button class="btn btn-outline-primary btn-sm like-btn" data-file="ECA-WHITE-PAPER-2025.pdf">
+                <i class="fa fa-thumbs-up me-1"></i>
+                Like (<span class="like-count">0</span>)
+              </button>
+
+              <a href="https://facebook.com" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="fab fa-facebook-f"></i>
+              </a>
+              <a href="https://twitter.com" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="fab fa-twitter"></i>
+              </a>
+              <a href="https://linkedin.com" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="fab fa-linkedin-in"></i>
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+            <div class="col-md-6 col-lg-3">
+        <div class="card resource-card text-center">
+          <img src="img/ECA20252026.png" class="resource-thumb" alt="Resource">
+          <div class="card-body">
+            <h5 class="card-title">TRAINING COMPREHENSIVE MEMBERSHIP REPORT</h5>
+            <p class="card-text small"></p>
+
+            <a href="download.html?file=ECA+20252026+TRAINING+COMPREHENSIVE+MEMBERSHIP+REPORTS.pdf class="btn btn-primary w-100 mb-2">
+              <i class="bi bi-download me-1"></i> Download
+            </a>
+
+            <div class="mini-muted mb-2">
+              <i class="bi bi-bar-chart me-1"></i>
+              <span class="download-count" data-file="ECA 20252026 TRAINING COMPREHENSIVE MEMBERSHIP REPORTS.pdf">0</span> downloads
+            </div>
+
+            <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+              <button class="btn btn-outline-primary btn-sm like-btn" data-file="ECA 20252026 TRAINING COMPREHENSIVE MEMBERSHIP REPORTS.pdf">
+                <i class="fa fa-thumbs-up me-1"></i>
+                Like (<span class="like-count">0</span>)
+              </button>
+
+              <a href="https://facebook.com" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="fab fa-facebook-f"></i>
+              </a>
+              <a href="https://twitter.com" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="fab fa-twitter"></i>
+              </a>
+              <a href="https://linkedin.com" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="fab fa-linkedin-in"></i>
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+            <div class="col-md-6 col-lg-3">
+        <div class="card resource-card text-center">
+          <img src="img/catalogue.png" class="resource-thumb" alt="Resource">
+          <div class="card-body">
+            <h5 class="card-title">ECA 2026 2027 TRAINING CATALOGUE</h5>
+            <p class="card-text small"></p>
+
+            <a href="download.html?file=CATALOGUE2026-2027.pdf class="btn btn-primary w-100 mb-2">
+              <i class="bi bi-download me-1"></i> Download
+            </a>
+
+            <div class="mini-muted mb-2">
+              <i class="bi bi-bar-chart me-1"></i>
+              <span class="download-count" data-file="CATALOGUE2026-2027.pdf">0</span> downloads
+            </div>
+
+            <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+              <button class="btn btn-outline-primary btn-sm like-btn" data-file="CATALOGUE2026-2027.pdf">
+                <i class="fa fa-thumbs-up me-1"></i>
+                Like (<span class="like-count">0</span>)
+              </button>
+
+              <a href="https://facebook.com" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="fab fa-facebook-f"></i>
+              </a>
+              <a href="https://twitter.com" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="fab fa-twitter"></i>
+              </a>
+              <a href="https://linkedin.com" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="fab fa-linkedin-in"></i>
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- Map -->
+<iframe
+  src="https://www.google.com/maps/embed?pb=!1m16!1m12!1m3!1d3575.9398627152696!2d31.139841774754323!3d-26.328446731859643!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!2m1!1sCooper%20Center%20eswatini%20contractors%20Association!5e0!3m2!1sen!2s!4v1756185111680!5m2!1sen!2s"
+  width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+  referrerpolicy="no-referrer-when-downgrade"></iframe>
+
+<footer class="eca-site-footer">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <img src="img/ecalogo.png" alt="Eswatini Contractors Association" class="eca-footer-logo">
+                <p>Suite 40, Cooper Centre, Mbabane, Eswatini</p>
+                <p><a href="tel:+26824044987">+268 2404 4987</a></p>
+                <p><a href="mailto:info@eca.co.sz">info@eca.co.sz</a></p>
+            </div>
+            <div class="col-lg-2 col-md-4">
+                <h5>About</h5>
+                <a href="about.html">About ECA</a>
+                <a href="about-bod.html">Executive committee</a>
+                <a href="about-by-laws.php">Bylaws</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            <div class="col-lg-2 col-md-4">
+                <h5>Membership</h5>
+                <a href="directory.html">Member directory</a>
+                <a href="application.html">Apply</a>
+                <a href="renewal.html">Renew</a>
+                <a href="balingani-directory.html">Balingani</a>
+            </div>
+            <div class="col-lg-3 col-md-4">
+                <h5>Education</h5>
+                <a href="resources.html">Resources</a>
+                <a href="/documents/">Documents</a>
+                <a href="faq.html">FAQs</a>
+                <a href="/cpd/login.php">CPD contractor</a>
+                <a href="/cpd/admin_login.php">CPD staff</a>
+            </div>
+            <div class="col-lg-2 col-md-4">
+                <h5>News</h5>
+                <a href="news.html">News</a>
+                <a href="gallery.html">Gallery</a>
+                <a href="checklist.html">Contractor checklist</a>
+            </div>
+        </div>
+        <div class="eca-footer-copy">
+            &copy; 2026 Eswatini Contractors Association. All rights reserved.
+        </div>
+    </div>
+</footer>
+<style>
+.eca-site-footer {
+    margin-top: 56px;
+    padding: 48px 0 0;
+    color: #fff;
+    background: #192754;
+}
+.eca-site-footer a { color: rgba(255,255,255,.86); text-decoration: none; display: block; padding: 4px 0; }
+.eca-site-footer a:hover { color: #d50d0e; }
+.eca-site-footer h5 { margin: 0 0 12px; font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.eca-site-footer p { margin: 0 0 8px; color: rgba(255,255,255,.82); }
+.eca-footer-logo { display: block; max-height: 56px; width: auto; margin-bottom: 16px; background: #fff; padding: 6px 10px; border-radius: 8px; }
+.eca-footer-copy { margin-top: 28px; padding: 16px 0; border-top: 1px solid rgba(255,255,255,.12); color: rgba(255,255,255,.7); font-size: 13px; }
+</style>
+
+<!-- Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Spinner off
+  window.addEventListener('load', function(){
+    const spinner = document.getElementById('spinner');
+    if(spinner) spinner.classList.remove('show');
+  });
+
+  // Likes AJAX
+  document.addEventListener("click", function(e){
+    const btn = e.target.closest(".like-btn");
+    if(!btn) return;
+
+    const file = btn.getAttribute("data-file");
+    const countSpan = btn.querySelector(".like-count");
+
+    fetch("like.php", {
+      method: "POST",
+      headers: {"Content-Type":"application/x-www-form-urlencoded"},
+      body: "file=" + encodeURIComponent(file)
+    })
+    .then(res => res.text())
+    .then(count => {
+      countSpan.textContent = count;
+    })
+    .catch(()=>{});
+  });
+</script>
+
+</body>
+</html>

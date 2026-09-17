@@ -1,0 +1,230 @@
+/* Shared login — same light interface as the homepage */
+
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
+:root {
+    --eca-navy: #192754;
+    --eca-red: #d50d0e;
+    --eca-gold: #d50d0e;
+    --eca-muted: #667085;
+    --eca-border: #e6eaf2;
+    --eca-paper: #f5f7fb;
+    --eca-ink: #111827;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    min-height: 100%;
+    margin: 0;
+}
+
+body.eca-auth {
+    min-height: 100vh;
+    color: var(--eca-ink);
+    background:
+        radial-gradient(circle at 88% 18%, rgba(213, 13, 14, 0.05), transparent 22%),
+        radial-gradient(circle at 8% 80%, rgba(25, 39, 84, 0.05), transparent 24%),
+        var(--eca-paper);
+    font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+}
+
+.eca-dash-topbar {
+    background: #192754;
+    color: #fff;
+    font-size: 13px;
+}
+
+.eca-dash-topbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 38px;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.eca-dash-topbar a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.eca-dash-topbar a:hover { color: #d50d0e; }
+
+.eca-auth-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    background: transparent;
+}
+
+.eca-auth-nav img {
+    display: block;
+    max-height: 52px;
+    width: auto;
+}
+
+.eca-auth-nav a.site-link {
+    color: #192754;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+
+.eca-auth-nav a.site-link:hover { color: #d50d0e; }
+
+.eca-auth-main {
+    display: flex;
+    justify-content: center;
+    padding: 28px 20px 56px;
+}
+
+.eca-auth-card {
+    width: 100%;
+    max-width: 460px;
+    padding: 36px 32px;
+    background: #fff;
+    border: 1px solid var(--eca-border);
+    border-radius: 22px;
+    box-shadow: 0 12px 30px rgba(25, 39, 84, 0.06);
+}
+
+.eca-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 12px;
+    color: #d50d0e;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.eca-kicker::before {
+    content: "";
+    width: 28px;
+    height: 2px;
+    background: currentColor;
+}
+
+.eca-auth-card h1 {
+    margin: 0 0 8px;
+    color: #192754;
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+.eca-auth-card .sub {
+    margin: 0 0 24px;
+    color: var(--eca-muted);
+    line-height: 1.6;
+}
+
+.eca-auth-card label {
+    display: block;
+    margin-bottom: 7px;
+    color: #192754;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.eca-auth-card .form-control,
+.eca-auth-card input[type="text"],
+.eca-auth-card input[type="email"],
+.eca-auth-card input[type="password"] {
+    width: 100%;
+    height: 50px;
+    padding: 12px 14px;
+    border: 1px solid var(--eca-border);
+    border-radius: 12px;
+    color: var(--eca-ink);
+    font-weight: 600;
+}
+
+.eca-auth-card .form-control:focus,
+.eca-auth-card input:focus {
+    border-color: #192754;
+    box-shadow: 0 0 0 4px rgba(25, 39, 84, 0.08);
+    outline: none;
+}
+
+.password-wrap { position: relative; }
+
+.password-wrap button,
+.password-wrap .toggle {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #667085;
+    cursor: pointer;
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 16px 0 22px;
+}
+
+.eca-auth-card a {
+    color: #d50d0e;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.eca-auth-card a:hover { color: #192754; }
+
+.eca-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 50px;
+    padding: 0 18px;
+    background: #192754;
+    color: #fff !important;
+    border: 0;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 800;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+
+.eca-btn:hover { background: #d50d0e; }
+
+.error {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    color: #d50d0e;
+    background: #fff1f3;
+    border: 1px solid rgba(213, 13, 14, 0.16);
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.live-note {
+    margin: 18px 0 0;
+    color: var(--eca-muted);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+}
+
+@media (max-width: 520px) {
+    .eca-auth-card { padding: 28px 20px; }
+    .form-row { flex-direction: column; align-items: flex-start; }
+}

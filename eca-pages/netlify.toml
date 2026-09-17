@@ -1,0 +1,28 @@
+[build]
+  publish = "."
+
+[build.processing]
+  skip_processing = false
+
+[build.processing.html]
+  pretty_urls = true
+
+[[redirects]]
+  from = "/*.php"
+  to = "/:splat.html"
+  status = 301
+
+[[redirects]]
+  from = "/apply_artisan"
+  to = "/application.html"
+  status = 302
+
+[[redirects]]
+  from = "/apply_artisan.html"
+  to = "/application.html"
+  status = 302
+
+[[redirects]]
+  from = "/client/*"
+  to = "/contact.html"
+  status = 302

@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>E.C.A | Home</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="Eswatini Contractors’ Official Website" name="description">
+
+    <!-- Favicon -->
+    <link href="favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&amp;family=Roboto:wght@500;700;900&amp;display=swap" rel="stylesheet"> 
+
+    <!-- Icon Font Stylesheet -->
+    <link href="cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="cdn.jsdelivr.net/npm/bootstrap-icons%401.4.1/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/animate/animate.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/theme.css?v=10" rel="stylesheet">
+    
+    <!-- Slick CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
+
+<!-- jQuery (required for Slick) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Slick JS -->
+<script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+<style>
+/* =============================
+   HERO SLIDER BASE
+   ============================= */
+   
+   .header-custom {
+    background-color: #192754; /* Blue similar to the logo */
+    color: white;
+}
+.header-custom small {
+    color: white;
+}
+.hero-slider {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Each Slide */
+.hero-slider .slide {
+  
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh; /* full screen height */
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+/* Background Image */
+.hero-slider .slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Dark Overlay */
+.hero-slider .slide::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1;
+}
+
+/* =============================
+   CAPTION STYLES
+   ============================= */
+.slide-caption {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -40%);
+    text-align: center;
+    color: #fff;
+    max-width: 80%;
+    z-index: 2;
+    opacity: 0;
+    transition: all 0.8s ease-in-out;
+}
+
+/* Active Caption */
+.slide.active .slide-caption {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+}
+
+/* Headline */
+.slide-caption h2 {
+    font-size: 2.5rem;
+   
+    margin-bottom: 15px;
+      color: #ffffff;        /* White text */
+    font-weight: 700; 
+    animation: fadeUp 1s ease forwards;
+}
+
+.slide-caption h2 span {
+    color: red;       /* Example: highlight span in orange */
+    font-weight: 700;     /* bold too */
+}
+
+/* Paragraph */
+.slide-caption p {
+    font-size: 1.2rem;
+    margin: 15px 0;
+    line-height: 1.5;
+    animation: fadeUp 1.4s ease forwards;
+}
+
+/* Buttons */
+.slide-caption .btns {
+    margin-top: 20px;
+    animation: fadeUp 1.8s ease forwards;
+}
+
+.slide-caption .theme-btn,
+.slide-caption .theme-btn-s2 {
+    display: inline-block;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+
+.slide-caption .theme-btn {
+    background: #192754;
+    color: #fff;
+    margin-right: 10px;
+}
+
+.slide-caption .theme-btn:hover {
+    background: #d50d0e;
+}
+
+.slide-caption .theme-btn-s2 {
+    background: transparent;
+    border: 2px solid #fff;
+    color: #fff;
+}
+
+.slide-caption .theme-btn-s2:hover {
+    background: #fff;
+    color: #000;
+}
+/* Caption Container */
+.slide-caption {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -40%);
+    text-align: center;
+    color: #fff;
+    max-width: 80%;
+    z-index: 2;
+    opacity: 0;
+    transition: all 0.8s ease-in-out;
+
+    /* NEW background styling */
+    background: rgba(25, 39, 84, 0.7); /* dark blue, semi-transparent */
+    padding: 30px 40px;
+    border-radius: 12px;
+}
+   /* Blue background for the whole header */
+    .news-header {
+        background: #192754; /* deep blue */
+        border-radius: 8px;
+    }
+
+    /* White heading */
+    .news-title h2 {
+        color: #fff !important;
+    }
+
+    /* White subtitle */
+    .news-title p {
+        color: #eaeaea !important;
+    }
+
+    /* Search bar styling */
+    .search-wrapper {
+        display: flex;
+        align-items: center;
+    }
+
+    .search-input {
+        border: none;
+        padding: 6px 10px;
+        border-radius: 5px 0 0 5px;
+        outline: none;
+    }
+
+    .search-btn {
+        background: #2a3f73; /* darker blue for contrast */
+        border: none;
+        color: #fff; /* white icon/text */
+        padding: 6px 12px;
+        border-radius: 0 5px 5px 0;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .search-btn:hover {
+        background: #192754; /* even darker blue on hover */
+    }
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .search-wrapper {
+        width: 100%;
+    }
+    .search-input {
+        flex: 1;
+        width: 100%;
+    }
+    .search-btn {
+        width: 100%;
+        margin-top: 2px;
+        border-radius: 0 0 25px 25px;
+    }
+}
+
+
+/* Active Caption */
+.slide.active .slide-caption {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+}
+
+/* Blinking with neon glow */
+    .blink-text {
+        animation: blinkGlow 1.5s infinite;
+    }
+
+    @keyframes blinkGlow {
+        0% {
+            color: white;
+            text-shadow: none;
+        }
+        50% {
+            color: red;
+            text-shadow: 0 0 8px red, 0 0 16px red, 0 0 24px red;
+        }
+        100% {
+            color: white;
+            text-shadow: none;
+        }
+    }
+
+    /* Small button styling for icons */
+    .btn-sm-square {
+        width: 30px;
+        height: 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+    }
+/* =============================
+   NAVIGATION ARROWS
+   ============================= */
+.slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2rem;
+    color: #fff;
+    background: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    line-height: 45px;
+    text-align: center;
+    cursor: pointer;
+    z-index: 5;
+    transition: 0.3s ease;
+}
+
+.slider-arrow:hover {
+    background: rgba(255,255,255,0.7);
+    color: #000;
+}
+
+.slider-arrow.prev { left: 20px; }
+.slider-arrow.next { right: 20px; }
+
+/* =============================
+   DOTS / PAGINATION
+   ============================= */
+.slider-dots {
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 5;
+}
+
+.slider-dots span {
+    display: block;
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.slider-dots span.active {
+    background: #192754;
+}
+
+
+
+.slide-caption span{
+    color: #d50d0e;
+}
+/* =============================
+   ANIMATIONS
+   ============================= */
+@keyframes fadeUp {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+  /* Wrapper */
+    .showcase-wrapper{
+      position:relative;width:100%;height:100vh;overflow:hidden;
+    }
+    .showcase-track{
+      display:flex;transition:transform 1s ease-in-out;height:100%;
+    }
+    .showcase-item{
+      min-width:100%;height:100vh;position:relative;
+    }
+    .showcase-item img.bg{
+      width:100%;height:100%;object-fit:cover;
+      filter:brightness(70%);transition:transform 10s ease;
+    }
+    .showcase-item:hover img.bg{transform:scale(1.1)}
+
+
+/* Caption container */
+.showcase-caption {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 700px;
+  background: rgba(25, 39, 84, 0.85); /* #192754 with slight transparency */
+  padding: 25px 35px;
+  border-radius: 12px;
+  text-align: center;
+  color: #fff;
+  opacity: 0;                 /* start hidden */
+  animation: fadeBox 1.2s ease forwards; /* animate background fade-in */
+}
+
+/* Headings and paragraph */
+.showcase-caption h2,
+.showcase-caption p {
+  color: #fff;
+  opacity: 0;
+  animation: fadeText 1s ease forwards;
+}
+
+.showcase-caption h2 {
+  animation-delay: 0.4s;
+}
+
+.showcase-caption p {
+  animation-delay: 0.7s;
+}
+
+/* Buttons inside caption */
+.showcase-caption .btns {
+  margin-top: 15px;
+  opacity: 0;
+  animation: fadeText 1s ease forwards;
+  animation-delay: 1s;
+}
+
+/* Animation for caption box */
+@keyframes fadeBox {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -40%);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* Animation for text inside */
+@keyframes fadeText {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dots */
+.nav-dots div {
+  width: 12px;
+  height: 12px;
+  background: #192754; /* lighter blue for inactive */
+  border-radius: 50%;
+  cursor: pointer;
+  transition: 0.3s;
+}
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      animation: fadeIn 0.8s ease forwards;
+    }
+
+    /* Popup box */
+    .popup-box {
+      position: relative;
+      background: #fff;
+      border-radius: 12px;
+      padding: 0 0 20px 0;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+      max-width: 550px;
+      width: 100%;
+      animation: scaleIn 0.5s ease forwards;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    /* Advert image */
+    .popup-box img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Register button */
+    .register-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 25px;
+      margin-top: 15px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .register-btn:hover {
+      background: #0056b3;
+    }
+
+    /* Close button */
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ff3333;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      font-size: 22px;
+      width: 35px;
+      height: 35px;
+      line-height: 35px;
+      cursor: pointer;
+      text-align: center;
+      z-index: 10;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+.nav-dots div.active {
+  background: #192754; /* dark blue for active */
+  transform: scale(1.3);
+}
+
+  .showcase-caption h2,
+  .showcase-caption p {
+    color: #fff; /* force white text */
+  }
+
+  /* Update dots */
+  .nav-dots div.active {
+    background: #192754; /* dark blue active */
+    transform: scale(1.3);
+  }
+    /* Caption */
+ 
+    
+    .btns a{
+      display:inline-block;margin-right:10px;
+      padding:12px 25px;background:#fff;color:#222;
+      text-decoration:none;font-weight:600;border-radius:30px;
+      transition:.3s;
+    }
+    .btns a:hover{background:#ffd;color:#111;transform:scale(1.05)}
+
+    /* Arrows */
+    .nav-arrow{
+      position:absolute;top:50%;transform:translateY(-50%);
+      font-size:2rem;color:#fff;background:rgba(0,0,0,.5);
+      padding:10px;border-radius:50%;cursor:pointer;z-index:1000;
+      transition:.3s;
+    }
+    .nav-arrow:hover{background:#d50d0e;color:#111}
+    .nav-arrow.prev{left:20px}
+    .nav-arrow.next{right:20px}
+
+    /* Dots */
+    .nav-dots{
+      position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
+      display:flex;gap:10px;
+    }
+    .nav-dots div{
+      width:12px;height:12px;background:rgba(255,255,255,.6);
+      border-radius:50%;cursor:pointer;transition:.3s;
+    }
+    .nav-dots div.active{background:#d50d0e;transform:scale(1.3)}
+
+    /* Animations */
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes slideInLeft{from{opacity:0;transform:translateX(-50px)}to{opacity:1;transform:translateX(0)}}
+    @keyframes slideInRight{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:translateX(0)}}
+    
+    /* ===============================
+   Mobile Dropdown Styling
+   =============================== */
+@media (max-width: 768px) {
+    /* Make dropdown items full width and easy to tap */
+    .navbar-nav .dropdown-menu {
+        width: 100%;       /* full width of navbar */
+        left: 0 !important; /* override positioning */
+        right: 0 !important;
+        border-radius: 0;
+        margin: 0;
+    }
+
+    /* Increase padding for touch-friendly menu items */
+    .navbar-nav .dropdown-item {
+        padding: 12px 20px;
+        font-size: 0.95rem;  /* slightly smaller text on mobile */
+    }
+
+    /* Make dropdown toggle link occupy full width */
+    .navbar-nav .nav-item.dropdown > .nav-link {
+        width: 100%;
+        display: flex;
+        justify-content: space-between; /* text left, caret right */
+        padding: 12px 20px;
+    }
+
+    /* Optional: add a small separator between dropdowns */
+    .navbar-nav .dropdown-menu .dropdown-item + .dropdown-item {
+        border-top: 1px solid rgba(0,0,0,0.1);
+    }
+
+    /* Reduce navbar padding on mobile */
+    .navbar-nav.ms-auto {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+/* ====== Mobile adjustments for slider arrows and dots ====== */
+@media (max-width: 576px) {
+    /* Reduce size of arrows */
+    .nav-arrow {
+        font-size: 1.5rem;   /* smaller arrow */
+        width: 35px;         /* narrower */
+        height: 35px;        /* shorter */
+        line-height: 35px;   /* center the arrow vertically */
+    }
+
+    /* Reduce size of dots */
+    .nav-dots div {
+        width: 8px;
+        height: 8px;
+    }
+
+    /* Active dot smaller too */
+    .nav-dots div.active {
+        transform: scale(1.1);
+    }
+}
+
+.faq-btn-ui{
+    display:inline-block;
+    background:#ffffff;
+    color:#b30000;
+    padding:10px 20px;
+    border-radius:8px;
+    font-weight:600;
+    text-decoration:none;
+    border:2px solid #b30000;
+    transition:0.3s;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+.faq-btn-ui:hover{
+    background:#b30000;
+    color:white;
+    transform:translateY(-2px);
+}
+
+  </style>
+
+    
+</head>
+
+<body>
+    <!-- Spinner Start -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-grow text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+  
+  <!-- Popup container -->
+  
+
+    <script>
+    window.addEventListener("load", function() {
+      const popup = document.getElementById("advertPopup");
+      const closeBtn = document.getElementById("closeBtn");
+
+      // Check if advert was already shown in this session
+      if (!sessionStorage.getItem("ecaAdvertShown")) {
+        popup.style.display = "flex";
+
+        // Auto close after 6 seconds
+        const timer = setTimeout(closePopup, 6000);
+
+        // Close button manually closes popup
+        closeBtn.addEventListener("click", function() {
+          clearTimeout(timer);
+          closePopup();
+        });
+
+        // Mark advert as shown
+        sessionStorage.setItem("ecaAdvertShown", "true");
+      }
+
+      // Function to close popup smoothly
+      function closePopup() {
+        popup.style.transition = "opacity 0.5s ease";
+        popup.style.opacity = "0";
+        setTimeout(() => {
+          popup.style.display = "none";
+          popup.style.opacity = "1"; // reset opacity for next page load
+        }, 500);
+      }
+    });
+  </script>
+
+<style>
+
+/* Hover zoom */
+
+/* Glow animation */
+</style>
+
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<div class="eca-landing eca-landing-inner eca-public" data-eca-landing>
+    <header class="eca-public-header">
+        <div class="eca-utility">
+            <div class="eca-utility-inner">
+                <div class="eca-utility-left">
+                    <span class="eca-utility-brand">Eswatini Contractors Association</span>
+                    <div class="eca-utility-social" aria-label="Social media">
+                        <a href="https://www.facebook.com/people/Eswatini-Contractors-Association/61582863643851/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+                        <a href="https://www.instagram.com/eca.sz/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
+                        <a href="https://www.linkedin.com/company/eswatini-contractors-association-eca" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
+                    </div>
+                </div>
+                <div class="eca-utility-tools">
+                    <form class="eca-utility-search" action="directory.html" method="get" role="search">
+                        <label class="eca-sr-only" for="ecaSiteSearch">Search the member directory</label>
+                        <input id="ecaSiteSearch" type="search" name="search" placeholder="Search contractors" value="">
+                        <button type="submit" aria-label="Search directory"><i class="bi bi-search" aria-hidden="true"></i></button>
+                    </form>
+                    <div class="eca-nav-drop eca-login-drop" data-eca-login-drop>
+                        <button class="eca-nav-link eca-nav-login" type="button" aria-expanded="false" aria-haspopup="menu" aria-controls="ecaLoginMenu">
+                            Login <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                        </button>
+                        <div class="eca-nav-menu" id="ecaLoginMenu" role="menu">
+                            <a href="/admin/login.php" role="menuitem">Admin</a>
+                            <a href="/client/" role="menuitem">Member portal</a>
+                            <a href="/cpd/login.php" role="menuitem">CPD contractor</a>
+                            <a href="/cpd/admin_login.php" role="menuitem">CPD staff</a>
+                        </div>
+                    </div>
+                    <script src="/js/login-menu.js" defer></script>
+                </div>
+            </div>
+        </div>
+        <div class="eca-masthead">
+            <a class="eca-landing-logo" href="index.html">
+                <img src="img/ecalogo.png" alt="Eswatini Contractors Association">
+            </a>
+            <button class="eca-landing-toggle" type="button" aria-expanded="false" aria-controls="ecaLandingNav" aria-label="Open menu">
+                <i class="bi bi-list"></i>
+            </button>
+            <nav class="eca-landing-nav eca-mega-nav" id="ecaLandingNav">
+                <a href="index.html" class="">Home</a>
+                <div class="eca-nav-drop eca-mega-drop is-current">
+                    <button class="eca-nav-link is-active" type="button" aria-expanded="false" aria-haspopup="true">About ECA <i class="bi bi-chevron-down"></i></button>
+                    <div class="eca-nav-menu eca-mega-menu">
+                        <p class="eca-mega-label">The association</p>
+                        <a href="about.html">About ECA</a>
+                        <a href="about-bod.html">Executive committee</a>
+                        <a href="about-by-laws.php">Bylaws</a>
+                        <a href="contact.html">Contact</a>
+                    </div>
+                </div>
+                <div class="eca-nav-drop eca-mega-drop">
+                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Connect <i class="bi bi-chevron-down"></i></button>
+                    <div class="eca-nav-menu eca-mega-menu">
+                        <p class="eca-mega-label">Find a contractor</p>
+                        <a href="directory.html">Member directory</a>
+                        <a href="balingani-directory.html">Balingani</a>
+                    </div>
+                </div>
+                <div class="eca-nav-drop eca-mega-drop">
+                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Membership <i class="bi bi-chevron-down"></i></button>
+                    <div class="eca-nav-menu eca-mega-menu eca-mega-menu-wide">
+                        <div class="eca-mega-col">
+                            <p class="eca-mega-label">Join ECA</p>
+                            <a href="application.html">Apply</a>
+                            <a href="apply_artisan.php">Artisan application</a>
+                            <a href="renewal.html">Renew</a>
+                        </div>
+                        <div class="eca-mega-col">
+                            <p class="eca-mega-label">Members</p>
+                            <a href="directory.html">Member directory</a>
+                            <a href="checklist.html">Membership checklist</a>
+                            <a href="pricing.html">Pricing</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="eca-nav-drop eca-mega-drop">
+                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Education <i class="bi bi-chevron-down"></i></button>
+                    <div class="eca-nav-menu eca-mega-menu eca-mega-menu-wide">
+                        <div class="eca-mega-col">
+                            <p class="eca-mega-label">Learning</p>
+                            <a href="resources.html">Resources</a>
+                            <a href="/documents/">Documents</a>
+                            <a href="faq.html">FAQ</a>
+                        </div>
+                        <div class="eca-mega-col">
+                            <p class="eca-mega-label">CPD training</p>
+                            <a href="/cpd/login.php">CPD contractor</a>
+                            <a href="/cpd/admin_login.php">CPD staff</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="eca-nav-drop eca-mega-drop">
+                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">News <i class="bi bi-chevron-down"></i></button>
+                    <div class="eca-nav-menu eca-mega-menu">
+                        <p class="eca-mega-label">Updates</p>
+                        <a href="news.html">News</a>
+                        <a href="gallery.html">Gallery</a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <script src="/js/public-nav.js" defer></script>
+</div>
+
+<!-- Navbar End -->
+
+<section class="eca-inner-hero">
+    <div class="container eca-inner-hero-inner">
+        <div>
+            <p class="eca-kicker">Leadership</p>
+            <h1>ECA Executive Committee</h1>
+                            <p>The committee represents members across building, civil, electrical and specialist trades, and guides association strategy.</p>
+                    </div>
+        <nav class="eca-inner-crumb" aria-label="breadcrumb">
+            <a href="index.html">Home</a>
+            <span>/</span>
+            Executive Committee        </nav>
+    </div>
+</section>
+<style>
+.eca-inner-hero {
+    padding: 48px 0 28px;
+    background:
+        radial-gradient(circle at 88% 18%, rgba(213, 13, 14, 0.05), transparent 22%),
+        radial-gradient(circle at 8% 80%, rgba(25, 39, 84, 0.05), transparent 24%),
+        #f4f6f9;
+}
+.eca-inner-hero-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+}
+.eca-inner-hero h1 {
+    margin: 0 0 8px;
+    color: #192754;
+    font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+.eca-inner-hero p:not(.eca-kicker) {
+    margin: 0;
+    max-width: 640px;
+    color: #667085;
+    line-height: 1.7;
+}
+.eca-inner-crumb {
+    color: #667085;
+    font-size: 13px;
+    font-weight: 700;
+}
+.eca-inner-crumb a { color: #192754; text-decoration: none; }
+.eca-inner-crumb a:hover { color: #d50d0e; }
+.eca-inner-crumb span { margin: 0 8px; }
+</style>
+   
+<style>
+.banner-responsive {
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+    max-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    overflow: hidden;
+}
+
+.banner-responsive img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,123,255,0.4) 100%);
+    z-index: 1;
+}
+
+.banner-text {
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+}
+
+.banner-text h1 {
+    font-size: clamp(1.5rem, 4vw, 3rem);
+    line-height: 1.2;
+}
+
+.banner-text p.lead {
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+}
+
+.animated { animation-duration: 1s; animation-fill-mode: both; }
+.fadeInDown { animation-name: fadeInDown; }
+.fadeInUp { animation-name: fadeInUp; }
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-50px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(50px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .banner-text { max-width: 90%; padding: 1.5rem; }
+}
+</style>
+
+
+<div class="container-xxl py-5">
+    <div class="container">
+        <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
+         
+            <h1 class="fw-bold">Our Executive Committee Members</h1>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            
+            <!-- Member Card Template -->
+            <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="team-item position-relative rounded overflow-hidden shadow-lg bg-white text-center p-4">
+                    <!-- Circular Image with Gradient Border -->
+                    <div class="team-img mx-auto mb-3">
+                        <img src="img/team/default.jpg" alt="Reuben Msibi">
+                    </div>
+                    <!-- Text -->
+                    <h5 class="fw-bold">Reuben Msibi</h5>
+                    <p class="text-primary fw-bold">Chairman</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="team-item position-relative rounded overflow-hidden shadow-lg bg-white text-center p-4">
+                    <div class="team-img mx-auto mb-3">
+                        <img src="img/team/default.jpg" alt="Percy Mazibuko">
+                    </div>
+                    <h5 class="fw-bold">Percy Mazibuko</h5>
+                    <p class="text-primary fw-bold">Secretary General</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
+                <div class="team-item position-relative rounded overflow-hidden shadow-lg bg-white text-center p-4">
+                    <div class="team-img mx-auto mb-3">
+                        <img src="img/team/default.jpg" alt="Gugu Dlamini">
+                    </div>
+                    <h5 class="fw-bold">Gugu Dlamini</h5>
+                    <p class="text-primary fw-bold">Treasurer</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.7s">
+                <div class="team-item position-relative rounded overflow-hidden shadow-lg bg-white text-center p-4">
+                    <div class="team-img mx-auto mb-3">
+                        <img src="img/team/default.jpg" alt="Jockey Ferreira">
+                    </div>
+                    <h5 class="fw-bold">Jockey Ferreira</h5>
+                    <p class="text-primary fw-bold">Member</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.9s">
+                <div class="team-item position-relative rounded overflow-hidden shadow-lg bg-white text-center p-4">
+                    <div class="team-img mx-auto mb-3">
+                        <img src="img/team/default.jpg" alt="Vusie Mngomezulu">
+                    </div>
+                    <h5 class="fw-bold">Vusie Mngomezulu</h5>
+                    <p class="text-primary fw-bold">Member</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- Team / Executive Committee End -->
+
+<!-- Custom CSS for Circular Gradient Image -->
+<style>
+.team-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    padding: 5px;
+    background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+    display: inline-block;
+    overflow: hidden;
+}
+.team-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    transition: transform 0.5s;
+}
+.team-item:hover img {
+    transform: scale(1.1);
+}
+</style>
+
+	
+	<br>
+	
+	
+	<!-- Past Executive Committee Chairmen Start -->
+<div class="container-xxl py-5">
+    <div class="container">
+        <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
+            <h1 class="fw-bold">Our Past Executive Committee Chairmen</h1>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+
+            <!-- Past Chairman Card -->
+            <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="team-item position-relative rounded overflow-hidden shadow-lg bg-white text-center p-4">
+                    <div class="team-img mx-auto mb-3">
+                        <img src="img/team/default.jpg" alt="Phumelele Motsa">
+                    </div>
+                    <h5 class="fw-bold">Phumelele Motsa</h5>
+                    <p class="text-primary fw-bold">Velekhaya Construction</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="team-item position-relative rounded overflow-hidden shadow-lg bg-white text-center p-4">
+                    <div class="team-img mx-auto mb-3">
+                        <img src="img/team/default.jpg" alt="Masotja Mabuza">
+                    </div>
+                    <h5 class="fw-bold">Masotja Mabuza</h5>
+                    <p class="text-primary fw-bold">Zenith Electrical</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- Past Executive Committee Chairmen End -->
+
+<!-- Custom CSS for Circular Gradient Image (reuse from current committee cards) -->
+<style>
+.team-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    padding: 5px;
+    background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%);
+    display: inline-block;
+    overflow: hidden;
+}
+.team-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    transition: transform 0.5s;
+}
+.team-item:hover img {
+    transform: scale(1.1);
+}
+</style>
+
+
+<iframe src="https://www.google.com/maps/embed?pb=!1m16!1m12!1m3!1d3575.9398627152696!2d31.139841774754323!3d-26.328446731859643!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!2m1!1sCooper%20Center%20eswatini%20contractors%20Association!5e0!3m2!1sen!2s!4v1756185111680!5m2!1sen!2s" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+
+<footer class="eca-site-footer">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <img src="img/ecalogo.png" alt="Eswatini Contractors Association" class="eca-footer-logo">
+                <p>Suite 40, Cooper Centre, Mbabane, Eswatini</p>
+                <p><a href="tel:+26824044987">+268 2404 4987</a></p>
+                <p><a href="mailto:info@eca.co.sz">info@eca.co.sz</a></p>
+            </div>
+            <div class="col-lg-2 col-md-4">
+                <h5>About</h5>
+                <a href="about.html">About ECA</a>
+                <a href="about-bod.html">Executive committee</a>
+                <a href="about-by-laws.php">Bylaws</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            <div class="col-lg-2 col-md-4">
+                <h5>Membership</h5>
+                <a href="directory.html">Member directory</a>
+                <a href="application.html">Apply</a>
+                <a href="renewal.html">Renew</a>
+                <a href="balingani-directory.html">Balingani</a>
+            </div>
+            <div class="col-lg-3 col-md-4">
+                <h5>Education</h5>
+                <a href="resources.html">Resources</a>
+                <a href="/documents/">Documents</a>
+                <a href="faq.html">FAQs</a>
+                <a href="/cpd/login.php">CPD contractor</a>
+                <a href="/cpd/admin_login.php">CPD staff</a>
+            </div>
+            <div class="col-lg-2 col-md-4">
+                <h5>News</h5>
+                <a href="news.html">News</a>
+                <a href="gallery.html">Gallery</a>
+                <a href="checklist.html">Contractor checklist</a>
+            </div>
+        </div>
+        <div class="eca-footer-copy">
+            &copy; 2026 Eswatini Contractors Association. All rights reserved.
+        </div>
+    </div>
+</footer>
+<style>
+.eca-site-footer {
+    margin-top: 56px;
+    padding: 48px 0 0;
+    color: #fff;
+    background: #192754;
+}
+.eca-site-footer a { color: rgba(255,255,255,.86); text-decoration: none; display: block; padding: 4px 0; }
+.eca-site-footer a:hover { color: #d50d0e; }
+.eca-site-footer h5 { margin: 0 0 12px; font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.eca-site-footer p { margin: 0 0 8px; color: rgba(255,255,255,.82); }
+.eca-footer-logo { display: block; max-height: 56px; width: auto; margin-bottom: 16px; background: #fff; padding: 6px 10px; border-radius: 8px; }
+.eca-footer-copy { margin-top: 28px; padding: 16px 0; border-top: 1px solid rgba(255,255,255,.12); color: rgba(255,255,255,.7); font-size: 13px; }
+</style>
+
+
+<style>
+.service-item {
+    background-color: #ffffff;
+    border-radius: 15px;
+    padding: 40px 30px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+}
+
+.card-accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+.accent-blue { background: linear-gradient(90deg, #2a3f73, #192754); }
+.accent-green { background: linear-gradient(90deg, #192754, #192754); }
+.accent-orange { background: linear-gradient(90deg, #d50d0e, #192754); }
+
+.service-item h4 {
+    color: #192754;
+    font-weight: 700;
+}
+
+.service-item p {
+    color: #333;
+}
+
+.service-item a.btn {
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.service-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+}
+
+.service-item a.btn:hover {
+    background-color: #0d6efd;
+    color: #fff;
+}
+
+/* Footer Styles */
+.footer-link:hover {
+    color: #00c3ff !important;
+    padding-left: 5px;
+    transition: all 0.3s ease;
+}
+/* Ensure headers stay white */
+.footer-header {
+    color: #fff !important;
+    cursor: pointer;
+}
+.footer-header:hover {
+    color: #00c3ff !important; /* Optional hover effect */
+}
+.btn-social {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+.btn-social:hover {
+    transform: scale(1.1);
+    background: #00c3ff;
+    border-color: #00c3ff;
+}
+</style>
+
+
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top"><i class="bi bi-arrow-up"></i></a>
+
+
+    <!-- JavaScript Libraries -->
+    <script src="../code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="../cdn.jsdelivr.net/npm/bootstrap%405.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/wow/wow.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/counterup/counterup.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="lib/tempusdominus/js/moment.min.js"></script>
+    <script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
+    <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="js/main.js"></script>
+	
+	<script>
+	window.addEventListener('load', function (){ 
+	var spinner = document.getElementById('spinner');
+	if (spinner) {
+	spinner.classList.remove('show');
+	}
+	});
+	
+const uSlides = document.querySelectorAll('.unique-slider .u-slide');
+const uPrevBtn = document.querySelector('.unique-slider .u-prev');
+const uNextBtn = document.querySelector('.unique-slider .u-next');
+let uIndex = 0;
+
+function showUSlide(index) {
+    uSlides.forEach((slide, i) => {
+        slide.classList.toggle('active', i === index);
+    });
+}
+
+uPrevBtn.addEventListener('click', () => {
+    uIndex = (uIndex - 1 + uSlides.length) % uSlides.length;
+    showUSlide(uIndex);
+});
+
+uNextBtn.addEventListener('click', () => {
+    uIndex = (uIndex + 1) % uSlides.length;
+    showUSlide(uIndex);
+});
+
+// Auto-play
+setInterval(() => {
+    uIndex = (uIndex + 1) % uSlides.length;
+    showUSlide(uIndex);
+}, 5000);
+
+// Initialize
+showUSlide(uIndex);
+
+
+const newsContainer = document.getElementById('newsContainer');
+const sliderContainer = document.getElementById('sliderContainer');
+let slideInterval;
+
+function renderSlider() {
+    let slides = sliderContainer.querySelectorAll('.u-slide');
+    if (!slides.length) return;
+    let currentIndex = 0;
+
+    function showSlide(index) {
+        slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+    }
+
+    function nextSlide() {
+        currentIndex = (currentIndex + 1) % slides.length;
+        showSlide(currentIndex);
+    }
+
+    clearInterval(slideInterval);
+    slideInterval = setInterval(nextSlide, 4000);
+
+    // Prev/Next buttons
+    const prevBtn = sliderContainer.querySelector('.u-prev');
+    const nextBtn = sliderContainer.querySelector('.u-next');
+
+    prevBtn.onclick = () => { currentIndex = (currentIndex - 1 + slides.length) % slides.length; showSlide(currentIndex); resetInterval(); };
+    nextBtn.onclick = () => { nextSlide(); resetInterval(); };
+
+    function resetInterval() {
+        clearInterval(slideInterval);
+        slideInterval = setInterval(nextSlide, 4000);
+    }
+}
+
+// AJAX search
+function performSearch() {
+    let query = document.getElementById('searchInput').value;
+
+    fetch('search-news.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'query=' + encodeURIComponent(query)
+    })
+    .then(res => res.json())
+    .then(data => {
+        newsContainer.innerHTML = data.news;
+        sliderContainer.innerHTML = data.slider + '<button class="u-prev">&#10094;</button><button class="u-next">&#10095;</button>';
+        renderSlider();
+    });
+}
+
+// Event listeners
+document.getElementById('searchBtn').addEventListener('click', performSearch);
+document.getElementById('searchInput').addEventListener('keypress', function(e){
+    if(e.key === 'Enter') performSearch();
+});
+
+// Initialize slider on page load
+renderSlider();
+
+
+	</script>
+
+<style>
+
+/* Hover zoom */
+
+/* Glow animation */
+</style>
+
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+
+	
+
+<!-- Link your JS and CSS -->
+<link rel="stylesheet" href="css/pop-upstyle.css">
+<script src="js/pop-upscript.js" defer></script>
+</body>
+
+
+<!-- Mirrored from eca.co.sz/ by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 24 Aug 2025 15:38:19 GMT -->
+</html>
