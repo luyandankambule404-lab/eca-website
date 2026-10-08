@@ -1,6 +1,6 @@
 <?php
 require_once "../auth.php";
-require_role('ADMIN');
+require_role(['SUPPERADMIN', 'ADMIN']);
 require_once "../config.php";
 
 if (!function_exists('e')) {

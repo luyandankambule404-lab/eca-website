@@ -2,6 +2,7 @@
 require_once "../auth.php";
 require_role('SUPPERADMIN');
 require_once "../config.php";
+require_once "../helpers.php";
 require_once "../header.php";
 
 $result = $conn->query("SELECT * FROM cpd_applications ORDER BY id DESC");
@@ -9,7 +10,7 @@ $result = $conn->query("SELECT * FROM cpd_applications ORDER BY id DESC");
 
 <div class="container mt-4">
 
-<div class="card shadow-sm">
+<div class="card shadow-sm eca-form-panel eca-table-panel">
 <div class="card-body">
 
 <h3 class="mb-3">CPD Applications</h3>
@@ -36,21 +37,21 @@ $result = $conn->query("SELECT * FROM cpd_applications ORDER BY id DESC");
 
 <tr>
 
-<td><?= $row['id'] ?></td>
+<td><?= (int)$row['id'] ?></td>
 
 <td>
-<strong><?= $row['company_name'] ?></strong><br>
-<span class="text-muted"><?= $row['discipline'] ?></span>
+<strong><?= e($row['company_name']) ?></strong><br>
+<span class="text-muted"><?= e($row['discipline']) ?></span>
 </td>
 
 <td>
-<?= $row['full_name'] ?><br>
-<small><?= $row['email'] ?></small>
+<?= e($row['full_name']) ?><br>
+<small><?= e($row['email']) ?></small>
 </td>
 
-<td><?= $row['membership_number'] ?></td>
+<td><?= e($row['membership_number']) ?></td>
 
-<td><?= $row['phone'] ?></td>
+<td><?= e($row['phone']) ?></td>
 
 <td>
 <?php if($row['status']=="Approved"): ?>
@@ -65,13 +66,13 @@ $result = $conn->query("SELECT * FROM cpd_applications ORDER BY id DESC");
 <td>
 
 <?php if($row['qualification']): ?>
-<a href="../<?= $row['qualification'] ?>" target="_blank" class="btn btn-sm btn-primary">
+<a href="../uploads/<?= e(basename(str_replace('\\', '/', (string)$row['qualification']))) ?>" target="_blank" class="btn btn-sm btn-primary">
 Qualification
 </a>
 <?php endif; ?>
 
 <?php if($row['payment_proof']): ?>
-<a href="../<?= $row['payment_proof'] ?>" target="_blank" class="btn btn-sm btn-success">
+<a href="../uploads/<?= e(basename(str_replace('\\', '/', (string)$row['payment_proof']))) ?>" target="_blank" class="btn btn-sm btn-success">
 Payment
 </a>
 <?php endif; ?>
@@ -79,23 +80,23 @@ Payment
 </td>
 
 <td>
-
-<a href="view_application.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-info">
+<div class="cpd-app-actions">
+<a href="view_application.php?id=<?= (int)$row['id'] ?>" class="btn btn-sm btn-info">
 View
 </a>
 
-<a href="update_status.php?id=<?= $row['id'] ?>&status=Approved"
+<a href="update_status.php?id=<?= (int)$row['id'] ?>&status=Approved"
 class="btn btn-sm btn-success"
 onclick="return confirm('Approve this application?')">
 Approve
 </a>
 
-<a href="update_status.php?id=<?= $row['id'] ?>&status=Rejected"
+<a href="update_status.php?id=<?= (int)$row['id'] ?>&status=Rejected"
 class="btn btn-sm btn-danger"
 onclick="return confirm('Reject this application?')">
 Reject
 </a>
-
+</div>
 </td>
 
 </tr>

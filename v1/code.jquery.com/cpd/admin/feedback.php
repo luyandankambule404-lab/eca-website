@@ -1,7 +1,17 @@
 <?php
 require_once "../auth.php";
-require_role(['SUPPERADMIN', 'OFFICER', 'ADMIN']);
+require_role('SUPPERADMIN');
 require_once "../config.php";
+require_once "../helpers.php";
+require_once dirname(__DIR__, 3) . '/includes/pagination.php';
+
+if ($conn instanceof mysqli) {
+    cpd_ensure_feedback_table($conn);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    cpd_require_csrf();
+}
 
 /* =========================
    HELPERS
@@ -34,10 +44,12 @@ unset($_SESSION['feedback_msg'], $_SESSION['feedback_msg_type']);
 /* =========================
    DELETE FEEDBACK
 ========================= */
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $id = (int)$_GET['delete'];
+if (isset($_POST['delete_feedback'])) {
+    $id = (int)($_POST['feedback_id'] ?? 0);
 
-    $stmt = $conn->prepare("DELETE FROM feedback WHERE id = ? LIMIT 1");
+    $stmt = ($conn instanceof mysqli && cpd_table_exists($conn, 'feedback'))
+        ? $conn->prepare("DELETE FROM feedback WHERE id = ? LIMIT 1")
+        : false;
 
     if ($stmt) {
         $stmt->bind_param("i", $id);
@@ -102,68 +114,71 @@ $k_total = 0;
 $k_avg   = 0;
 $k_5star = 0;
 $k_today = 0;
+$subject_stats = false;
 
-$q = $conn->query("SELECT COUNT(*) AS c FROM feedback");
-if ($q) {
-    $k_total = (int)($q->fetch_assoc()['c'] ?? 0);
+$hasFeedback = $conn instanceof mysqli && cpd_table_exists($conn, 'feedback');
+if ($hasFeedback) {
+    try {
+        $q = $conn->query("SELECT COUNT(*) AS c FROM feedback");
+        if ($q) {
+            $k_total = (int)($q->fetch_assoc()['c'] ?? 0);
+        }
+
+        $q = $conn->query("SELECT COALESCE(AVG(rating),0) AS a FROM feedback");
+        if ($q) {
+            $k_avg = round((float)($q->fetch_assoc()['a'] ?? 0), 1);
+        }
+
+        $q = $conn->query("SELECT COUNT(*) AS c FROM feedback WHERE rating = 5");
+        if ($q) {
+            $k_5star = (int)($q->fetch_assoc()['c'] ?? 0);
+        }
+
+        $q = $conn->query("SELECT COUNT(*) AS c FROM feedback WHERE DATE(created_at) = CURDATE()");
+        if ($q) {
+            $k_today = (int)($q->fetch_assoc()['c'] ?? 0);
+        }
+
+        $subject_stats = $conn->query("
+            SELECT subject, COUNT(*) AS total
+            FROM feedback
+            WHERE subject IS NOT NULL AND TRIM(subject) <> ''
+            GROUP BY subject
+            ORDER BY total DESC, subject ASC
+            LIMIT 6
+        ");
+    } catch (Throwable $e) {
+        $subject_stats = false;
+        $hasFeedback = false;
+    }
 }
-
-$q = $conn->query("SELECT COALESCE(AVG(rating),0) AS a FROM feedback");
-if ($q) {
-    $k_avg = round((float)($q->fetch_assoc()['a'] ?? 0), 1);
-}
-
-$q = $conn->query("SELECT COUNT(*) AS c FROM feedback WHERE rating = 5");
-if ($q) {
-    $k_5star = (int)($q->fetch_assoc()['c'] ?? 0);
-}
-
-$q = $conn->query("SELECT COUNT(*) AS c FROM feedback WHERE DATE(created_at) = CURDATE()");
-if ($q) {
-    $k_today = (int)($q->fetch_assoc()['c'] ?? 0);
-}
-
-/* =========================
-   SUBJECT STATS
-========================= */
-$subject_stats = $conn->query("
-    SELECT subject, COUNT(*) AS total
-    FROM feedback
-    GROUP BY subject
-    ORDER BY total DESC, subject ASC
-    LIMIT 6
-");
 
 /* =========================
    FEEDBACK LIST
 ========================= */
-$sql = "
-    SELECT 
-        id, 
-        user_id, 
-        email, 
-        full_name, 
-        subject, 
-        rating, 
-        message, 
-        created_at
-    FROM feedback
-    $where
-    ORDER BY created_at DESC, id DESC
-";
-
-$stmt = $conn->prepare($sql);
-
-if (!$stmt) {
-    die("Feedback query prepare failed: " . $conn->error);
+$page = eca_pager_page();
+$limit = eca_pager_limit();
+$feedbackRows = [];
+$feedbackTotal = 0;
+$feedbackPage = $page;
+$feedbackPages = 1;
+$feedbackOffset = 0;
+if ($hasFeedback) {
+    $paged = eca_paged_query_mysqli(
+        $conn,
+        "SELECT COUNT(*) FROM feedback" . $where,
+        "SELECT * FROM feedback" . $where,
+        $types,
+        $params,
+        $page,
+        $limit
+    );
+    $feedbackRows = $paged['rows'];
+    $feedbackTotal = $paged['total'];
+    $feedbackPage = $paged['page'];
+    $feedbackPages = $paged['pages'];
+    $feedbackOffset = $paged['offset'];
 }
-
-if ($types !== '') {
-    $stmt->bind_param($types, ...$params);
-}
-
-$stmt->execute();
-$result = $stmt->get_result();
 
 require_once "../header.php";
 ?>
@@ -972,9 +987,9 @@ body{
             </div>
           </div>
 
-          <?php if ($result && $result->num_rows > 0): ?>
+          <?php if ($feedbackTotal > 0): ?>
             <div class="table-responsive">
-              <table class="table table-premium align-middle">
+              <table class="table table-premium align-middle" data-dash-server-page="1">
                 <thead>
                   <tr>
                     <th>#</th>
@@ -988,8 +1003,8 @@ body{
                 </thead>
 
                 <tbody>
-                  <?php $n = 1; ?>
-                  <?php while ($row = $result->fetch_assoc()): ?>
+                  <?php $n = $feedbackOffset + 1; ?>
+                  <?php foreach ($feedbackRows as $row): ?>
                     <tr>
                       <td><?= $n++ ?></td>
 
@@ -1029,19 +1044,20 @@ body{
                       </td>
 
                       <td>
-                        <a 
-                          href="?delete=<?= (int)$row['id'] ?>"
-                          class="btn btn-sm btn-danger rounded-pill px-3"
-                          onclick="return confirm('Delete this feedback?')"
-                        >
-                          <i class="fa-solid fa-trash"></i>
-                        </a>
+                        <form method="POST" class="d-inline" onsubmit="return confirm('Delete this feedback?')">
+                          <?= cpd_csrf_input() ?>
+                          <input type="hidden" name="feedback_id" value="<?= (int)$row['id'] ?>">
+                          <button type="submit" name="delete_feedback" class="btn btn-sm btn-danger rounded-pill px-3">
+                            <i class="fa-solid fa-trash"></i>
+                          </button>
+                        </form>
                       </td>
                     </tr>
-                  <?php endwhile; ?>
+                  <?php endforeach; ?>
                 </tbody>
               </table>
             </div>
+            <?php eca_render_request_pager($feedbackPage, $feedbackPages, $feedbackTotal, $limit); ?>
           <?php else: ?>
             <div class="empty-state text-center py-5 text-muted">
               <i class="fa-regular fa-comment-dots mb-3" style="font-size:42px;"></i>
@@ -1128,6 +1144,5 @@ body{
 </div>
 
 <?php
-$stmt->close();
 require_once "../footer.php";
 ?>

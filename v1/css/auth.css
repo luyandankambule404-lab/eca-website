@@ -1,0 +1,983 @@
+/* Shared login — ECA navy (#192754) + red (#d50d0e) */
+
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
+:root {
+    --eca-auth-hero-image: url("/img/construction-site-f-compressed.jpg");
+    --eca-auth-utility-min: 44px;
+    --eca-navy: #192754;
+    --eca-navy-deep: #0f1838;
+    --eca-navy-soft: #2a3f73;
+    --eca-red: #d50d0e;
+    --eca-red-dark: #b00b0c;
+    --eca-muted: #5b6578;
+    --eca-border: #e1e7f0;
+    --eca-paper: #f5f7fb;
+    --eca-ink: #111827;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    min-height: 100%;
+    margin: 0;
+}
+
+body.eca-auth {
+    min-height: 100vh;
+    min-height: 100dvh;
+    isolation: isolate;
+    overflow-x: hidden;
+    color: var(--eca-ink);
+    background: #eef1f6;
+    font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+}
+
+body.eca-auth.eca-public {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.eca-dash-topbar {
+    background: rgba(15, 24, 56, 0.72);
+    color: #fff;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.eca-dash-topbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 38px;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.eca-dash-topbar a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.eca-dash-topbar a:hover { color: #ffb4b4; }
+
+body.eca-auth.eca-public .eca-auth-stage {
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+    max-width: none;
+    margin: 0;
+}
+
+.eca-auth-stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, min(480px, 46vw));
+    align-items: stretch;
+    width: 100%;
+    min-height: 0;
+}
+
+.eca-auth-visual {
+    position: relative;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    min-height: 0;
+    height: 100%;
+    padding: clamp(20px, 4vh, 48px) clamp(24px, 4vw, 48px);
+    color: #fff;
+    background-color: #132044;
+    background-image:
+        linear-gradient(165deg, rgba(15, 24, 56, 0.55) 0%, rgba(15, 24, 56, 0.88) 100%),
+        linear-gradient(120deg, rgba(213, 13, 14, 0.22), transparent 45%),
+        var(--eca-auth-hero-image);
+    background-position: center;
+    background-size: cover;
+}
+
+.eca-auth-visual-glow,
+.eca-auth-visual-grid {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.eca-auth-visual-glow {
+    background:
+        radial-gradient(circle at 18% 18%, rgba(213, 13, 14, 0.38), transparent 28%),
+        radial-gradient(circle at 88% 82%, rgba(42, 63, 115, 0.45), transparent 34%);
+}
+
+.eca-auth-visual-grid {
+    opacity: 0.1;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.5), transparent 85%);
+}
+
+.eca-auth-visual-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+}
+
+.eca-auth-visual-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 16px;
+    padding: 6px 12px 6px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    backdrop-filter: blur(10px);
+}
+
+.eca-auth-visual-kicker::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #d50d0e;
+    box-shadow: 0 0 0 6px rgba(213, 13, 14, 0.28);
+}
+
+.eca-auth-visual h2 {
+    margin: 0 0 14px;
+    font-size: clamp(1.65rem, 3.2vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 1.08;
+    text-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+}
+
+.eca-auth-visual-lead {
+    margin: 0 0 clamp(12px, 2.5vh, 24px);
+    max-width: 42ch;
+    color: rgba(255, 255, 255, 0.86);
+    font-size: clamp(0.92rem, 1.6vw, 1.05rem);
+    line-height: 1.6;
+}
+
+.eca-auth-points {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.eca-auth-points li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    background: rgba(9, 14, 34, 0.42);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    backdrop-filter: blur(12px);
+}
+
+.eca-auth-points i {
+    color: #ffb4b4;
+}
+
+.eca-auth-panel,
+.eca-auth-main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    padding: clamp(12px, 2vh, 24px) clamp(16px, 3vw, 32px) clamp(16px, 2vh, 28px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f4f9 100%);
+    border-left: 1px solid rgba(25, 39, 84, 0.08);
+}
+
+.eca-auth-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    max-width: 460px;
+    margin: 0 auto 12px;
+    padding: 0;
+    background: transparent;
+    flex-shrink: 0;
+}
+
+.eca-auth-nav img {
+    display: block;
+    max-height: 52px;
+    width: auto;
+    padding: 6px 10px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 12px 28px rgba(8, 12, 32, 0.18);
+}
+
+.eca-auth-nav a.site-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid var(--eca-border);
+    border-radius: 10px;
+    color: var(--eca-navy);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(25, 39, 84, 0.06);
+}
+
+.eca-auth-nav a.site-link:hover {
+    color: #fff;
+    background: var(--eca-red);
+    border-color: var(--eca-red);
+}
+
+.eca-auth-card {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    margin: 0 auto;
+    flex-shrink: 0;
+    padding: 22px 24px 24px;
+    overflow: visible;
+    border: 1px solid var(--eca-border);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 10px 28px rgba(25, 39, 84, 0.1);
+}
+
+.eca-auth-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #d50d0e 0%, #192754 100%);
+}
+
+.eca-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 12px;
+    color: #d50d0e;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.eca-kicker::before {
+    content: "";
+    width: 28px;
+    height: 3px;
+    border-radius: 999px;
+    background: currentColor;
+}
+
+.eca-auth-card h1 {
+    margin: 0 0 8px;
+    color: #192754;
+    font-size: clamp(1.85rem, 3vw, 2.35rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+}
+
+.eca-auth-card .sub {
+    margin: 0 0 24px;
+    color: var(--eca-muted);
+    line-height: 1.65;
+}
+
+.eca-auth-card label {
+    display: block;
+    margin-bottom: 4px;
+    color: #192754;
+    font-size: .86rem;
+    font-weight: 650;
+}
+
+.eca-field {
+    margin-bottom: 14px;
+}
+
+.eca-field-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid #c5cdd8;
+    border-radius: 8px;
+    background: #fff;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.eca-field-control:focus-within {
+    border-color: #192754;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(25, 39, 84, 0.1);
+}
+
+.eca-field-control > i {
+    flex: 0 0 1.25rem;
+    width: 1.25rem;
+    font-size: 1.15rem;
+    line-height: 1;
+    color: #66758c;
+    text-align: center;
+    pointer-events: none;
+}
+
+.eca-auth-card .form-control,
+.eca-auth-card input[type="text"],
+.eca-auth-card input[type="email"],
+.eca-auth-card input[type="password"],
+.eca-auth-card input[type="search"] {
+    width: 100%;
+    height: 44px;
+    padding: 8px 12px;
+    border: 1px solid #c5cdd8;
+    border-radius: 8px;
+    color: var(--eca-ink);
+    background: #fff;
+    font-size: .95rem;
+    font-weight: 600;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.eca-field-control .form-control,
+.eca-field-control input[type="text"],
+.eca-field-control input[type="email"],
+.eca-field-control input[type="password"],
+.eca-field-control input[type="search"] {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 0;
+    height: auto;
+    min-height: 42px;
+    margin: 0;
+    padding: 8px 0;
+    font-size: .95rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+}
+
+.eca-field-control .form-control:focus,
+.eca-field-control input:focus {
+    outline: none;
+    border: 0;
+    box-shadow: none !important;
+}
+
+.eca-auth-card .form-control:focus,
+.eca-auth-card input:focus {
+    border-color: #192754;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(25, 39, 84, 0.1);
+    outline: none;
+}
+
+.password-wrap { position: relative; }
+
+.password-wrap button,
+.password-wrap .toggle,
+.eca-field-control button[type="button"] {
+    flex: 0 0 auto;
+    position: static;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    margin: 0 -4px 0 0;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #667085;
+    cursor: pointer;
+    transform: none;
+}
+
+.eca-field-control button[type="button"]:hover {
+    background: rgba(25, 39, 84, 0.06);
+    color: #192754;
+}
+
+/* Browser autofill: keep text clear of icons */
+.eca-field-control input:-webkit-autofill,
+.eca-field-control input:-webkit-autofill:hover,
+.eca-field-control input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+    box-shadow: 0 0 0 1000px #fff inset !important;
+    -webkit-text-fill-color: var(--eca-ink) !important;
+}
+
+.eca-field-control:focus-within input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+    box-shadow: 0 0 0 1000px #fff inset !important;
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 4px 0 22px;
+}
+
+.form-row label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: #667085;
+    font-weight: 600;
+}
+
+.form-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #d50d0e;
+}
+
+.eca-auth-card a {
+    color: #d50d0e;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.eca-auth-card a:hover { color: #192754; }
+
+.eca-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #d50d0e 0%, #b00b0c 100%);
+    color: #fff !important;
+    font-size: .95rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    text-decoration: none !important;
+    box-shadow: 0 10px 22px rgba(213, 13, 14, 0.18);
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.eca-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.28) 48%, transparent 72%);
+    transform: translateX(-120%);
+}
+
+.eca-btn:hover {
+    background: linear-gradient(135deg, #192754 0%, #2a3f73 100%);
+    box-shadow: 0 16px 32px rgba(25, 39, 84, 0.32);
+    transform: translateY(-1px);
+}
+
+.eca-btn:disabled {
+    opacity: 0.75;
+    cursor: wait;
+    transform: none;
+}
+
+.error,
+.ok {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.error {
+    color: #d50d0e;
+    background: #fff1f3;
+    border: 1px solid rgba(213, 13, 14, 0.16);
+}
+
+.ok {
+    color: #0f5132;
+    background: #e8f6ee;
+    border: 1px solid #b7e0c6;
+}
+
+.live-note,
+.register-note {
+    margin: 18px 0 0;
+    color: var(--eca-muted);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.eca-auth-card .portal-links {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--eca-muted);
+    text-align: center;
+}
+
+.eca-auth-card .portal-links a { margin: 0 2px; }
+
+.eca-login-choose {
+    display: grid;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.eca-login-choose a {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 18px;
+    border: 1px solid var(--eca-border);
+    border-radius: 14px;
+    background: #fff;
+    color: var(--eca-navy) !important;
+    text-decoration: none !important;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.eca-login-choose a:hover,
+.eca-login-choose a:focus-visible {
+    border-color: var(--eca-red);
+    background: #fff5f5;
+    transform: translateY(-1px);
+}
+
+.eca-login-choose-kicker {
+    color: var(--eca-red);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.eca-login-choose strong {
+    font-size: 22px;
+    line-height: 1.1;
+}
+
+.eca-login-choose a > span:last-child {
+    color: var(--eca-muted);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.eca-auth-portals {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 460px;
+    margin: clamp(12px, 2vh, 20px) auto 0;
+    padding: 0 0 4px;
+    flex-shrink: 0;
+}
+
+.eca-auth-portals a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 0 12px;
+    border: 1px solid var(--eca-border);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--eca-navy) !important;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.eca-auth-portals a:hover {
+    border-color: var(--eca-navy);
+    background: var(--eca-navy);
+    color: #fff !important;
+}
+
+.eca-auth-foot {
+    max-width: 460px;
+    margin: 16px auto 0;
+    text-align: center;
+    font-size: 12px;
+    color: var(--eca-muted);
+    font-weight: 600;
+}
+
+.eca-auth-foot a {
+    color: var(--eca-red);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .eca-auth-card {
+        animation: eca-auth-enter 0.45s ease both;
+    }
+
+    .eca-btn:hover::after {
+        animation: eca-auth-shine 0.7s ease;
+    }
+}
+
+@keyframes eca-auth-enter {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.985);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes eca-auth-shine {
+    to { transform: translateX(120%); }
+}
+
+@media (max-width: 980px) {
+    .eca-auth-stage {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(140px, 32dvh) minmax(0, 1fr);
+    }
+
+    .eca-auth-panel,
+    .eca-auth-main {
+        border-left: 0;
+        height: auto;
+    }
+
+    .eca-auth-visual {
+        height: auto;
+        min-height: 140px;
+        align-items: flex-end;
+        padding: 20px 16px 16px;
+    }
+
+    .eca-auth-visual h2 {
+        font-size: clamp(1.45rem, 6vw, 1.95rem);
+    }
+
+    .eca-auth-visual-lead {
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+    }
+
+    .eca-auth-points li:nth-child(n + 3) {
+        display: none;
+    }
+
+    .eca-auth-panel,
+    .eca-auth-main {
+        padding: 10px 14px 16px;
+    }
+
+    .eca-auth-card {
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+@media (max-height: 720px) and (min-width: 981px) {
+    .eca-auth-visual-lead {
+        margin-bottom: 10px;
+    }
+
+    .eca-auth-points li:nth-child(n + 3) {
+        display: none;
+    }
+
+    .eca-auth-card .sub {
+        margin-bottom: 16px;
+    }
+
+    .eca-auth-card h1 {
+        font-size: 1.65rem;
+    }
+}
+
+@media (max-width: 720px) {
+    .eca-dash-topbar-inner {
+        padding: 8px 16px;
+        flex-wrap: wrap;
+    }
+
+    .eca-auth-nav img {
+        max-height: 44px;
+    }
+
+    .eca-auth-points li:last-child {
+        display: none;
+    }
+}
+
+@media (max-width: 520px) {
+    .eca-auth-card {
+        padding: 26px 18px 28px;
+        border-radius: 20px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* Public navy utility bar on auth pages */
+.eca-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+body.eca-auth.eca-public {
+    padding-top: 0;
+}
+
+body.eca-auth.eca-public .eca-utility {
+    flex-shrink: 0;
+}
+
+.eca-utility {
+    position: relative;
+    z-index: 40;
+    background: #192754;
+    color: #fff;
+}
+
+.eca-utility-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    max-width: 1240px;
+    margin: 0 auto;
+    min-height: 0;
+    padding: 3px 24px;
+}
+
+.eca-utility-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.eca-utility-brand {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.eca-utility-social {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.eca-utility-social a {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 50%;
+    color: #fff !important;
+    font-size: 11px;
+    text-decoration: none;
+}
+
+.eca-utility-social a:hover {
+    background: #d50d0e;
+    border-color: #d50d0e;
+    color: #fff !important;
+}
+
+.eca-utility-tools {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.eca-utility-search {
+    display: flex;
+    align-items: stretch;
+    width: 220px;
+    height: 36px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #fff;
+}
+
+.eca-utility-search input {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    height: 36px;
+    padding: 0 14px;
+    border: 0;
+    background: #fff;
+    color: #192754;
+    font-size: 13px;
+    outline: 0;
+}
+
+.eca-utility-search button {
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #d50d0e;
+    color: #fff;
+    cursor: pointer;
+}
+
+.eca-login-links {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.eca-login-links a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    padding: 0 12px;
+    border: 1px solid rgba(255, 255, 255, 0.38);
+    border-radius: 999px;
+    background: transparent;
+    color: #fff !important;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    text-decoration: none !important;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.eca-login-links a:hover,
+.eca-login-links a:focus-visible {
+    border-color: #d50d0e;
+    background: #d50d0e;
+    color: #fff !important;
+}
+
+.eca-login-drop {
+    position: relative;
+}
+
+.eca-login-drop .eca-nav-login {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 36px;
+    padding: 0 10px;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.eca-login-drop .eca-nav-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 80;
+    min-width: 260px;
+    padding: 8px 0;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    background: #192754;
+    box-shadow: 0 18px 40px rgba(3, 17, 42, 0.32);
+}
+
+.eca-login-drop.is-open .eca-nav-menu {
+    display: block;
+}
+
+.eca-login-drop .eca-nav-menu a {
+    display: block;
+    padding: 10px 16px;
+    color: #fff !important;
+    text-decoration: none;
+}
+
+.eca-login-drop .eca-nav-menu a:hover {
+    background: #2a3f73;
+}
+
+@media (max-width: 767.98px) {
+    .eca-utility-brand {
+        display: none;
+    }
+
+    .eca-utility-search {
+        width: 150px;
+    }
+}

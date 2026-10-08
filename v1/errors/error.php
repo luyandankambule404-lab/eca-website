@@ -7,9 +7,10 @@ $message = (string) ($pageMessage ?? 'Please try again.');
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title><?= htmlspecialchars($title, ENT_QUOTES, 'UTF-8') ?> | ECA</title>
-    <link rel="stylesheet" href="/css/theme.css?v=10">
+    <link rel="stylesheet" href="/css/theme.css?v=20260918-8">
+    <?php require_once dirname(__DIR__) . '/includes/responsive-assets.php'; eca_responsive_assets(); ?>
 </head>
 <body style="margin:0;background:#f4f6f9;color:#192754;font-family:'Open Sans',Arial,sans-serif;">
     <main style="max-width:640px;margin:12vh auto;padding:24px;">

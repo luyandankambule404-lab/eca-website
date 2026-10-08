@@ -1,5 +1,12 @@
 <?php
 
+if (!function_exists('str_contains')) {
+    function str_contains(string $haystack, string $needle): bool
+    {
+        return $needle === '' || strpos($haystack, $needle) !== false;
+    }
+}
+
 function eca_load_env_file(string $path): void
 {
     if (!is_file($path) || !is_readable($path)) {
@@ -53,53 +60,19 @@ function eca_env(string $key, string $default = ''): string
 function eca_is_local_request(): bool
 {
     if (php_sapi_name() === 'cli-server') {
-        return true;
+        $addr = (string) ($_SERVER['REMOTE_ADDR'] ?? '');
+        return in_array($addr, ['127.0.0.1', '::1'], true);
     }
 
     $addr = (string) ($_SERVER['REMOTE_ADDR'] ?? '');
-    $host = strtolower((string) ($_SERVER['SERVER_NAME'] ?? ''));
-    if ($host === '' && !empty($_SERVER['HTTP_HOST'])) {
-        $host = strtolower((string) (parse_url('http://' . $_SERVER['HTTP_HOST'], PHP_URL_HOST) ?: $_SERVER['HTTP_HOST']));
-    }
-
-    $local = ['127.0.0.1', 'localhost', '::1'];
-    return in_array($addr, $local, true) || in_array($host, $local, true);
-}
-
-function eca_local_password_expected(string $kind = 'portal'): string
-{
-    $keys = [];
-    if ($kind === 'member') {
-        $keys[] = 'ECA_LOCAL_MEMBER_PASSWORD';
-    } elseif ($kind === 'cpd') {
-        $keys[] = 'ECA_LOCAL_CPD_PASSWORD';
-    }
-    $keys[] = 'ECA_LOCAL_PORTAL_PASSWORD';
-    $keys[] = 'ECA_LOCAL_ADMIN_PASSWORD';
-
-    foreach ($keys as $key) {
-        $value = eca_env($key, '');
-        if ($value !== '') {
-            return $value;
-        }
-    }
-
-    return '';
-}
-
-function eca_local_password_ok(string $password, string $kind = 'portal'): bool
-{
-    if ($password === '' || !eca_is_local_request()) {
-        return false;
-    }
-
-    $expected = eca_local_password_expected($kind);
-    return $expected !== '' && hash_equals($expected, $password);
+    return in_array($addr, ['127.0.0.1', '::1'], true);
 }
 
 eca_load_env_file(dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . '.env');
 eca_load_env_file(dirname(__DIR__) . DIRECTORY_SEPARATOR . '.env');
 
-if (!function_exists('eca_session_start')) {
-    require_once __DIR__ . '/session.php';
+require_once __DIR__ . '/db-mode.php';
+if (function_exists('eca_apply_production_error_policy')) {
+    eca_apply_production_error_policy();
 }
+eca_live_readonly_guard_http();

@@ -3,6 +3,29 @@ require_once "../auth.php";
 require_role(['SUPPERADMIN', 'OFFICER', 'ADMIN']);
 require_once "../config.php";
 
+if (!($conn instanceof mysqli)) {
+    http_response_code(503);
+    require_once "../header.php";
+    ?>
+    <section class="card border-0 shadow-sm">
+        <div class="card-body p-4 p-lg-5 text-center">
+            <div class="display-6 text-danger mb-3" aria-hidden="true">
+                <i class="fa-solid fa-database"></i>
+            </div>
+            <h2 class="h4">CPD database temporarily unavailable</h2>
+            <p class="text-muted mb-4">
+                Attendance records cannot be loaded right now. No information has been changed.
+                Please retry shortly or contact the system administrator.
+            </p>
+            <a class="btn btn-primary" href="/cpd/admin/course_students.php">Try again</a>
+            <a class="btn btn-outline-secondary ms-2" href="/index.php">Return home</a>
+        </div>
+    </section>
+    <?php
+    require_once "../footer.php";
+    exit;
+}
+
 /* =========================
    HELPERS
 ========================= */
@@ -156,6 +179,14 @@ if (isset($_GET['course_id']) && (int)$_GET['course_id'] > 0) {
    SAVE SINGLE ATTENDANCE
    FIX: process before header.php to prevent blank page
 ========================= */
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && (
+    isset($_POST['save_attendance'])
+    || isset($_POST['bulk_mark_selected'])
+    || isset($_POST['mark_all_present'])
+)) {
+    cpd_require_csrf();
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_attendance'])) {
     $posted_course_id = (int)($_POST['course_id'] ?? 0);
     $app_id           = (int)($_POST['application_id'] ?? 0);
@@ -237,11 +268,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mark_all_present'])) 
         $course_id = $posted_course_id;
     }
 
+    $approvedSql = function_exists('cpd_status_equals_sql')
+        ? cpd_status_equals_sql('status', ['approved'])
+        : "LOWER(TRIM(COALESCE(status,''))) = 'approved'";
+
     $apps_stmt = $conn->prepare("
         SELECT id
         FROM cpd_applications
         WHERE course_id = ?
-          AND status = 'Approved'
+          AND {$approvedSql}
     ");
 
     if ($apps_stmt) {
@@ -378,11 +413,18 @@ $count_stmt->close();
 $present = (int)($count_row['present'] ?? 0);
 $absent  = (int)($count_row['absent'] ?? 0);
 
+$approvedSql = function_exists('cpd_status_equals_sql')
+    ? cpd_status_equals_sql('status', ['approved'])
+    : "LOWER(TRIM(COALESCE(status,''))) = 'approved'";
+$approvedAliasSql = function_exists('cpd_status_equals_sql')
+    ? cpd_status_equals_sql('a.status', ['approved'])
+    : "LOWER(TRIM(COALESCE(a.status,''))) = 'approved'";
+
 $total_stmt = $conn->prepare("
     SELECT COUNT(*) AS c
     FROM cpd_applications
     WHERE course_id = ?
-      AND status = 'Approved'
+      AND {$approvedSql}
 ");
 
 $total_stmt->bind_param("i", $course_id);
@@ -442,7 +484,7 @@ if ($has_activity_table) {
             AND act.application_id = a.id
 
         WHERE a.course_id = ?
-          AND a.status = 'Approved'
+          AND {$approvedAliasSql}
 
         ORDER BY a.full_name ASC
     ";
@@ -472,7 +514,7 @@ if ($has_activity_table) {
         ) d ON d.application_id = a.id
 
         WHERE a.course_id = ?
-          AND a.status = 'Approved'
+          AND {$approvedAliasSql}
 
         ORDER BY a.full_name ASC
     ";
@@ -945,6 +987,7 @@ body{
 
                 <div class="d-flex gap-2 justify-content-md-end flex-wrap">
                     <form method="POST" class="m-0">
+                        <?= cpd_csrf_input() ?>
                         <input type="hidden" name="course_id" value="<?= (int)$course_id ?>">
                         <input type="hidden" name="attendance_date" value="<?= h($today) ?>">
                         <button type="submit" name="mark_all_present" class="btn btn-success-soft"
@@ -972,6 +1015,7 @@ body{
         </div>
 
         <form id="bulkAttendanceForm" method="POST">
+            <?= cpd_csrf_input() ?>
             <input type="hidden" name="course_id" value="<?= (int)$course_id ?>">
             <input type="hidden" name="attendance_date" value="<?= h($today) ?>">
         </form>
@@ -989,11 +1033,9 @@ body{
                 </div>
 
                 <div class="col-md-4">
-                    <button type="submit"
-                            name="bulk_mark_selected"
-                            form="bulkAttendanceForm"
-                            class="btn btn-theme w-100"
-                            onclick="return confirm('Apply selected status to all selected learners?');">
+                    <button type="button"
+                            id="bulkMarkSelectedBtn"
+                            class="btn btn-theme w-100">
                         <i class="fa-solid fa-check-double me-1"></i>
                         Mark Selected Learners
                     </button>
@@ -1009,7 +1051,7 @@ body{
         </div>
 
         <div class="table-wrap">
-            <table class="table-clean" id="studentsTable">
+            <table class="table-clean" id="studentsTable" data-no-paginate="1">
                 <thead>
                     <tr>
                         <th class="check-cell">
@@ -1093,6 +1135,7 @@ body{
 
                         <td>
                             <form method="POST" class="inline-form m-0">
+                                <?= cpd_csrf_input() ?>
                                 <input type="hidden" name="course_id" value="<?= (int)$course_id ?>">
                                 <input type="hidden" name="application_id" value="<?= $app_id ?>">
                                 <input type="hidden" name="attendance_date" value="<?= h($today) ?>">
@@ -1112,14 +1155,6 @@ body{
                         </td>
                     </tr>
                 <?php endwhile; ?>
-
-                <?php if ($total === 0): ?>
-                    <tr>
-                        <td colspan="8" style="text-align:center; padding:30px; color:#64748b;">
-                            No approved applicants found for this course.
-                        </td>
-                    </tr>
-                <?php endif; ?>
                 </tbody>
             </table>
         </div>
@@ -1133,32 +1168,119 @@ body{
 
 <script>
 $(document).ready(function(){
-    var table = $('#studentsTable').DataTable({
-        pageLength: 10,
-        lengthMenu: [10, 25, 50, 100],
-        ordering: false
+    var $tableEl = $('#studentsTable');
+    if (!$tableEl.length) {
+        return;
+    }
+
+    var headCols = $tableEl.find('thead tr:first th').length;
+    var $bodyRows = $tableEl.find('tbody tr');
+    var canInit = headCols > 0;
+    $bodyRows.each(function () {
+        var $tr = $(this);
+        if ($tr.find('[colspan]').length || $tr.children('td, th').length !== headCols) {
+            canInit = false;
+            return false;
+        }
     });
 
+    var table = null;
+    if (canInit) {
+        table = $tableEl.DataTable({
+            pageLength: 6,
+            lengthMenu: [6, 12, 24, 50],
+            ordering: false,
+            autoWidth: false,
+            language: {
+                emptyTable: 'No approved applicants found for this course.',
+                zeroRecords: 'No matching applicants found.'
+            }
+        });
+    }
+
+    function checkedLearnerIds() {
+        // DataTables keeps non-visible rows out of the live DOM; use its API.
+        if (table) {
+            var ids = [];
+            table.$('.row-check:checked').each(function () {
+                var v = parseInt(this.value, 10);
+                if (v > 0) {
+                    ids.push(v);
+                }
+            });
+            return ids;
+        }
+        return $('.row-check:checked').map(function () {
+            return parseInt(this.value, 10);
+        }).get().filter(function (v) { return v > 0; });
+    }
+
     $('#tableSearch').on('keyup', function(){
-        table.search(this.value).draw();
+        if (table) {
+            table.search(this.value).draw();
+        }
     });
 
     $('#selectAllRows').on('change', function(){
         var checked = this.checked;
-
-        table.rows({ search: 'applied' }).nodes().to$().find('.row-check').prop('checked', checked);
+        if (table) {
+            table.rows({ search: 'applied' }).nodes().to$().find('.row-check').prop('checked', checked);
+            return;
+        }
+        $('.row-check').prop('checked', checked);
     });
 
     $('#clearSelectionBtn').on('click', function(){
-        $('.row-check').prop('checked', false);
+        if (table) {
+            table.$('.row-check').prop('checked', false);
+        } else {
+            $('.row-check').prop('checked', false);
+        }
         $('#selectAllRows').prop('checked', false);
     });
 
-    $('#studentsTable').on('change', '.row-check', function(){
+    $tableEl.on('change', '.row-check', function(){
+        if (!table) {
+            return;
+        }
         var totalVisible = table.rows({ search: 'applied' }).nodes().to$().find('.row-check').length;
         var checkedVisible = table.rows({ search: 'applied' }).nodes().to$().find('.row-check:checked').length;
-
         $('#selectAllRows').prop('checked', totalVisible > 0 && totalVisible === checkedVisible);
+    });
+
+    $('#bulkMarkSelectedBtn').on('click', function () {
+        var status = String($('select[name="bulk_status"]').val() || '').trim();
+        if (!status) {
+            window.alert('Please select a bulk attendance status first.');
+            return;
+        }
+
+        var ids = checkedLearnerIds();
+        if (!ids.length) {
+            window.alert('Please select at least one learner.');
+            return;
+        }
+
+        if (!window.confirm('Apply ' + status + ' to ' + ids.length + ' selected learner(s)?')) {
+            return;
+        }
+
+        var $form = $('#bulkAttendanceForm');
+        $form.find('input[name="selected_applications[]"]').remove();
+        $form.find('input[name="bulk_status"][type="hidden"]').remove();
+        $form.find('input[name="bulk_mark_selected"]').remove();
+
+        ids.forEach(function (id) {
+            $('<input>', {
+                type: 'hidden',
+                name: 'selected_applications[]',
+                value: String(id)
+            }).appendTo($form);
+        });
+
+        $('<input>', { type: 'hidden', name: 'bulk_status', value: status }).appendTo($form);
+        $('<input>', { type: 'hidden', name: 'bulk_mark_selected', value: '1' }).appendTo($form);
+        $form.trigger('submit');
     });
 });
 </script>

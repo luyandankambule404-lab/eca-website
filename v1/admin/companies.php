@@ -1,49 +1,157 @@
 <?php
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/_hub.php';
-eca_admin_require();
+require_once __DIR__ . '/../includes/pagination.php';
+require_once __DIR__ . '/../includes/companies-intelligence.php';
+require_once __DIR__ . '/../includes/portal-db.php';
+eca_admin_require('companies.manage');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 
 $conn = eca_admin_db();
+$portal = eca_portal_pdo(false);
 $search = trim((string) ($_GET['search'] ?? $_GET['q'] ?? ''));
 $industry = eca_request_industry();
-$page = max(1, (int) ($_GET['page'] ?? 1));
+$status = trim((string) ($_GET['status'] ?? ''));
+$hasRegistration = trim((string) ($_GET['has_registration'] ?? ''));
+$sort = trim((string) ($_GET['sort'] ?? 'name'));
+if ($hasRegistration !== '' && !in_array($hasRegistration, ['yes', 'no'], true)) {
+    $hasRegistration = '';
+}
+$page = eca_pager_page();
+$limit = eca_pager_limit();
 $types = eca_directory_industries();
 $typeCounts = [];
 $result = ['rows' => [], 'total' => 0];
 $allCount = 0;
 $chipBase = '/admin/companies.php';
-if ($conn) {
+$intel = eca_ci_company_intelligence($conn, $portal);
+$kpis = $intel['kpis'];
+
+// Prefer direct companies table query when available so status/sort filters work on real columns.
+$useDirect = $conn && eca_has_table($conn, 'companies') && eca_table_count($conn, 'companies') > 0;
+if ($useDirect) {
+    $filters = [
+        'search' => $search,
+        'industry' => $industry,
+        'status' => $status,
+        'has_registration' => $hasRegistration,
+    ];
+    $built = eca_ci_company_filters($filters);
+    $order = eca_ci_company_sort($sort);
+    $countSql = 'SELECT COUNT(*) FROM companies WHERE ' . $built['where'];
+    $selectSql = 'SELECT id, name, registration_number, email, phone, address, industry, status, website, description
+                  FROM companies WHERE ' . $built['where'] . ' ORDER BY ' . $order;
+    $paged = eca_paged_query($conn, $countSql, $selectSql, $built['params'], $page, $limit);
+    // Map to directory row shape used by the existing table UI.
+    $mapped = [];
+    foreach ($paged['rows'] as $row) {
+        $mapped[] = [
+            'id' => $row['id'] ?? '',
+            'TradingName' => $row['name'] ?? '',
+            'CompanyRegistrationName' => $row['name'] ?? '',
+            'MembershipNumber' => $row['registration_number'] ?? '',
+            'EmailAddress' => $row['email'] ?? '',
+            'Cellphone' => $row['phone'] ?? '',
+            'Region' => $row['address'] ?? '',
+            'Clasification' => $row['industry'] ?? '',
+            'Status' => $row['status'] ?? '',
+        ];
+    }
+    $result = ['rows' => $mapped, 'total' => $paged['total']];
+    $page = $paged['page'];
+    $limit = $paged['limit'];
+    $totalPages = $paged['pages'];
     $typeCounts = eca_directory_type_counts($conn, 'members');
-    $searching = $search !== '';
-    $limit = ($industry !== '' || $searching) ? 1000 : 40;
-    $offset = ($industry !== '' || $searching) ? 0 : (($page - 1) * $limit);
+    $allCount = ($industry === '' && $status === '' && $hasRegistration === '' && $search === '')
+        ? (int) $kpis['companies_total']
+        : (int) $result['total'];
+    if (eca_admin_export_requested()) {
+        eca_admin_require_csv_export();
+        $exportRows = eca_admin_export_rows($conn, $selectSql, $built['params']);
+        $csv = [];
+        foreach ($exportRows as $row) {
+            $csv[] = [
+                $row['id'] ?? '',
+                $row['name'] ?? '',
+                $row['registration_number'] ?? '',
+                $row['industry'] ?? '',
+                $row['address'] ?? '',
+                $row['email'] ?? '',
+                $row['phone'] ?? '',
+                $row['status'] ?? '',
+            ];
+        }
+        eca_admin_send_csv('eca-contractors', ['ID', 'Company', 'Reg. no.', 'Industry', 'Region', 'Email', 'Phone', 'Status'], $csv, 'companies');
+    }
+} elseif ($conn) {
+    $typeCounts = eca_directory_type_counts($conn, 'members');
+    $probe = eca_fetch_directory($conn, $search, $industry, 1, 0, 'members');
+    $totalPagesProbe = $probe['total'] > 0 ? (int) ceil($probe['total'] / $limit) : 1;
+    $page = eca_pager_redirect_if_out_of_range($page, $totalPagesProbe, (int) $probe['total']);
+    $offset = ($page - 1) * $limit;
     $result = eca_fetch_directory($conn, $search, $industry, $limit, $offset, 'members');
     $allCount = ($industry === '') ? $result['total'] : eca_fetch_directory($conn, $search, '', 1, 0, 'members')['total'];
+    $totalPages = $result['total'] > 0 ? (int) ceil($result['total'] / max(1, $limit)) : 1;
+    if (eca_admin_export_requested()) {
+        eca_admin_require_csv_export();
+        $export = eca_fetch_directory($conn, $search, $industry, 500, 0, 'members');
+        $csv = [];
+        foreach ($export['rows'] as $row) {
+            $csv[] = [
+                $row['id'] ?? '',
+                $row['TradingName'] ?? '',
+                $row['MembershipNumber'] ?? '',
+                $row['Clasification'] ?? '',
+                $row['Region'] ?? '',
+                $row['EmailAddress'] ?? '',
+                $row['Cellphone'] ?? '',
+                $row['Status'] ?? '',
+            ];
+        }
+        eca_admin_send_csv('eca-contractors', ['ID', 'Company', 'Reg. no.', 'Industry', 'Region', 'Email', 'Phone', 'Status'], $csv, 'companies');
+    }
 }
-$totalPages = ($industry === '' && $search === '' && $result['total'] > 0) ? (int) ceil($result['total'] / 40) : 1;
+$totalPages = $result['total'] > 0 ? (int) ceil($result['total'] / max(1, $limit)) : 1;
+$listStart = $result['total'] === 0 ? 0 : (($page - 1) * $limit) + 1;
+$listEnd = $result['total'] === 0 ? 0 : min((int) $result['total'], $page * $limit);
 $heading = $industry !== ''
     ? eca_admin_h($industry) . ' companies (' . (int) $result['total'] . ')'
     : 'All companies (' . (int) $result['total'] . ')';
 
 eca_admin_hub_start('Companies', 'companies');
 ?>
+<style>
+.ci-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:0 0 14px}
+.ci-card{background:#fff;border:1px solid #d7dde8;border-radius:12px;padding:12px 14px}
+.ci-card span{display:block;font-size:.72rem;color:#667;font-weight:700}
+.ci-card strong{display:block;font-size:1.3rem;margin-top:4px}
+.ci-card small{display:block;margin-top:3px;color:#6b7280;font-size:.7rem}
+.ci-actions{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+</style>
 <div class="hub-hello">
     <h1 class="hub-hello-title"><?= $heading ?></h1>
-    <p><?php
-        if ($search !== '') {
-            echo 'Results for this search are listed below.';
-        } elseif ($industry === '') {
-            echo 'Showing every company. Click a type to narrow the list.';
-        } else {
-            echo 'Showing only ' . eca_admin_h($industry) . ' companies.';
-        }
-    ?></p>
+    <p>Directory companies from <code>eca_local.companies</code>. Membership matches are soft (registration number / email / name). Owner data lives on membership clients.</p>
+</div>
+
+<div class="ci-grid">
+    <article class="ci-card"><span>Total companies</span><strong><?= (int) $kpis['companies_total'] ?></strong><small>companies COUNT(*)</small></article>
+    <article class="ci-card"><span>Active</span><strong><?= (int) $kpis['companies_active'] ?></strong><small>status = active</small></article>
+    <article class="ci-card"><span>Inactive</span><strong><?= (int) $kpis['companies_inactive'] ?></strong><small>inactive/disabled</small></article>
+    <article class="ci-card"><span>Suspended</span><strong><?= (int) $kpis['companies_suspended'] ?></strong><small>status suspended</small></article>
+    <article class="ci-card"><span>Matched to member</span><strong><?= (int) $kpis['matched_to_member'] ?></strong><small>reg = MembershipNumber</small></article>
+    <article class="ci-card"><span>Active certificates</span><strong><?= (int) $kpis['with_active_certificate'] ?></strong><small>on matched members</small></article>
+    <article class="ci-card"><span>Expired certificates</span><strong><?= (int) $kpis['with_expired_certificate'] ?></strong><small>on matched members</small></article>
+    <article class="ci-card"><span>Owner rows</span><strong><?= (int) $kpis['owners_total'] ?></strong><small>portal owners table</small></article>
+</div>
+<div class="ci-actions">
+    <a class="hub-btn" href="/admin/owners-report.php">Owners Report</a>
+    <a class="hub-btn" href="/admin/companies.php?status=active">Active only</a>
+    <a class="hub-btn" href="/admin/membership-report.php">Membership Intelligence</a>
 </div>
 <?php require __DIR__ . '/../includes/type-chips.php'; ?>
 <form id="company-search-form" class="hub-card" method="get" action="/admin/companies.php" role="search" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
     <div class="company-suggest-wrap">
-        <input id="company-search" type="search" name="search" value="<?= eca_admin_h($search) ?>" placeholder="Search name, region, number" autocomplete="off" aria-autocomplete="list" aria-controls="company-suggest-list" style="padding:10px 12px;border-radius:10px;border:1px solid #d0d5dd;">
+        <input id="company-search" type="search" name="search" data-dash-no-live-nav="1" value="<?= eca_admin_h($search) ?>" placeholder="Search name, region, number" autocomplete="off" aria-autocomplete="list" aria-controls="company-suggest-list" style="padding:10px 12px;border-radius:10px;border:1px solid #d0d5dd;">
         <ul id="company-suggest-list" class="company-suggest-list" role="listbox" hidden></ul>
     </div>
     <select name="industry" onchange="this.form.submit()" style="padding:10px 12px;border-radius:10px;border:1px solid #d0d5dd;">
@@ -52,8 +160,28 @@ eca_admin_hub_start('Companies', 'companies');
             <option value="<?= $opt ?>"<?= strcasecmp($industry, $opt) === 0 ? ' selected' : '' ?>><?= $opt ?></option>
         <?php endforeach; ?>
     </select>
+    <select name="status" onchange="this.form.submit()" style="padding:10px 12px;border-radius:10px;border:1px solid #d0d5dd;">
+        <option value="">All statuses</option>
+        <option value="active"<?= strcasecmp($status, 'active') === 0 ? ' selected' : '' ?>>Active</option>
+        <option value="inactive"<?= strcasecmp($status, 'inactive') === 0 ? ' selected' : '' ?>>Inactive</option>
+        <option value="suspended"<?= strcasecmp($status, 'suspended') === 0 ? ' selected' : '' ?>>Suspended</option>
+    </select>
+    <select name="has_registration" onchange="this.form.submit()" style="padding:10px 12px;border-radius:10px;border:1px solid #d0d5dd;">
+        <option value="">Registration #</option>
+        <option value="yes"<?= $hasRegistration === 'yes' ? ' selected' : '' ?>>Has registration</option>
+        <option value="no"<?= $hasRegistration === 'no' ? ' selected' : '' ?>>Missing registration</option>
+    </select>
+    <select name="sort" onchange="this.form.submit()" style="padding:10px 12px;border-radius:10px;border:1px solid #d0d5dd;">
+        <option value="name"<?= $sort === 'name' ? ' selected' : '' ?>>Name A–Z</option>
+        <option value="name_desc"<?= $sort === 'name_desc' ? ' selected' : '' ?>>Name Z–A</option>
+        <option value="registration"<?= $sort === 'registration' ? ' selected' : '' ?>>Registration</option>
+        <option value="industry"<?= $sort === 'industry' ? ' selected' : '' ?>>Industry</option>
+        <option value="status"<?= $sort === 'status' ? ' selected' : '' ?>>Status</option>
+        <option value="region"<?= $sort === 'region' ? ' selected' : '' ?>>Region</option>
+    </select>
     <button class="hub-btn" type="submit">Search</button>
-    <?php if ($search !== ''): ?>
+    <?= eca_admin_csv_button() ?>
+    <?php if ($search !== '' || $status !== '' || $hasRegistration !== ''): ?>
         <a class="hub-home-link" href="<?= eca_admin_h(eca_type_filter_url($chipBase, '', $industry)) ?>">Clear</a>
     <?php endif; ?>
 </form>
@@ -73,6 +201,10 @@ eca_admin_hub_start('Companies', 'companies');
     var items = [];
     var active = -1;
     var open = false;
+    var originalBody = tbody ? tbody.innerHTML : '';
+    var originalSummary = summary ? summary.innerHTML : '';
+    var originalEmpty = document.getElementById('company-results-empty');
+    var originalEmptyDisplay = originalEmpty ? originalEmpty.style.display : '';
 
     function esc(value) {
         return String(value == null ? '' : value)
@@ -126,60 +258,25 @@ eca_admin_hub_start('Companies', 'companies');
         return params.length ? url + '?' + params.join('&') : url;
     }
 
-    function renderTable(rows, q, total) {
-        if (summary) {
-            if (!q) {
-                summary.textContent = (total || rows.length) + ' companies below';
-            } else if (total === 1 || rows.length === 1 && total <= 1) {
-                summary.innerHTML = '1 company matches <span>&ldquo;' + esc(q) + '&rdquo;</span>';
-            } else {
-                var shown = rows.length;
-                var label = (total || shown) + ' companies match <span>&ldquo;' + esc(q) + '&rdquo;</span>';
-                if (total > shown) label += ' <span>(showing ' + shown + ')</span>';
-                summary.innerHTML = label;
+    function navigateWithSearch(q) {
+        try {
+            var url = new URL(window.location.href);
+            if (q) url.searchParams.set('search', q);
+            else url.searchParams.delete('search');
+            url.searchParams.delete('page');
+            if (currentIndustry()) url.searchParams.set('industry', currentIndustry());
+            else url.searchParams.delete('industry');
+            var next = url.pathname + url.search;
+            if (next !== (location.pathname + location.search)) {
+                location.assign(next);
             }
-        }
-        if (!tbody) return;
-        var wrap = tbody.closest('.hub-card');
-        var empty = document.getElementById('company-results-empty');
-        if (!rows.length) {
-            tbody.innerHTML = '';
-            if (wrap) wrap.style.display = 'none';
-            if (!empty) {
-                empty = document.createElement('p');
-                empty.id = 'company-results-empty';
-                empty.className = 'hub-card';
-                empty.textContent = 'No companies match this search.';
-                var section = document.getElementById('company-search-results');
-                if (section) section.appendChild(empty);
-            }
-            empty.style.display = '';
-            return;
-        }
-        if (empty) empty.style.display = 'none';
-        if (wrap) wrap.style.display = '';
-        tbody.innerHTML = rows.map(function (row) {
-            var type = row.industry || '';
-            var typeCell = type
-                ? '<a class="industry-link" href="' + esc(typeLink(type, q)) + '">' + esc(type) + '</a>'
-                : '—';
-            return '<tr>' +
-                '<td>' + esc(row.id) + '</td>' +
-                '<td>' + esc(row.name) + '</td>' +
-                '<td>' + esc(row.number) + '</td>' +
-                '<td>' + typeCell + '</td>' +
-                '<td>' + esc(row.region) + '</td>' +
-                '<td>' + esc(row.email) + '</td>' +
-                '<td>' + esc(row.phone) + '</td>' +
-                '<td>' + esc(row.status) + '</td>' +
-                '</tr>';
-        }).join('');
+        } catch (err) {}
     }
 
     function renderList(rows, q, total) {
-        items = rows || [];
+        items = (rows || []).slice(0, 12);
         active = items.length ? 0 : -1;
-        if (!q || q.length < 2) {
+        if (!q) {
             closeList();
             return;
         }
@@ -205,30 +302,24 @@ eca_admin_hub_start('Companies', 'companies');
         if (!row) return;
         input.value = row.name;
         syncChips(row.name);
-        renderTable([row], row.name, 1);
         closeList();
-        try {
-            var url = new URL(window.location.href);
-            url.searchParams.set('search', row.name);
-            if (currentIndustry()) url.searchParams.set('industry', currentIndustry());
-            else url.searchParams.delete('industry');
-            url.searchParams.delete('page');
-            history.replaceState({}, '', url.pathname + url.search);
-        } catch (err) {}
+        navigateWithSearch(row.name);
         input.focus();
     }
 
     function fetchSuggest() {
         var q = input.value.trim();
         syncChips(q);
-        if (q.length < 2) {
-            lastQ = q;
+        if (!q) {
+            lastQ = '';
             closeList();
+            navigateWithSearch('');
             return;
         }
         if (q === lastQ) return;
         var params = new URLSearchParams();
         params.set('search', q);
+        params.set('limit', '12');
         if (currentIndustry()) params.set('industry', currentIndustry());
         fetch('/admin/companies-suggest.php?' + params.toString(), { credentials: 'same-origin' })
             .then(function (res) { return res.json(); })
@@ -238,7 +329,6 @@ eca_admin_hub_start('Companies', 'companies');
                 var rows = (data && data.items) ? data.items : [];
                 var total = data && data.total ? data.total : rows.length;
                 renderList(rows, q, total);
-                renderTable(rows, q, total);
             })
             .catch(function () {
                 closeList();
@@ -247,7 +337,10 @@ eca_admin_hub_start('Companies', 'companies');
 
     input.addEventListener('input', function () {
         clearTimeout(timer);
-        timer = setTimeout(fetchSuggest, 300);
+        timer = setTimeout(function () {
+            fetchSuggest();
+            navigateWithSearch(input.value.trim());
+        }, 400);
     });
 
     input.addEventListener('keydown', function (e) {
@@ -289,7 +382,11 @@ eca_admin_hub_start('Companies', 'companies');
                 <span>in <?= eca_admin_h($industry) ?></span>
             <?php endif; ?>
         <?php else: ?>
-            <?= (int) $result['total'] ?> companies below
+            <?php if ((int) $result['total'] > $limit): ?>
+                Showing <?= (int) $listStart ?>–<?= (int) $listEnd ?> of <?= (int) $result['total'] ?> companies
+            <?php else: ?>
+                <?= (int) $result['total'] ?> companies below
+            <?php endif; ?>
             <?php if ($industry !== ''): ?>
                 <span>(<?= eca_admin_h($industry) ?>)</span>
             <?php endif; ?>
@@ -298,8 +395,9 @@ eca_admin_hub_start('Companies', 'companies');
 <?php if (!$result['rows']): ?>
     <p class="hub-card" id="company-results-empty"><?= $conn ? 'No companies match this search.' : 'The local database is not available.' ?></p>
 <?php else: ?>
-<div class="hub-card" style="padding:0;overflow:auto;">
-    <table class="hub-table">
+<div class="hub-card eca-table-panel">
+    <h5>Contractors</h5>
+    <table class="hub-table" data-dash-server-page="1">
         <thead>
             <tr>
                 <th>ID</th>
@@ -310,6 +408,7 @@ eca_admin_hub_start('Companies', 'companies');
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Status</th>
+                <th></th>
             </tr>
         </thead>
         <tbody id="company-results-body">
@@ -330,18 +429,29 @@ eca_admin_hub_start('Companies', 'companies');
                     <td><?= eca_admin_h($row['EmailAddress'] ?? '') ?></td>
                     <td><?= eca_admin_h($row['Cellphone'] ?? '') ?></td>
                     <td><?= eca_admin_h($row['Status'] ?? '') ?></td>
+                    <td>
+                        <a href="/admin/company-detail.php?id=<?= (int) ($row['id'] ?? 0) ?>">Open</a>
+                        ·
+                        <a href="/admin/company-edit.php?id=<?= (int) ($row['id'] ?? 0) ?>">Edit</a>
+                    </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
 </div>
+<?php
+eca_render_pager(
+    $page,
+    $totalPages,
+    static function (int $i) use ($chipBase, $search, $industry): string {
+        return eca_type_filter_url($chipBase, $search, $industry, $i);
+    },
+    (int) $result['total'],
+    $limit
+);
+?>
 <?php endif; ?>
 </section>
-<?php if ($industry === '' && $totalPages > 1): ?>
-<p class="pager" style="margin-top:16px;">
-    <?php for ($i = 1; $i <= min($totalPages, 20); $i++): ?>
-        <a href="<?= eca_admin_h(eca_type_filter_url($chipBase, $search, $industry, $i)) ?>"><?= $i ?></a>
-    <?php endfor; ?>
-</p>
-<?php endif; ?>
-<?php eca_admin_hub_end(); ?>
+<?php
+eca_admin_hub_end();
+?>

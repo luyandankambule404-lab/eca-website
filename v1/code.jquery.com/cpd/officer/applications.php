@@ -1,7 +1,8 @@
 <?php 
 require_once "../auth.php";
-require_role('ADMIN');
+require_role(['SUPPERADMIN', 'OFFICER']);
 require_once "../config.php";
+require_once "../helpers.php";
 require_once "../header.php";
 
 /* Load applications with course title */
@@ -14,6 +15,7 @@ FROM cpd_applications
 LEFT JOIN courses 
 ON cpd_applications.course_id = courses.id
 WHERE cpd_applications.status != 'Approved'
+AND cpd_applications.status != 'Rejected'
 ORDER BY cpd_applications.id DESC
 ");
 ?>
@@ -22,11 +24,11 @@ ORDER BY cpd_applications.id DESC
 <?php if(isset($_GET['msg'])): ?>
 
 <div class="alert alert-success">
-<i class="fa fa-check-circle"></i> <?= $_GET['msg'] ?>
+<i class="fa fa-check-circle"></i> <?= e($_GET['msg']) ?>
 </div>
 
 <?php endif; ?>
-<div class="card shadow-sm">
+<div class="card shadow-sm eca-form-panel eca-table-panel">
 <div class="card-body">
 
 <h3 class="mb-3">CPD Applications</h3>
@@ -45,7 +47,7 @@ ORDER BY cpd_applications.id DESC
 <th>Phone</th>
 <th>Status</th>
 <th>Attachments</th>
-<th width="200">Action</th>
+<th>Action</th>
 </tr>
 </thead>
 
@@ -55,25 +57,25 @@ ORDER BY cpd_applications.id DESC
 
 <tr>
 
-<td><?= $row['id'] ?></td>
+<td><?= (int)$row['id'] ?></td>
 
 <td>
 <span class="badge bg-primary">
-<?= $row['course_name'] ?>
+<?= e($row['course_name']) ?>
 </span>
 </td>
 
 <td>
-<strong><?= $row['company_name'] ?></strong><br>
-<small class="text-muted"><?= $row['discipline'] ?></small>
+<strong><?= e($row['company_name']) ?></strong><br>
+<small class="text-muted"><?= e($row['discipline']) ?></small>
 </td>
 
 <td>
-<?= $row['full_name'] ?><br>
-<small class="text-muted"><?= $row['email'] ?></small>
+<?= e($row['full_name']) ?><br>
+<small class="text-muted"><?= e($row['email']) ?></small>
 </td>
 
-<td><?= $row['phone'] ?></td>
+<td><?= e($row['phone']) ?></td>
 
 <td>
 
@@ -88,45 +90,45 @@ ORDER BY cpd_applications.id DESC
 </td>
 
 <td>
-
+<div class="cpd-app-files">
 <?php if(!empty($row['qualification'])): ?>
-<a href="../<?= $row['qualification'] ?>" 
+<a href="../uploads/<?= e(basename(str_replace('\\', '/', (string)$row['qualification']))) ?>" 
 target="_blank" 
-class="btn btn-sm btn-primary mb-1">
+class="btn btn-sm btn-primary">
 Qualification
 </a>
 <?php endif; ?>
 
 <?php if(!empty($row['payment_proof'])): ?>
-<a href="../<?= $row['payment_proof'] ?>" 
+<a href="../uploads/<?= e(basename(str_replace('\\', '/', (string)$row['payment_proof']))) ?>" 
 target="_blank" 
 class="btn btn-sm btn-success">
 Payment
 </a>
 <?php endif; ?>
-
+</div>
 </td>
 
 <td>
-
-<button 
+<div class="cpd-app-actions">
+<button type="button"
 class="btn btn-sm btn-info viewApplication"
-data-id="<?= $row['id'] ?>">
+data-id="<?= (int)$row['id'] ?>">
 View
 </button>
 
-<a href="update_status.php?id=<?= $row['id'] ?>&status=Approved"
+<a href="update_status.php?id=<?= (int)$row['id'] ?>&status=Approved"
 class="btn btn-sm btn-success"
 onclick="return confirm('Approve this application?')">
 Approve
 </a>
 
-<a href="update_status.php?id=<?= $row['id'] ?>&status=Rejected"
+<a href="update_status.php?id=<?= (int)$row['id'] ?>&status=Rejected"
 class="btn btn-sm btn-danger"
 onclick="return confirm('Reject this application?')">
 Reject
 </a>
-
+</div>
 </td>
 
 </tr>
@@ -200,7 +202,13 @@ $(document).ready(function(){
 
 $('#applicationsTable').DataTable({
 
-pageLength:10,
+pageLength:6,
+lengthMenu:[6, 12, 24, 50],
+autoWidth:false,
+
+columnDefs:[
+{ targets:-1, orderable:false, width:'310px' }
+],
 
 dom:'Bfrtip',
 

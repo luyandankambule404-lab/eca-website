@@ -1,0 +1,1540 @@
+    <?php
+require_once __DIR__ . '/includes/session.php';
+require_once __DIR__ . '/includes/demo-content.php';
+require_once __DIR__ . '/includes/organization.php';
+$currentPage = basename($_SERVER['PHP_SELF']);
+
+require_once 'config.php';
+$db   = new Database();
+$conn = $db->getConnection(false);
+/*
+|--------------------------------------------------------------------------
+| Fetch latest news
+|--------------------------------------------------------------------------
+*/
+$newsItems = [];
+if ($conn) {
+    try {
+        $query = "SELECT * FROM news ORDER BY date DESC LIMIT 3";
+        $stmt  = $conn->prepare($query);
+        $stmt->execute();
+        $newsItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        $newsItems = [];
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| SEO variables
+|--------------------------------------------------------------------------
+*/
+$siteName        = "Eswatini Contractors Association";
+$pageTitle       = "Contractors in Eswatini | ECA Verified Construction Companies";
+$metaDescription = "Find trusted contractors in Eswatini through the Eswatini Contractors Association (ECA). Browse verified construction companies, industry news, membership information, and construction resources in Mbabane, Manzini, and nationwide.";
+$metaKeywords    = "contractors in Eswatini, construction companies Eswatini, building contractors Mbabane, civil contractors Manzini, Eswatini Contractors Association, ECA Eswatini, verified contractors Eswatini";
+$canonicalUrl    = "https://eca.co.sz/";
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title><?= htmlspecialchars($pageTitle) ?></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+    <!-- SEO -->
+    <meta name="description" content="<?= htmlspecialchars($metaDescription) ?>">
+    <meta name="keywords" content="<?= htmlspecialchars($metaKeywords) ?>">
+    <meta name="author" content="Eswatini Contractors Association">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="<?= htmlspecialchars($canonicalUrl) ?>">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="<?= htmlspecialchars($pageTitle) ?>">
+    <meta property="og:description" content="<?= htmlspecialchars($metaDescription) ?>">
+    <meta property="og:url" content="<?= htmlspecialchars($canonicalUrl) ?>">
+    <meta property="og:site_name" content="<?= htmlspecialchars($siteName) ?>">
+    <meta property="og:image" content="https://eca.co.sz/img/logo.jpg">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?= htmlspecialchars($pageTitle) ?>">
+    <meta name="twitter:description" content="<?= htmlspecialchars($metaDescription) ?>">
+    <meta name="twitter:image" content="https://eca.co.sz/img/logo.jpg">
+
+    <!-- Favicon -->
+    <link href="favicon.ico" rel="icon">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/theme.css?v=20261008-dirlink" rel="stylesheet">
+    <link href="css/home.css?v=20261007-adv1" rel="stylesheet">
+    <link href="css/organization.css?v=20261008-org3" rel="stylesheet">
+    <?php require_once __DIR__ . '/includes/responsive-assets.php'; eca_responsive_assets(); ?>
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context":"https://schema.org",
+      "@type":"Organization",
+      "name":"Eswatini Contractors Association",
+      "url":"https://eca.co.sz",
+      "logo":"https://eca.co.sz/img/logo.jpg",
+      "email":"info@eca.co.sz",
+      "telephone":"+26824044987",
+      "address":{
+        "@type":"PostalAddress",
+        "streetAddress":"Suite 40, Cooper Centre",
+        "addressLocality":"Mbabane",
+        "addressCountry":"SZ"
+      },
+      "sameAs":[
+        "https://www.facebook.com/people/Eswatini-Contractors-Association/61582863643851/",
+        "https://www.instagram.com/eca.sz/",
+        "https://www.linkedin.com/company/eswatini-contractors-association-eca"
+      ]
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context":"https://schema.org",
+      "@type":"WebSite",
+      "name":"Eswatini Contractors Association",
+      "url":"https://eca.co.sz/",
+      "potentialAction":{
+        "@type":"SearchAction",
+        "target":"https://eca.co.sz/directory.php?search={search_term_string}",
+        "query-input":"required name=search_term_string"
+      }
+    }
+    </script>
+<style>
+/* =============================
+   HERO SLIDER BASE
+   ============================= */
+   
+   .header-custom {
+    background-color: #192754; /* Blue similar to the logo */
+    color: white;
+}
+.header-custom small {
+    color: white;
+}
+.hero-slider {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Each Slide */
+.hero-slider .slide {
+  
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh; /* full screen height */
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+/* Background Image */
+.hero-slider .slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Dark Overlay */
+.hero-slider .slide::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1;
+}
+
+/* =============================
+   CAPTION STYLES
+   ============================= */
+.slide-caption {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -40%);
+    text-align: center;
+    color: #fff;
+    max-width: 80%;
+    z-index: 2;
+    opacity: 0;
+    transition: all 0.8s ease-in-out;
+}
+
+/* Active Caption */
+.slide.active .slide-caption {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+}
+
+/* Headline */
+.slide-caption h2 {
+    font-size: 2.5rem;
+   
+    margin-bottom: 15px;
+      color: #ffffff;        /* White text */
+    font-weight: 700; 
+    animation: fadeUp 1s ease forwards;
+}
+
+.slide-caption h2 span {
+    color: red;       /* Example: highlight span in orange */
+    font-weight: 700;     /* bold too */
+}
+
+/* Paragraph */
+.slide-caption p {
+    font-size: 1.2rem;
+    margin: 15px 0;
+    line-height: 1.5;
+    animation: fadeUp 1.4s ease forwards;
+}
+
+/* Buttons */
+.slide-caption .btns {
+    margin-top: 20px;
+    animation: fadeUp 1.8s ease forwards;
+}
+
+.slide-caption .theme-btn,
+.slide-caption .theme-btn-s2 {
+    display: inline-block;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+
+.slide-caption .theme-btn {
+    background: #192754;
+    color: #fff;
+    margin-right: 10px;
+}
+
+.slide-caption .theme-btn:hover {
+    background: #d50d0e;
+}
+
+.slide-caption .theme-btn-s2 {
+    background: transparent;
+    border: 2px solid #fff;
+    color: #fff;
+}
+
+.slide-caption .theme-btn-s2:hover {
+    background: #fff;
+    color: #000;
+}
+/* Caption Container */
+.slide-caption {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -40%);
+    text-align: center;
+    color: #fff;
+    max-width: 80%;
+    z-index: 2;
+    opacity: 0;
+    transition: all 0.8s ease-in-out;
+
+    /* NEW background styling */
+    background: rgba(25, 39, 84, 0.7); /* dark blue, semi-transparent */
+    padding: 30px 40px;
+    border-radius: 12px;
+}
+   /* Blue background for the whole header */
+    .news-header {
+        background: #192754; /* deep blue */
+        border-radius: 8px;
+    }
+
+    /* White heading */
+    .news-title h2 {
+        color: #fff !important;
+    }
+
+    /* White subtitle */
+    .news-title p {
+        color: #eaeaea !important;
+    }
+
+    /* Search bar styling */
+    .search-wrapper {
+        display: flex;
+        align-items: center;
+    }
+
+    .search-input {
+        border: none;
+        padding: 6px 10px;
+        border-radius: 5px 0 0 5px;
+        outline: none;
+    }
+
+    .search-btn {
+        background: #2a3f73; /* darker blue for contrast */
+        border: none;
+        color: #fff; /* white icon/text */
+        padding: 6px 12px;
+        border-radius: 0 5px 5px 0;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .search-btn:hover {
+        background: #192754; /* even darker blue on hover */
+    }
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .search-wrapper {
+        width: 100%;
+    }
+    .search-input {
+        flex: 1;
+        width: 100%;
+    }
+    .search-btn {
+        width: 100%;
+        margin-top: 2px;
+        border-radius: 0 0 25px 25px;
+    }
+}
+
+
+/* Active Caption */
+.slide.active .slide-caption {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+}
+
+/* Blinking with neon glow */
+    .blink-text {
+        animation: blinkGlow 1.5s infinite;
+    }
+
+    @keyframes blinkGlow {
+        0% {
+            color: white;
+            text-shadow: none;
+        }
+        50% {
+            color: red;
+            text-shadow: 0 0 8px red, 0 0 16px red, 0 0 24px red;
+        }
+        100% {
+            color: white;
+            text-shadow: none;
+        }
+    }
+
+    /* Small button styling for icons */
+    .btn-sm-square {
+        width: 30px;
+        height: 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+    }
+/* =============================
+   NAVIGATION ARROWS
+   ============================= */
+.slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2rem;
+    color: #fff;
+    background: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    line-height: 45px;
+    text-align: center;
+    cursor: pointer;
+    z-index: 5;
+    transition: 0.3s ease;
+}
+
+.slider-arrow:hover {
+    background: rgba(255,255,255,0.7);
+    color: #000;
+}
+
+.slider-arrow.prev { left: 20px; }
+.slider-arrow.next { right: 20px; }
+
+/* =============================
+   DOTS / PAGINATION
+   ============================= */
+.slider-dots {
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 5;
+}
+
+.slider-dots span {
+    display: block;
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.slider-dots span.active {
+    background: #192754;
+}
+
+
+
+.slide-caption span{
+    color: #d50d0e;
+}
+/* =============================
+   ANIMATIONS
+   ============================= */
+@keyframes fadeUp {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+  /* Wrapper */
+    .showcase-wrapper{
+      position:relative;width:100%;height:100vh;overflow:hidden;
+    }
+    .showcase-track{
+      display:flex;transition:transform 1s ease-in-out;height:100%;
+    }
+    .showcase-item{
+      min-width:100%;height:100vh;position:relative;
+    }
+    .showcase-item img.bg{
+      width:100%;height:100%;object-fit:cover;
+      filter:brightness(70%);transition:transform 10s ease;
+    }
+    .showcase-item:hover img.bg{transform:scale(1.1)}
+
+
+/* Caption container */
+.showcase-caption {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 700px;
+  background: rgba(25, 39, 84, 0.85); /* #192754 with slight transparency */
+  padding: 25px 35px;
+  border-radius: 12px;
+  text-align: center;
+  color: #fff;
+  opacity: 0;                 /* start hidden */
+  animation: fadeBox 1.2s ease forwards; /* animate background fade-in */
+}
+
+/* Headings and paragraph */
+.showcase-caption h2,
+.showcase-caption p {
+  color: #fff;
+  opacity: 0;
+  animation: fadeText 1s ease forwards;
+}
+
+.showcase-caption h2 {
+  animation-delay: 0.4s;
+}
+
+.showcase-caption p {
+  animation-delay: 0.7s;
+}
+
+/* Buttons inside caption */
+.showcase-caption .btns {
+  margin-top: 15px;
+  opacity: 0;
+  animation: fadeText 1s ease forwards;
+  animation-delay: 1s;
+}
+
+/* Animation for caption box */
+@keyframes fadeBox {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -40%);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* Animation for text inside */
+@keyframes fadeText {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dots */
+.nav-dots div {
+  width: 12px;
+  height: 12px;
+  background: #192754; /* lighter blue for inactive */
+  border-radius: 50%;
+  cursor: pointer;
+  transition: 0.3s;
+}
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      animation: fadeIn 0.8s ease forwards;
+    }
+
+    /* Popup box */
+    .popup-box {
+      position: relative;
+      background: #fff;
+      border-radius: 12px;
+      padding: 0 0 20px 0;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+      max-width: 550px;
+      width: 100%;
+      animation: scaleIn 0.5s ease forwards;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    /* Advert image */
+    .popup-box img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Register button */
+    .register-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 25px;
+      margin-top: 15px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .register-btn:hover {
+      background: #0056b3;
+    }
+
+    /* Close button */
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ff3333;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      font-size: 22px;
+      width: 35px;
+      height: 35px;
+      line-height: 35px;
+      cursor: pointer;
+      text-align: center;
+      z-index: 10;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+.nav-dots div.active {
+  background: #192754; /* dark blue for active */
+  transform: scale(1.3);
+}
+
+  .showcase-caption h2,
+  .showcase-caption p {
+    color: #fff; /* force white text */
+  }
+
+  /* Update dots */
+  .nav-dots div.active {
+    background: #192754; /* dark blue active */
+    transform: scale(1.3);
+  }
+    /* Caption */
+ 
+    
+    .btns a{
+      display:inline-block;margin-right:10px;
+      padding:12px 25px;background:#fff;color:#222;
+      text-decoration:none;font-weight:600;border-radius:30px;
+      transition:.3s;
+    }
+    .btns a:hover{background:#ffd;color:#111;transform:scale(1.05)}
+
+    /* Arrows */
+    .nav-arrow{
+      position:absolute;top:50%;transform:translateY(-50%);
+      font-size:2rem;color:#fff;background:rgba(0,0,0,.5);
+      padding:10px;border-radius:50%;cursor:pointer;z-index:1000;
+      transition:.3s;
+    }
+    .nav-arrow:hover{background:#d50d0e;color:#111}
+    .nav-arrow.prev{left:20px}
+    .nav-arrow.next{right:20px}
+
+    /* Dots */
+    .nav-dots{
+      position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
+      display:flex;gap:10px;
+    }
+    .nav-dots div{
+      width:12px;height:12px;background:rgba(255,255,255,.6);
+      border-radius:50%;cursor:pointer;transition:.3s;
+    }
+    .nav-dots div.active{background:#d50d0e;transform:scale(1.3)}
+
+    /* Animations */
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes slideInLeft{from{opacity:0;transform:translateX(-50px)}to{opacity:1;transform:translateX(0)}}
+    @keyframes slideInRight{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:translateX(0)}}
+    
+    /* ===============================
+   Mobile Dropdown Styling
+   =============================== */
+@media (max-width: 768px) {
+    /* Make dropdown items full width and easy to tap */
+    .navbar-nav .dropdown-menu {
+        width: 100%;       /* full width of navbar */
+        left: 0 !important; /* override positioning */
+        right: 0 !important;
+        border-radius: 0;
+        margin: 0;
+    }
+
+    /* Increase padding for touch-friendly menu items */
+    .navbar-nav .dropdown-item {
+        padding: 12px 20px;
+        font-size: 0.95rem;  /* slightly smaller text on mobile */
+    }
+
+    /* Make dropdown toggle link occupy full width */
+    .navbar-nav .nav-item.dropdown > .nav-link {
+        width: 100%;
+        display: flex;
+        justify-content: space-between; /* text left, caret right */
+        padding: 12px 20px;
+    }
+
+    /* Optional: add a small separator between dropdowns */
+    .navbar-nav .dropdown-menu .dropdown-item + .dropdown-item {
+        border-top: 1px solid rgba(0,0,0,0.1);
+    }
+
+    /* Reduce navbar padding on mobile */
+    .navbar-nav.ms-auto {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+/* ====== Mobile adjustments for slider arrows and dots ====== */
+@media (max-width: 576px) {
+    /* Reduce size of arrows */
+    .nav-arrow {
+        font-size: 1.5rem;   /* smaller arrow */
+        width: 35px;         /* narrower */
+        height: 35px;        /* shorter */
+        line-height: 35px;   /* center the arrow vertically */
+    }
+
+    /* Reduce size of dots */
+    .nav-dots div {
+        width: 8px;
+        height: 8px;
+    }
+
+    /* Active dot smaller too */
+    .nav-dots div.active {
+        transform: scale(1.1);
+    }
+}
+
+.faq-btn-ui{
+    display:inline-block;
+    background:#ffffff;
+    color:#b30000;
+    padding:10px 20px;
+    border-radius:8px;
+    font-weight:600;
+    text-decoration:none;
+    border:2px solid #b30000;
+    transition:0.3s;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+.faq-btn-ui:hover{
+    background:#b30000;
+    color:white;
+    transform:translateY(-2px);
+}
+
+/* ======================================
+   MOBILE TOP-LEVEL MEMBERSHIP BUTTONS
+   ====================================== */
+
+.mobile-membership {
+    display: none;
+}
+
+/* Desktop dropdown visible normally */
+.desktop-membership {
+    display: block;
+}
+
+@media (max-width: 768px) {
+
+    .mobile-membership {
+        display: block;
+        border-radius: 12px;
+        margin: 8px 0;
+        font-weight: 700;
+        padding: 12px 16px !important;
+        text-align: center;
+    }
+
+    /* ALWAYS highlighted */
+    .always-highlight {
+        background: linear-gradient(135deg,#192754,#2a3f73);
+        color: #fff !important;
+        box-shadow: 0 10px 25px rgba(25,39,84,.30);
+    }
+
+    .always-highlight:hover {
+        background: linear-gradient(135deg,#2a3f73,#192754);
+    }
+
+    /* Hide desktop dropdown on mobile */
+    .desktop-membership {
+        display: none !important;
+    }
+}
+
+
+  
+
+/* =====================================================
+   ECA TRAINING POSTER POPUP — FULL POSTER VISIBLE
+   Poster ratio: 864 Ã— 1080 = 4:5
+   ===================================================== */
+.eca-poster-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    display: none;
+    place-items: center;
+    padding: clamp(20px, 4vh, 42px) clamp(14px, 3vw, 36px);
+    overflow: auto;
+    background:
+        radial-gradient(circle at 10% 10%, rgba(196, 0, 0, 0.32), transparent 30%),
+        radial-gradient(circle at 90% 90%, rgba(25, 39, 84, 0.60), transparent 36%),
+        rgba(0, 0, 0, 0.90);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.eca-poster-modal.show {
+    display: grid;
+    animation: ecaPosterFadeIn 0.35s ease both;
+}
+
+/*
+ * The width is limited by both the browser width and height.
+ * 72vh is 80% of 90vh, preserving the poster's 4:5 ratio.
+ */
+.eca-poster-box {
+    position: relative;
+    box-sizing: border-box;
+    width: min(94vw, 72vh, 760px);
+    aspect-ratio: 4 / 5;
+    max-height: 90vh;
+    padding: 8px;
+    background: linear-gradient(145deg, #192754, #d50d0e);
+    border: 2px solid rgba(255, 255, 255, 0.40);
+    border-radius: 18px;
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.65),
+        0 0 0 5px rgba(196, 0, 0, 0.18);
+    animation: ecaPosterScaleIn 0.35s ease both;
+}
+
+/* Keep controls above the image without changing the poster size. */
+.eca-poster-topbar {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* The poster already contains its own title, so hide the duplicate badge. */
+.eca-poster-badge {
+    display: none;
+}
+
+.eca-poster-close-x {
+    position: absolute;
+    top: -16px;
+    right: -16px;
+    width: 48px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #d50000, #8d0000);
+    color: #ffffff;
+    font: 900 30px/1 Arial, sans-serif;
+    cursor: pointer;
+    box-shadow: 0 10px 28px rgba(196, 0, 0, 0.52);
+    transition: transform 0.2s ease, background 0.2s ease;
+    pointer-events: auto;
+}
+
+.eca-poster-close-x:hover,
+.eca-poster-close-x:focus-visible {
+    transform: scale(1.08);
+    background: #d50d0e;
+    outline: 3px solid rgba(255, 255, 255, 0.75);
+    outline-offset: 3px;
+}
+
+.eca-poster-image-wrap,
+.eca-poster-image-wrap > a {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.eca-poster-image-wrap {
+    overflow: hidden;
+    border-radius: 12px;
+    background: #ffffff;
+}
+
+.eca-poster-image-wrap > a {
+    text-decoration: none;
+}
+
+.eca-poster-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: center;
+    background: #ffffff;
+}
+
+@keyframes ecaPosterFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes ecaPosterScaleIn {
+    from { opacity: 0; transform: translateY(14px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 576px) {
+    .eca-poster-modal {
+        padding: 26px 10px 18px;
+    }
+
+    .eca-poster-box {
+        width: min(94vw, 72vh);
+        padding: 5px;
+        border-radius: 14px;
+    }
+
+    .eca-poster-image-wrap {
+        border-radius: 9px;
+    }
+
+    .eca-poster-close-x {
+        top: -13px;
+        right: -8px;
+        width: 42px;
+        height: 42px;
+        font-size: 26px;
+    }
+}
+
+@media (max-height: 520px) {
+    .eca-poster-modal {
+        padding-top: 18px;
+        padding-bottom: 12px;
+    }
+
+    .eca-poster-box {
+        width: min(90vw, 68vh);
+        max-height: 85vh;
+    }
+
+    .eca-poster-close-x {
+        top: -10px;
+        right: -12px;
+        width: 38px;
+        height: 38px;
+        font-size: 24px;
+    }
+}
+</style>
+
+    
+</head>
+
+<body class="eca-home">
+
+
+<div class="eca-landing eca-public" data-eca-landing>
+    <?php require __DIR__ . '/includes/public-header.php'; ?>
+
+    <div class="eca-landing-stage">
+        <button class="eca-landing-arrow eca-landing-prev" type="button" aria-label="Previous slide">&#8249;</button>
+        <button class="eca-landing-arrow eca-landing-next" type="button" aria-label="Next slide">&#8250;</button>
+
+        <div class="eca-landing-frame">
+            <article class="eca-landing-slide is-active" id="ecaHeroSlide1" style="background-image: url('img/construction-site-f-compressed.jpg');">
+                <div class="eca-landing-grid">
+                    <div class="eca-landing-copy">
+                        <span class="eca-landing-badge">Eswatini Contractors Body</span>
+                        <h1 class="eca-slide-heading">Building Eswatini's construction industry together.</h1>
+                        <p>ECA represents and develops local contractors through trusted advocacy, professional standards, training, and access to industry opportunity.</p>
+                        <div class="eca-landing-actions">
+                            <a class="eca-landing-btn-primary" href="membership-registration.php">Membership Registration <i class="bi bi-arrow-right"></i></a>
+                            <a class="eca-landing-btn-ghost" href="directory.php">Find a contractor</a>
+                        </div>
+                    </div>
+                    <aside class="eca-landing-card">
+                        <h2>For contractors, suppliers, and construction partners across Eswatini.</h2>
+                        <p>A coordinated member network helping firms access standards, training, information, and a stronger shared voice.</p>
+                        <ul>
+                            <li>Member guidance and representation</li>
+                            <li>Training, safety, and quality standards</li>
+                            <li>Industry advocacy and sector dialogue</li>
+                        </ul>
+                        <a class="eca-landing-card-btn" href="resources.php">Start Learning Today</a>
+                    </aside>
+                </div>
+            </article>
+            <article class="eca-landing-slide" id="ecaHeroSlide2" style="background-image: url('img/VanSchendel-Construction.jpg');">
+                <div class="eca-landing-grid">
+                    <div class="eca-landing-copy">
+                        <span class="eca-landing-badge">Building a stronger construction community</span>
+                        <h2 class="eca-slide-heading">A trusted voice for contractors in Mbabane, Manzini, and nationwide.</h2>
+                        <p>Join the professional body that has represented Eswatini’s construction industry since 1991 — with membership, resources, and a seat at the table.</p>
+                        <div class="eca-landing-actions">
+                            <a class="eca-landing-btn-primary" href="membership-registration.php">Membership Registration <i class="bi bi-arrow-right"></i></a>
+                            <a class="eca-landing-btn-ghost" href="about.php">About ECA</a>
+                        </div>
+                    </div>
+                    <aside class="eca-landing-card">
+                        <h2>A stronger industry starts with trusted contractors.</h2>
+                        <p>Join the professional network supporting construction businesses across Eswatini since 1991.</p>
+                        <ul>
+                            <li>Member guidance and representation</li>
+                            <li>Training, safety, and quality standards</li>
+                            <li>Industry advocacy and sector dialogue</li>
+                        </ul>
+                        <a class="eca-landing-card-btn" href="verify.php">Verify a contractor</a>
+                    </aside>
+                </div>
+            </article>
+        </div>
+
+        <div class="eca-landing-dots" role="tablist" aria-label="Hero slides">
+            <button type="button" role="tab" class="is-active" aria-controls="ecaHeroSlide1" aria-label="Show slide 1"></button>
+            <button type="button" role="tab" aria-controls="ecaHeroSlide2" aria-label="Show slide 2"></button>
+        </div>
+    </div>
+</div>
+
+<main id="main-content" tabindex="-1">
+<section class="eca-service-gateway" aria-labelledby="ecaServicesHeading">
+    <div class="container">
+        <div class="eca-section-head">
+            <p class="eca-kicker" style="color:#fff;">Digital services</p>
+            <h2 id="ecaServicesHeading">Find, verify, and manage your ECA relationship.</h2>
+            <p>Start with the official contractor directory or use your ECA reference to access a trusted service.</p>
+        </div>
+        <div class="eca-service-grid">
+            <div class="eca-service-search">
+                <h3>Find an ECA contractor</h3>
+                <p>Search by company, membership number, category, region, or public status.</p>
+                <form class="eca-directory-search" action="/directory.php" method="get" role="search">
+                    <label class="eca-sr-only" for="homeContractorSearch">Search the contractor directory</label>
+                    <input id="homeContractorSearch" type="search" name="search" placeholder="Company or membership number" required>
+                    <button type="submit">Search directory</button>
+                </form>
+            </div>
+            <div class="eca-service-link is-accent">
+                <h3>Verify membership</h3>
+                <p>Confirm a contractor's public ECA standing using a membership number.</p>
+                <a href="/verify.php">Verify a contractor</a>
+            </div>
+            <div class="eca-service-link">
+                <h3>Track an application</h3>
+                <p>Use the application reference and matching email to view the latest real status.</p>
+                <a href="/track.php">Track application</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="eca-home-story" aria-labelledby="ecaHistoryHeading">
+    <div class="container eca-story-grid">
+        <div class="eca-story-copy">
+            <p class="eca-kicker">Our history</p>
+            <h2 id="ecaHistoryHeading">Representing contractors since 1991.</h2>
+            <p>ECA represents, protects, and advances the interests of construction companies and allied tradespeople while promoting professional and ethical industry development.</p>
+            <a class="eca-btn eca-btn-navy" href="/about-history.php">Our History</a>
+            <a class="eca-btn eca-btn-ghost" href="/about.php" style="margin-left:8px;">About ECA</a>
+        </div>
+        <ol class="eca-history-list">
+            <li><span class="eca-history-year">1991</span><p>ECA's roots were established through a coalition of local contractors.</p></li>
+            <li><span class="eca-history-year">2013</span><p>ECA played a leading role in the development of the Construction Industry Council Act.</p></li>
+            <li><span class="eca-history-year">2018</span><p>Eswatini adopted its national name, marking a new chapter for local institutions.</p></li>
+            <li><span class="eca-history-year">2019</span><p>The Association adopted its current ECA identity.</p></li>
+            <li><span class="eca-history-year">2020</span><p>The Women in Construction initiative strengthened focus on participation in the sector.</p></li>
+            <li><span class="eca-history-year">2021</span><p>ECA continued its construction industry advocacy.</p></li>
+            <li><span class="eca-history-year">Present</span><p>ECA continues representing contractors and advancing Eswatini's construction industry.</p></li>
+        </ol>
+    </div>
+</section>
+
+<section class="eca-section eca-home-actions" aria-label="Get started">
+    <div class="container">
+        <div class="eca-page-intro">
+            <p class="eca-kicker">Industry development</p>
+            <h2>How ECA supports a stronger construction sector.</h2>
+            <p>Membership, learning, wellness, representation, and inclusive participation—connected through one association.</p>
+        </div>
+        <div class="eca-action-grid">
+            <a class="eca-action-card" href="application.php">
+                <i class="fas fa-id-card" aria-hidden="true"></i>
+                <h3>Join ECA</h3>
+                <p>Apply for membership and stand with the industry's professional body.</p>
+                <span>Start application</span>
+            </a>
+            <a class="eca-action-card" href="/wellness/">
+                <i class="fas fa-heartbeat" aria-hidden="true"></i>
+                <h3>Wellness Hub</h3>
+                <p>Strong minds. Strong businesses. Strong builds. Practical support for the people behind the projects.</p>
+                <span>Open Wellness Hub</span>
+            </a>
+            <a class="eca-action-card" href="education.php">
+                <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                <h3>Education &amp; CPD</h3>
+                <p>Training, contractor knowledge, development programmes and policy briefings in one place.</p>
+                <span>Explore education</span>
+            </a>
+            <a class="eca-action-card" href="advocacy.php">
+                <i class="fas fa-landmark" aria-hidden="true"></i>
+                <h3>Industry advocacy</h3>
+                <p>Learn how ECA represents contractors in sector dialogue and policy development.</p>
+                <span>Explore Advocacy</span>
+            </a>
+            <a class="eca-action-card" href="balingani-directory.php">
+                <i class="fas fa-people-carry" aria-hidden="true"></i>
+                <h3>Women in Construction</h3>
+                <p>Discover the Balingani directory and ECA's focus on inclusive industry participation.</p>
+                <span>View Balingani</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="eca-section eca-home-org" aria-labelledby="ecaWhatHeading">
+    <div class="container">
+        <div class="eca-page-intro">
+            <p class="eca-kicker">What ECA does</p>
+            <h2 id="ecaWhatHeading">Five ways ECA serves the industry</h2>
+            <p>Advocacy remains the foundation. Digital intelligence, professionalization, technical support and member care work together around that core.</p>
+        </div>
+        <div class="eca-home-org-grid">
+            <a class="eca-home-org-card" href="advocacy.php">
+                <p class="eca-home-org-verb">Advocate</p>
+                <h3>Advocacy</h3>
+                <p>Policy, legislation and industry representation.</p>
+            </a>
+            <a class="eca-home-org-card" href="digital-intelligence.php">
+                <p class="eca-home-org-verb">Understand</p>
+                <h3>Digital Intelligence</h3>
+                <p>Data, intelligence and industry insights.</p>
+            </a>
+            <a class="eca-home-org-card" href="professionalization.php">
+                <p class="eca-home-org-verb">Develop</p>
+                <h3>Professionalization</h3>
+                <p>Training, CPD and capacity building.</p>
+            </a>
+            <a class="eca-home-org-card" href="technical-support.php">
+                <p class="eca-home-org-verb">Support</p>
+                <h3>Technical Support</h3>
+                <p>Business, tender and contract advisory themes.</p>
+            </a>
+            <a class="eca-home-org-card" href="wellness-inclusivity.php">
+                <p class="eca-home-org-verb">Care</p>
+                <h3>Wellness &amp; Inclusivity</h3>
+                <p>Wellness, inclusion and social impact.</p>
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="eca-section eca-home-flow" aria-labelledby="ecaFlowHeading">
+    <div class="container">
+        <div class="eca-page-intro">
+            <p class="eca-kicker">Operating model</p>
+            <h2 id="ecaFlowHeading">How ECA works</h2>
+            <p>Members raise challenges. Digital systems gather information. Intelligence informs advocacy and training. Technical advisory and wellness support contractors and the people behind their businesses — under ECA governance and the Executive Secretariat.</p>
+        </div>
+        <div class="eca-home-flow-track" aria-label="ECA operating model">
+            <?php
+            $flowSteps = eca_org_operating_steps();
+            $flowLast = count($flowSteps) - 1;
+            foreach ($flowSteps as $fi => $flowStep):
+            ?>
+                <span class="eca-home-flow-step" title="<?= htmlspecialchars($flowStep[1], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($flowStep[0], ENT_QUOTES, 'UTF-8') ?></span><?php if ($fi < $flowLast): ?><span class="eca-home-flow-arrow" aria-hidden="true">→</span><?php endif; ?>
+            <?php endforeach; ?>
+        </div>
+        <ul class="eca-home-flow-explain">
+            <?php foreach ($flowSteps as $flowStep): ?>
+                <li><strong><?= htmlspecialchars($flowStep[0], ENT_QUOTES, 'UTF-8') ?>:</strong> <?= htmlspecialchars($flowStep[1], ENT_QUOTES, 'UTF-8') ?></li>
+            <?php endforeach; ?>
+        </ul>
+        <div class="eca-home-advocacy-cta" style="margin-top:18px;">
+            <a class="eca-btn eca-btn-navy" href="about-structure.php">View organizational structure</a>
+            <a class="eca-btn eca-btn-ghost" href="about-history.php" style="margin-left:8px;">Our History</a>
+        </div>
+    </div>
+</section>
+
+<section class="eca-section eca-home-advocacy" aria-labelledby="ecaAdvocacyHeading">
+    <div class="container">
+        <div class="eca-page-intro">
+            <p class="eca-kicker">Industry advocacy</p>
+            <h2 id="ecaAdvocacyHeading">THE VOICE OF ESWATINI'S CONTRACTORS</h2>
+            <p>ECA represents and advocates for contractors, engaging stakeholders on issues that affect the construction industry.</p>
+        </div>
+        <div class="eca-home-advocacy-grid" aria-label="Advocacy focus areas">
+            <article class="eca-home-advocacy-card">
+                <h3>Fair Procurement</h3>
+                <p>Promoting fair and meaningful opportunities for legitimate contractors.</p>
+            </article>
+            <article class="eca-home-advocacy-card">
+                <h3>Timely Payments</h3>
+                <p>Supporting fair and timely payment practices across the industry.</p>
+            </article>
+            <article class="eca-home-advocacy-card">
+                <h3>Local Contractor Development</h3>
+                <p>Supporting an environment where local contractors can grow and compete.</p>
+            </article>
+            <article class="eca-home-advocacy-card">
+                <h3>Better Industry Regulation</h3>
+                <p>Providing contractor perspectives on policies and regulations.</p>
+            </article>
+        </div>
+        <div class="eca-home-advocacy-cta">
+            <a class="eca-btn eca-btn-navy" href="advocacy.php">Explore Advocacy</a>
+        </div>
+    </div>
+</section>
+
+<section class="eca-section eca-home-news" aria-labelledby="ecaNewsHeading">
+    <div class="container">
+        <div class="eca-news-head">
+            <div class="eca-page-intro mb-0">
+                <p class="eca-kicker">Newsroom</p>
+                <h2 id="ecaNewsHeading">Latest updates</h2>
+            </div>
+            <a href="news.php" class="eca-btn eca-btn-navy">View all news</a>
+        </div>
+
+        <div class="eca-news-simple-grid">
+            <?php if (!empty($newsItems)): ?>
+                <?php foreach ($newsItems as $news): ?>
+                    <?php
+                    $newsTitleRaw = trim((string)($news['title'] ?? 'ECA update'));
+                    $newsSummaryRaw = trim(strip_tags((string)($news['summary'] ?? '')));
+                    $isDemoNews = eca_is_local_demo_news($newsTitleRaw, $newsSummaryRaw);
+                    $newsTitle = eca_local_demo_news_display_title($newsTitleRaw);
+                    $newsDate  = !empty($news['date']) ? date('d M Y', strtotime($news['date'])) : '';
+                    $newsImage = !empty($news['image'])
+                        ? 'portal/' . ltrim((string)$news['image'], '/')
+                        : 'img/logo.jpg';
+                    $newsUrl = trim((string)($news['link'] ?? ''));
+                    if ($newsUrl === '') {
+                        $newsUrl = 'news.php';
+                    } elseif (!preg_match('~^https?://~i', $newsUrl)) {
+                        $newsUrl = ltrim($newsUrl, '/');
+                    }
+                    $newsSummary = $newsSummaryRaw;
+                    if ($newsSummary !== '' && strlen($newsSummary) > 140) {
+                        $newsSummary = substr($newsSummary, 0, 137) . '...';
+                    }
+                    ?>
+                    <article class="eca-news-simple-card<?= $isDemoNews ? ' is-local-demo' : '' ?>">
+                        <a href="<?= htmlspecialchars($newsUrl, ENT_QUOTES, 'UTF-8') ?>">
+                            <img
+                                src="<?= htmlspecialchars($newsImage, ENT_QUOTES, 'UTF-8') ?>"
+                                alt="<?= htmlspecialchars($newsTitle, ENT_QUOTES, 'UTF-8') ?>"
+                                loading="lazy"
+                                decoding="async"
+                                onerror="this.onerror=null;this.src='img/logo.jpg';"
+                            >
+                            <div>
+                                <?php if ($isDemoNews): ?>
+                                    <?= eca_local_demo_news_badge_html() ?>
+                                <?php endif; ?>
+                                <?php if ($newsDate !== ''): ?>
+                                    <time><?= htmlspecialchars($newsDate, ENT_QUOTES, 'UTF-8') ?></time>
+                                <?php endif; ?>
+                                <h3><?= htmlspecialchars($newsTitle, ENT_QUOTES, 'UTF-8') ?></h3>
+                                <?php if ($newsSummary !== ''): ?>
+                                    <p><?= htmlspecialchars($newsSummary, ENT_QUOTES, 'UTF-8') ?></p>
+                                <?php endif; ?>
+                                <?php if ($isDemoNews): ?>
+                                    <p class="eca-demo-note">Local demonstration content — not an official live ECA announcement.</p>
+                                <?php endif; ?>
+                            </div>
+                        </a>
+                    </article>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p class="eca-news-empty">Association news will appear here when new updates are published.</p>
+            <?php endif; ?>
+        </div>
+    </div>
+</section>
+
+<section class="eca-section eca-home-cta">
+    <div class="container">
+        <div class="eca-home-cta-panel">
+            <div>
+                <p class="eca-kicker" style="color:#ffffff;">Membership</p>
+                <h2>Join Eswatini's professional contractor community.</h2>
+                <p>Membership gives your firm a trusted listing and a voice on issues that shape the industry.</p>
+            </div>
+            <div class="eca-home-cta-actions">
+                <a href="application.php" class="eca-btn">Apply now</a>
+                <a href="contact.php" class="eca-btn-ghost">Contact ECA</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<?php require __DIR__ . '/includes/site-footer.php'; ?>
+
+
+    <!-- Back to Top -->
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top"><i class="bi bi-arrow-up"></i></a>
+
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="js/main.js?v=20260922-1"></script>
+    <script>
+    (function () {
+        if (window.ecaModernHome) return;
+        var root = document.querySelector("[data-eca-landing]");
+        if (!root) return;
+        var slides = Array.prototype.slice.call(root.querySelectorAll(".eca-landing-slide"));
+        var dots = Array.prototype.slice.call(root.querySelectorAll(".eca-landing-dots button"));
+        var toggle = root.querySelector(".eca-landing-toggle");
+        var nav = root.querySelector(".eca-landing-nav");
+        var index = 0;
+
+        function closeEcaDrops(except) {
+            root.querySelectorAll(".eca-nav-drop, .eca-member-split").forEach(function (other) {
+                if (other === except) return;
+                other.classList.remove("is-open");
+                var otherBtn = other.querySelector("[aria-expanded]");
+                if (otherBtn) otherBtn.setAttribute("aria-expanded", "false");
+            });
+        }
+
+        function go(next) {
+            index = (next + slides.length) % slides.length;
+            slides.forEach(function (slide, i) {
+                slide.classList.toggle("is-active", i === index);
+            });
+            dots.forEach(function (dot, i) {
+                dot.classList.toggle("is-active", i === index);
+            });
+            closeEcaDrops();
+        }
+
+        var prev = root.querySelector(".eca-landing-prev");
+        var nextBtn = root.querySelector(".eca-landing-next");
+        if (prev) prev.addEventListener("click", function () { go(index - 1); });
+        if (nextBtn) nextBtn.addEventListener("click", function () { go(index + 1); });
+        dots.forEach(function (dot, i) {
+            dot.addEventListener("click", function () { go(i); });
+        });
+        if (!root.dataset.ecaNavReady) {
+            root.dataset.ecaNavReady = "1";
+            if (toggle && nav) {
+                toggle.addEventListener("click", function () {
+                    var open = nav.classList.toggle("is-open");
+                    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+                });
+            }
+            root.querySelectorAll(".eca-nav-drop").forEach(function (drop) {
+                if (drop.classList.contains("eca-login-drop")) return;
+                var btn = drop.querySelector(".eca-nav-link");
+                if (!btn) return;
+                btn.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    var open = drop.classList.toggle("is-open");
+                    btn.setAttribute("aria-expanded", open ? "true" : "false");
+                    closeEcaDrops(drop);
+                });
+            });
+            root.querySelectorAll(".eca-member-split").forEach(function (drop) {
+                var btn = drop.querySelector(".eca-member-toggle");
+                if (!btn) return;
+                btn.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    var open = drop.classList.toggle("is-open");
+                    btn.setAttribute("aria-expanded", open ? "true" : "false");
+                    closeEcaDrops(drop);
+                });
+            });
+            document.addEventListener("click", function (event) {
+                if (event.target.closest(".eca-nav-drop, .eca-member-split")) return;
+                closeEcaDrops();
+            });
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Escape") closeEcaDrops();
+            });
+        }
+    })();
+    </script>
+	
+	<script>
+	
+const uPrevBtn = document.querySelector('.unique-slider .u-prev');
+const uNextBtn = document.querySelector('.unique-slider .u-next');
+const searchBtn = document.getElementById('searchBtn');
+const searchInput = document.getElementById('searchInput');
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (uPrevBtn && uNextBtn) {
+    const uSlides = document.querySelectorAll('.unique-slider .u-slide');
+    let uIndex = 0;
+    function showUSlide(index) {
+        uSlides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+    }
+    uPrevBtn.addEventListener('click', () => {
+        uIndex = (uIndex - 1 + uSlides.length) % uSlides.length;
+        showUSlide(uIndex);
+    });
+    uNextBtn.addEventListener('click', () => {
+        uIndex = (uIndex + 1) % uSlides.length;
+        showUSlide(uIndex);
+    });
+    if (uSlides.length && !prefersReducedMotion) {
+        setInterval(() => {
+            uIndex = (uIndex + 1) % uSlides.length;
+            showUSlide(uIndex);
+        }, 5000);
+        showUSlide(uIndex);
+    }
+}
+
+const newsContainer = document.getElementById('newsContainer');
+const sliderContainer = document.getElementById('sliderContainer');
+if (searchBtn && searchInput && newsContainer && sliderContainer) {
+    searchBtn.addEventListener('click', function () {
+        fetch('search-news.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'query=' + encodeURIComponent(searchInput.value)
+        })
+        .then(res => res.json())
+        .then(data => {
+            newsContainer.innerHTML = data.news;
+        });
+    });
+}
+
+
+	</script>
+
+<!-- =====================================================
+     MDB COMPLIANCE TRAINING POSTER POPUP
+     Opens automatically whenever the page finishes loading.
+
+<div
+    id="ecaTrainingPosterModal"
+    class="eca-poster-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-hidden="true"
+    aria-labelledby="ecaTrainingPosterTitle">
+
+    <div class="eca-poster-box" role="document">
+        <div class="eca-poster-topbar">
+            <span id="ecaTrainingPosterTitle" class="eca-poster-badge">
+                MDB COMPLIANCE TRAINING
+            </span>
+
+            <button
+                id="ecaTrainingPosterClose"
+                class="eca-poster-close-x"
+                type="button"
+                aria-label="Close training poster">
+                &times;
+            </button>
+        </div>
+
+        <div class="eca-poster-image-wrap">
+            <a
+                href="/cpd/registration.php"
+                aria-label="Open MDB Compliance Training registration page">
+                <img
+                    src="img/mdb-training-poster.jpeg"
+                    alt="Multilateral Development Bank Standard Bidding Documents Compliance Training poster"
+                    loading="lazy"
+                    decoding="async"
+                    class="eca-poster-image">
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    'use strict';
+
+    const modal = document.getElementById('ecaTrainingPosterModal');
+    const closeButton = document.getElementById('ecaTrainingPosterClose');
+
+    if (!modal || !closeButton) {
+        return;
+    }
+
+    let lastFocusedElement = null;
+
+    function openTrainingPoster() {
+        lastFocusedElement = document.activeElement;
+        modal.classList.add('show');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        closeButton.focus();
+    }
+
+    function closeTrainingPoster() {
+        modal.classList.remove('show');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+
+        if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+            lastFocusedElement.focus();
+        }
+    }
+
+    /* Open shortly after the full page has loaded. */
+    window.addEventListener('load', function () {
+        window.setTimeout(openTrainingPoster, 700);
+    });
+
+    closeButton.addEventListener('click', closeTrainingPoster);
+
+    /* Close when the dark background outside the poster is clicked. */
+    modal.addEventListener('click', function (event) {
+        if (event.target === modal) {
+            closeTrainingPoster();
+        }
+    });
+
+    /* Close with the Escape key. */
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && modal.classList.contains('show')) {
+            closeTrainingPoster();
+        }
+    });
+});
+</script>
+===================================================== -->
+</body>
+</html>

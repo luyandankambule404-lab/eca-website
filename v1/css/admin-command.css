@@ -1,0 +1,1259 @@
+/* =========================================================
+   ECA Command Centre — Super Admin / officer hub chrome.
+   Loaded on every Admin Hub page. Dashboard extras live under
+   body.hub-admin.is-admin-dash so member hub stays untouched.
+   Navy #192754 carries the room. Red #d50d0e is a rail, chip,
+   and alert — never a filled wall.
+   ========================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap");
+
+body.hub-admin {
+    --cmd-navy: #192754;
+    --cmd-navy-deep: #101a3a;
+    --cmd-navy-mid: #24356a;
+    --cmd-red: #d50d0e;
+    --cmd-ink: #192754;
+    --cmd-muted: #6a7590;
+    --cmd-line: #e4e9f2;
+    --cmd-canvas: #eef1f7;
+    --cmd-card: #ffffff;
+    --cmd-shadow: 0 18px 44px rgba(25, 39, 84, 0.08);
+    --cmd-display: "Instrument Serif", "Times New Roman", serif;
+    background: #e6eaf3 !important;
+    padding: 18px 20px 30px !important;
+}
+
+body.hub-admin .hub-page {
+    max-width: 1520px;
+}
+
+body.hub-admin .hub-shell {
+    overflow: visible;
+    border: 1px solid rgba(25, 39, 84, 0.08);
+    border-radius: 28px;
+    background: var(--cmd-canvas);
+    box-shadow: 0 28px 70px rgba(16, 26, 58, 0.12);
+}
+
+body.hub-admin.is-admin-dash .hub-shell {
+    overflow: hidden;
+}
+
+/* --- Shared topbar --- */
+body.hub-admin .hub-topbar {
+    position: relative;
+    z-index: 4;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px 20px;
+    min-height: 78px;
+    padding: 12px 24px 12px 20px;
+    background: #fff;
+    border-bottom: 1px solid var(--cmd-line);
+}
+
+body.hub-admin .hub-topbar::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--cmd-red) 0 72px, var(--cmd-navy) 72px 100%);
+}
+
+body.hub-admin .hub-brand {
+    flex: 0 0 auto;
+}
+
+body.hub-admin .hub-brand img {
+    height: 40px;
+    max-width: 124px;
+}
+
+body.hub-admin .hub-title-wrap {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: left;
+}
+
+body.hub-admin .hub-title-kicker {
+    margin: 0 0 2px;
+    color: var(--cmd-red);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+body.hub-admin .hub-title-wrap .hub-title,
+body.hub-admin .hub-title {
+    margin: 0;
+    flex: 0 1 auto;
+    text-align: left;
+    color: var(--cmd-navy);
+    font-family: var(--cmd-display);
+    font-size: clamp(1.28rem, 2vw, 1.7rem);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    text-transform: none;
+    line-height: 1.12;
+}
+
+body.hub-admin .hub-title-page {
+    margin: 2px 0 0;
+    color: var(--cmd-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+body.hub-admin.is-admin-dash .hub-title-page {
+    display: none;
+}
+
+body.hub-admin .hub-top-actions {
+    display: flex;
+    flex: 0 1 auto;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    min-width: 0;
+}
+
+body.hub-admin .hub-header-search {
+    flex: 0 1 210px;
+    min-width: 132px;
+    margin: 0;
+}
+
+body.hub-admin .hub-header-search input {
+    width: 100%;
+    min-height: 40px;
+    padding: 8px 14px;
+    border: 1px solid var(--cmd-line);
+    border-radius: 999px;
+    background: #f6f8fc;
+    color: var(--cmd-navy);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+body.hub-admin .hub-header-search input:focus {
+    outline: none;
+    border-color: var(--cmd-navy);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(25, 39, 84, 0.1);
+}
+
+body.hub-admin .hub-cmd-link,
+body.hub-admin .hub-home-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid var(--cmd-navy);
+    border-radius: 999px;
+    background: var(--cmd-navy);
+    color: #fff !important;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+
+body.hub-admin .hub-cmd-link:hover,
+body.hub-admin .hub-home-link:hover {
+    background: var(--cmd-navy-deep);
+    border-color: var(--cmd-navy-deep);
+    color: #fff !important;
+}
+
+body.hub-admin .hub-cmd-link-ghost {
+    background: #fff;
+    color: var(--cmd-navy) !important;
+}
+
+body.hub-admin .hub-cmd-link-ghost:hover {
+    background: var(--cmd-navy);
+    border-color: var(--cmd-navy);
+    color: #fff !important;
+}
+
+body.hub-admin .hub-top-user {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 8px;
+    max-width: 240px;
+}
+
+body.hub-admin .hub-top-name {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--cmd-navy);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+body.hub-admin .hub-chip {
+    min-height: 34px;
+    padding: 4px 12px !important;
+    border: 1px solid var(--cmd-line) !important;
+    background: #f6f8fc !important;
+    color: var(--cmd-navy) !important;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+body.hub-admin.is-super-admin .hub-chip {
+    border-color: rgba(213, 13, 14, 0.28) !important;
+    box-shadow: inset 0 0 0 1px rgba(213, 13, 14, 0.08);
+}
+
+body.hub-admin .mobile-toggle {
+    flex: 0 0 auto;
+}
+
+body.hub-admin .hub-layout {
+    grid-template-columns: 248px minmax(0, 1fr);
+    gap: 20px;
+    padding: 16px 20px 24px;
+}
+
+/* --- Sidebar: navy room, red only as a 3px active rail --- */
+body.hub-admin .hub-sidebar {
+    min-height: calc(100vh - 148px);
+    padding: 18px 12px 16px !important;
+    border-radius: 22px !important;
+    background: linear-gradient(180deg, #101a3a 0%, var(--cmd-navy) 62%, #1c2d5e 100%) !important;
+}
+
+body.hub-admin .hub-welcome {
+    margin: 0 6px 14px;
+    padding: 4px 6px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.hub-admin .hub-welcome-label {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+body.hub-admin .hub-avatar {
+    width: 42px;
+    height: 42px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.hub-admin .cmd-side-stamp {
+    margin: 16px 8px 4px;
+    color: rgba(255, 255, 255, 0.34);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+body.hub-admin .hub-nav a,
+body.hub-admin .hub-sidebar a {
+    min-height: 40px;
+    margin: 0 0 4px;
+    padding: 8px 12px 8px 14px !important;
+    border-left: 3px solid transparent !important;
+    border-radius: 10px !important;
+    font-size: 13px;
+}
+
+body.hub-admin .hub-nav a:hover,
+body.hub-admin .hub-sidebar a:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    transform: none !important;
+}
+
+body.hub-admin .hub-nav a.is-active,
+body.hub-admin .hub-nav a.active,
+body.hub-admin .hub-sidebar a.is-active,
+body.hub-admin .hub-sidebar a.active {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border-left-color: var(--cmd-red) !important;
+    box-shadow: none !important;
+}
+
+body.hub-admin .sidebar-nav > li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+body.hub-admin .hub-nav-group {
+    margin: 2px 0 8px;
+}
+
+body.hub-admin .hub-nav-group summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 36px;
+    letter-spacing: 0.14em;
+}
+
+body.hub-admin .hub-nav-group summary::after {
+    margin-left: auto;
+}
+
+body.hub-admin .hub-nav-group a {
+    margin-left: 8px !important;
+}
+
+body.hub-admin .hub-main {
+    padding: 6px 4px 18px 0 !important;
+    background: transparent !important;
+}
+
+/* Inner-page surfaces stay white cards, not member pastel fills */
+body.hub-admin.is-admin-page .hub-card,
+body.hub-admin.is-admin-page .hub-panel {
+    background: var(--cmd-card) !important;
+    border: 1px solid var(--cmd-line);
+    box-shadow: 0 10px 28px rgba(25, 39, 84, 0.05);
+}
+
+body.hub-admin.is-admin-page .hub-btn,
+body.hub-admin.is-admin-page .hub-btn-red,
+body.hub-admin.is-admin-page .hub-page .btn-primary,
+body.hub-admin.is-admin-page .hub-page button[type="submit"],
+body.hub-admin.is-admin-page button[type="submit"] {
+    background: var(--cmd-navy) !important;
+    box-shadow: none !important;
+}
+
+body.hub-admin.is-admin-page .hub-btn:hover,
+body.hub-admin.is-admin-page button[type="submit"]:hover {
+    background: var(--cmd-red) !important;
+}
+
+/* =========================================================
+   Dashboard stage
+   ========================================================= */
+
+body.hub-admin.is-admin-dash .hub-hello {
+    display: none;
+}
+
+body.hub-admin.is-admin-dash .hub-main {
+    padding: 2px 6px 22px 0 !important;
+}
+
+body.hub-admin.is-admin-dash .cmd-stage {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+body.hub-admin.is-admin-dash .cmd-hero {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(240px, 0.5fr);
+    gap: 28px 36px;
+    align-items: stretch;
+    overflow: hidden;
+    margin: 0 0 32px;
+    padding: 34px 36px 32px;
+    border-radius: 24px;
+    color: #fff;
+    background:
+        linear-gradient(115deg, rgba(213, 13, 14, 0.12) 0%, transparent 36%),
+        radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.1), transparent 32%),
+        linear-gradient(145deg, #101a3a 0%, #192754 54%, #24366c 100%);
+    box-shadow: var(--cmd-shadow);
+}
+
+body.hub-admin.is-admin-dash .cmd-hero::before {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--cmd-red);
+}
+
+body.hub-admin.is-admin-dash .cmd-hero::after {
+    content: "ECA";
+    position: absolute;
+    z-index: 0;
+    right: 18px;
+    bottom: -18px;
+    color: rgba(255, 255, 255, 0.05);
+    font-family: var(--cmd-display);
+    font-size: 8.5rem;
+    font-weight: 400;
+    letter-spacing: -0.06em;
+    line-height: 1;
+    pointer-events: none;
+}
+
+body.hub-admin.is-admin-dash .cmd-hero-copy,
+body.hub-admin.is-admin-dash .cmd-hero-panel {
+    position: relative;
+    z-index: 2;
+}
+
+body.hub-admin.is-admin-dash .cmd-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 12px;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+}
+
+body.hub-admin.is-admin-dash .cmd-live {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #7dffb3;
+    box-shadow: 0 0 0 4px rgba(125, 255, 179, 0.18);
+}
+
+body.hub-admin.is-admin-dash .cmd-hero h1 {
+    margin: 0 0 12px;
+    color: #fff;
+    font-family: var(--cmd-display);
+    font-size: clamp(2.1rem, 4vw, 3.15rem);
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 1.02;
+}
+
+body.hub-admin.is-admin-dash .cmd-lede {
+    margin: 0;
+    max-width: 38rem;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.55;
+}
+
+body.hub-admin.is-admin-dash .cmd-hero-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    padding: 18px 18px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(8px);
+}
+
+body.hub-admin.is-admin-dash .cmd-panel-label {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+body.hub-admin.is-admin-dash .cmd-hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+body.hub-admin.is-admin-dash .cmd-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 6px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+body.hub-admin.is-admin-dash .cmd-chip i {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+body.hub-admin.is-admin-dash .cmd-chip-alert {
+    border-color: rgba(213, 13, 14, 0.55);
+    background: rgba(213, 13, 14, 0.2);
+}
+
+body.hub-admin.is-admin-dash .cmd-chip-alert i {
+    color: #ffb4b0;
+}
+
+body.hub-admin.is-admin-dash .cmd-chip-ok i {
+    color: #7dffb3;
+}
+
+/* --- Sections --- */
+body.hub-admin.is-admin-dash .cmd-section {
+    margin: 0 0 32px;
+}
+
+body.hub-admin.is-admin-dash .cmd-section-head,
+body.hub-admin.is-admin-dash .hub-card-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 16px;
+}
+
+body.hub-admin.is-admin-dash .hub-card-head > div,
+body.hub-admin.is-admin-dash .cmd-section-head > div {
+    min-width: 0;
+}
+
+body.hub-admin.is-admin-dash .cmd-eyebrow {
+    margin: 0 0 6px;
+    color: var(--cmd-navy);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+body.hub-admin.is-admin-dash .cmd-eyebrow::after {
+    content: "";
+    display: block;
+    width: 28px;
+    height: 2px;
+    margin-top: 6px;
+    background: var(--cmd-red);
+}
+
+body.hub-admin.is-admin-dash .hub-card-head h2,
+body.hub-admin.is-admin-dash .cmd-section-head h2 {
+    margin: 0;
+    color: var(--cmd-navy);
+    font-family: var(--cmd-display);
+    font-size: 1.55rem;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+}
+
+body.hub-admin.is-admin-dash .hub-card-head a,
+body.hub-admin.is-admin-dash .cmd-section-head a {
+    color: var(--cmd-navy);
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+body.hub-admin.is-admin-dash .hub-card-head a:hover,
+body.hub-admin.is-admin-dash .cmd-section-head a:hover {
+    color: var(--cmd-red);
+}
+
+/* --- Stat cards: compact executive KPIs --- */
+body.hub-admin.is-admin-dash .hub-stats,
+body.hub-admin.is-admin-dash .hub-stat-row {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0 0 4px;
+}
+
+body.hub-admin.is-admin-dash a.hub-stat,
+body.hub-admin.is-admin-dash .hub-stat,
+body.hub-admin.is-admin-dash .hub-stat:nth-child(4n + 1),
+body.hub-admin.is-admin-dash a.hub-stat:nth-child(4n + 1) {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 2px;
+    min-height: 0;
+    height: auto;
+    padding: 10px 12px 10px 14px;
+    overflow: hidden;
+    border: 1px solid var(--cmd-line);
+    border-radius: 12px;
+    background: var(--cmd-card) !important;
+    color: var(--cmd-ink);
+    box-shadow: 0 4px 14px rgba(25, 39, 84, 0.04);
+    transform: none;
+}
+
+body.hub-admin.is-admin-dash a.hub-stat::before,
+body.hub-admin.is-admin-dash .hub-stat::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 3px;
+    border-radius: 99px;
+    background: var(--cmd-navy);
+}
+
+body.hub-admin.is-admin-dash a.hub-stat::after,
+body.hub-admin.is-admin-dash .hub-stat::after {
+    display: none;
+}
+
+body.hub-admin.is-admin-dash a.hub-stat:hover,
+body.hub-admin.is-admin-dash .hub-stat:hover {
+    transform: translateY(-2px);
+    border-color: rgba(25, 39, 84, 0.18);
+    box-shadow: 0 10px 22px rgba(25, 39, 84, 0.08);
+}
+
+body.hub-admin.is-admin-dash .hub-stat-label {
+    color: var(--cmd-muted);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.25;
+}
+
+body.hub-admin.is-admin-dash .hub-stat-value {
+    margin: 2px 0 0;
+    color: var(--cmd-navy);
+    font-family: var(--cmd-display);
+    font-size: clamp(1.35rem, 1.8vw, 1.75rem);
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+}
+
+body.hub-admin.is-admin-dash .hub-stat-meta {
+    color: var(--cmd-muted);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+body.hub-admin.is-admin-dash .hub-stat-link {
+    margin-top: 4px;
+    padding-top: 0;
+    color: var(--cmd-navy);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+body.hub-admin.is-admin-dash .cmd-stat-navy,
+body.hub-admin.is-admin-dash a.cmd-stat-navy,
+body.hub-admin.is-admin-dash .cmd-stat-navy:nth-child(4n + 1) {
+    background: var(--cmd-card) !important;
+    color: var(--cmd-ink);
+}
+
+body.hub-admin.is-admin-dash .cmd-stat-navy .hub-stat-label,
+body.hub-admin.is-admin-dash .cmd-stat-navy .hub-stat-value,
+body.hub-admin.is-admin-dash .cmd-stat-navy .hub-stat-link {
+    color: var(--cmd-navy);
+}
+
+body.hub-admin.is-admin-dash .cmd-stat-navy .hub-stat-meta {
+    color: var(--cmd-muted);
+}
+
+body.hub-admin.is-admin-dash .cmd-stat-navy::before {
+    width: 4px;
+}
+
+body.hub-admin.is-admin-dash .cmd-stat-alert::before {
+    background: var(--cmd-red);
+}
+
+/* --- Portal tiles --- */
+body.hub-admin.is-admin-dash .hub-tiles.hub-portals,
+body.hub-admin.is-admin-dash .hub-portals {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0 0 8px;
+}
+
+body.hub-admin.is-admin-dash .hub-tile,
+body.hub-admin.is-admin-dash .hub-portal-tile,
+body.hub-admin.is-admin-dash .hub-tile-mint,
+body.hub-admin.is-admin-dash .hub-tile-lilac,
+body.hub-admin.is-admin-dash .hub-tile-sand {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 184px;
+    padding: 22px 20px 18px;
+    overflow: hidden;
+    border: 1px solid var(--cmd-line) !important;
+    border-radius: 16px;
+    background: var(--cmd-card) !important;
+    box-shadow: 0 8px 22px rgba(25, 39, 84, 0.05) !important;
+    color: var(--cmd-navy);
+    transform: none;
+    text-decoration: none;
+}
+
+body.hub-admin.is-admin-dash .hub-portal-tile {
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    min-height: 0;
+    padding: 12px 12px 10px;
+    border-radius: 12px;
+}
+
+body.hub-admin.is-admin-dash .hub-portal-tile::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 2px;
+    border-radius: 12px 12px 0 0;
+    background: var(--cmd-navy);
+}
+
+body.hub-admin.is-admin-dash .hub-tile:hover,
+body.hub-admin.is-admin-dash .hub-portal-tile:hover {
+    transform: translateY(-2px);
+    border-color: rgba(25, 39, 84, 0.18) !important;
+    box-shadow: 0 12px 24px rgba(25, 39, 84, 0.09) !important;
+}
+
+body.hub-admin.is-admin-dash .hub-portal-tile:hover::after {
+    background: var(--cmd-red);
+}
+
+body.hub-admin.is-admin-dash .cmd-portal-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    background: #edf2fb;
+    color: var(--cmd-navy);
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+body.hub-admin.is-admin-dash .hub-portal-tile.hub-tile-lilac .cmd-portal-icon,
+body.hub-admin.is-admin-dash .hub-portal-tile:nth-child(3n) .cmd-portal-icon {
+    background: #f8eaea;
+    color: var(--cmd-red);
+}
+
+body.hub-admin.is-admin-dash .hub-portal-tile.hub-tile-mint .cmd-portal-icon {
+    background: #e8f5ef;
+    color: #1d6b3d;
+}
+
+body.hub-admin.is-admin-dash .hub-portal-tile.hub-tile-sand .cmd-portal-icon {
+    background: #fff4df;
+    color: #8a5a00;
+}
+
+body.hub-admin.is-admin-dash .cmd-portal-body {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    height: 100%;
+    flex: 1 1 auto;
+}
+
+body.hub-admin.is-admin-dash .hub-portal-kicker {
+    display: none;
+}
+
+body.hub-admin.is-admin-dash .hub-portal-tile h3,
+body.hub-admin.is-admin-dash .hub-tile h3 {
+    margin: 0;
+    color: var(--cmd-navy);
+    font-family: var(--cmd-display);
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+body.hub-admin.is-admin-dash .hub-portal-tile h3 {
+    flex: 0 0 auto;
+    width: 100%;
+}
+
+body.hub-admin.is-admin-dash .hub-portal-count {
+    display: inline-flex;
+    align-items: center;
+    min-height: 20px;
+    margin: 0;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: #f3f5fb;
+    color: var(--cmd-navy);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+}
+
+body.hub-admin.is-admin-dash .hub-portal-count.is-empty {
+    display: none;
+}
+
+body.hub-admin.is-admin-dash .hub-portal-meta,
+body.hub-admin.is-admin-dash .hub-portal-tile p,
+body.hub-admin.is-admin-dash .hub-tile p {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+    color: var(--cmd-muted);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+body.hub-admin.is-admin-dash .hub-portal-go,
+body.hub-admin.is-admin-dash .cmd-portal-body > span.hub-portal-go,
+body.hub-admin.is-admin-dash .hub-tiles:not(.hub-portals) .hub-tile > span {
+    margin-top: auto;
+    padding-top: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--cmd-navy);
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+body.hub-admin.is-admin-dash .hub-portal-go i {
+    font-size: 9px;
+    transition: transform 0.15s ease;
+}
+
+body.hub-admin.is-admin-dash .hub-portal-tile:hover .hub-portal-go i {
+    transform: translateX(2px);
+}
+
+body.hub-admin.is-admin-dash .hub-tiles:not(.hub-portals) {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin: 0;
+}
+
+body.hub-admin.is-admin-dash .hub-tiles:not(.hub-portals) .hub-tile {
+    min-height: 138px;
+}
+
+body.hub-admin.is-admin-dash .hub-tiles:not(.hub-portals) .hub-tile::before {
+    content: "";
+    display: block;
+    width: 22px;
+    height: 2px;
+    margin-bottom: 12px;
+    background: var(--cmd-red);
+}
+
+/* --- Cards / meters / lists --- */
+body.hub-admin.is-admin-dash .hub-split {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 18px;
+    margin: 0 0 32px;
+}
+
+body.hub-admin.is-admin-dash .hub-card,
+body.hub-admin.is-admin-dash .hub-panel {
+    padding: 22px 24px;
+    border: 1px solid var(--cmd-line);
+    border-radius: 20px;
+    background: var(--cmd-card) !important;
+    box-shadow: 0 10px 28px rgba(25, 39, 84, 0.05);
+}
+
+body.hub-admin.is-admin-dash .hub-card > .hub-card-head {
+    margin-bottom: 16px;
+}
+
+body.hub-admin.is-admin-dash .hub-progress {
+    background: #edf0f6 !important;
+}
+
+body.hub-admin.is-admin-dash .hub-progress-bar {
+    background: var(--cmd-navy) !important;
+}
+
+body.hub-admin.is-admin-dash .hub-alert-list {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+body.hub-admin.is-admin-dash .hub-alert-list a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 14px 13px 16px;
+    border: 1px solid var(--cmd-line);
+    border-left: 4px solid var(--cmd-red);
+    border-radius: 14px;
+    background: #fff;
+    color: var(--cmd-navy);
+    text-decoration: none;
+}
+
+body.hub-admin.is-admin-dash .hub-alert-list a strong {
+    color: var(--cmd-red);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+body.hub-admin.is-admin-dash .hub-activity {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+body.hub-admin.is-admin-dash .hub-activity li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--cmd-line);
+}
+
+body.hub-admin.is-admin-dash .hub-activity li:last-child {
+    border-bottom: 0;
+}
+
+body.hub-admin.is-admin-dash .hub-empty {
+    margin: 0;
+    color: var(--cmd-muted);
+    font-weight: 600;
+}
+
+body.hub-admin.is-admin-dash .hub-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+body.hub-admin.is-admin-dash .hub-summary div {
+    padding: 14px 16px;
+    border: 1px solid var(--cmd-line);
+    border-radius: 16px;
+    background: #fff;
+}
+
+body.hub-admin.is-admin-dash .hub-summary span {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--cmd-muted);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+body.hub-admin.is-admin-dash .hub-summary strong {
+    color: var(--cmd-navy);
+    font-family: var(--cmd-display);
+    font-size: 1.45rem;
+    font-weight: 400;
+}
+
+body.hub-admin.is-admin-dash .hub-trend-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+}
+
+body.hub-admin.is-admin-dash .hub-trend-block h3 {
+    margin: 0 0 12px;
+    font-family: var(--cmd-display);
+    font-size: 1.15rem;
+    font-weight: 400;
+}
+
+body.hub-admin.is-admin-dash .hub-meter {
+    margin: 0 0 14px;
+}
+
+body.hub-admin.is-admin-dash .hub-meter-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--cmd-navy);
+}
+
+@media (min-width: 1200px) {
+    body.hub-admin .hub-top-actions {
+        gap: 10px;
+    }
+
+    body.hub-admin .hub-header-search {
+        flex-basis: 220px;
+    }
+
+    body.hub-admin.is-admin-dash .hub-stats,
+    body.hub-admin.is-admin-dash .hub-stat-row {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1280px) {
+    body.hub-admin.is-admin-dash .hub-tiles.hub-portals,
+    body.hub-admin.is-admin-dash .hub-portals {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    body.hub-admin.is-admin-dash .hub-tiles:not(.hub-portals),
+    body.hub-admin.is-admin-dash .hub-stats,
+    body.hub-admin.is-admin-dash .hub-summary,
+    body.hub-admin.is-admin-dash .hub-trend-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    body.hub-admin.is-admin-dash .exec-chart-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 1100px) {
+    body.hub-admin.is-admin-dash .cmd-hero,
+    body.hub-admin.is-admin-dash .hub-split {
+        grid-template-columns: 1fr;
+    }
+
+    body.hub-admin .hub-topbar {
+        flex-wrap: wrap;
+    }
+
+    body.hub-admin .hub-title-wrap {
+        flex: 1 1 180px;
+    }
+
+    body.hub-admin .hub-top-actions {
+        flex: 1 1 100%;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 991px) {
+    body.hub-admin {
+        padding: 10px !important;
+    }
+
+    body.hub-admin .hub-layout {
+        grid-template-columns: 1fr;
+        padding: 10px 12px 18px;
+    }
+
+    body.hub-admin.is-admin-dash .hub-stats,
+    body.hub-admin.is-admin-dash .hub-tiles:not(.hub-portals),
+    body.hub-admin.is-admin-dash .hub-tiles.hub-portals,
+    body.hub-admin.is-admin-dash .hub-portals,
+    body.hub-admin.is-admin-dash .hub-summary {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    body.hub-admin .hub-topbar {
+        align-items: center;
+        gap: 8px;
+    }
+
+    body.hub-admin .hub-title {
+        font-size: 1.15rem;
+    }
+
+    body.hub-admin .hub-top-actions {
+        gap: 6px;
+    }
+
+    body.hub-admin .hub-home-link,
+    body.hub-admin .hub-cmd-link {
+        min-height: 36px;
+        padding: 0 10px;
+        font-size: 11px;
+    }
+
+    body.hub-admin.is-admin-dash .cmd-hero {
+        margin-bottom: 16px;
+        padding: 20px 16px;
+        border-radius: 18px;
+    }
+
+    body.hub-admin.is-admin-dash .cmd-hero h1 {
+        font-size: 1.7rem;
+    }
+
+    body.hub-admin.is-admin-dash .cmd-hero::after {
+        font-size: 4.5rem;
+        right: 8px;
+        bottom: -10px;
+    }
+
+    body.hub-admin.is-admin-dash .hub-card-head h2,
+    body.hub-admin.is-admin-dash .cmd-section-head h2 {
+        font-size: 1.2rem;
+    }
+
+    body.hub-admin.is-admin-dash .hub-stats,
+    body.hub-admin.is-admin-dash .hub-tiles:not(.hub-portals),
+    body.hub-admin.is-admin-dash .hub-tiles.hub-portals,
+    body.hub-admin.is-admin-dash .hub-portals,
+    body.hub-admin.is-admin-dash .hub-summary,
+    body.hub-admin.is-admin-dash .hub-trend-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    body.hub-admin.is-admin-dash .exec-chart-grid {
+        grid-template-columns: 1fr;
+    }
+
+    body.hub-admin .hub-top-name {
+        display: none;
+    }
+}
+
+/* --- Executive analytics charts --- */
+body.hub-admin.is-admin-dash .exec-kpi-strip .hub-stats {
+    margin-bottom: 8px;
+}
+
+body.hub-admin.is-admin-dash .exec-chart-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 14px;
+    margin: 0 0 18px;
+}
+
+body.hub-admin.is-admin-dash .exec-chart-card {
+    padding: 16px 18px;
+    border: 1px solid var(--cmd-line);
+    border-radius: 14px;
+    background: var(--cmd-card);
+    box-shadow: 0 6px 18px rgba(25, 39, 84, 0.04);
+    min-width: 0;
+}
+
+body.hub-admin.is-admin-dash .exec-chart-card h3 {
+    margin: 0 0 4px;
+    color: var(--cmd-navy);
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+body.hub-admin.is-admin-dash .exec-chart-note {
+    margin: 0 0 10px;
+    color: var(--cmd-muted);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+body.hub-admin.is-admin-dash .exec-chart-wrap {
+    position: relative;
+    height: 220px;
+    width: 100%;
+}
+
+body.hub-admin.is-admin-dash .exec-chart-wrap canvas {
+    max-width: 100%;
+}
+
+body.hub-admin.is-admin-dash .exec-chart-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 160px;
+    margin: 0;
+    padding: 16px;
+    color: var(--cmd-muted);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    background: #f7f9fd;
+    border-radius: 10px;
+}
+
+body.hub-admin.is-admin-dash .exec-chart-legend {
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--cmd-ink);
+}
+
+body.hub-admin.is-admin-dash .exec-chart-legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+body.hub-admin.is-admin-dash .exec-chart-legend i {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    flex: 0 0 auto;
+}
+
+body.hub-admin.is-admin-dash .eca-table-panel {
+    overflow-x: auto;
+}
+
+body.hub-admin.is-admin-dash .eca-table-panel .hub-table {
+    min-width: 520px;
+}
+
+@media (max-width: 900px) {
+    body.hub-admin.is-admin-dash .exec-chart-grid {
+        grid-template-columns: 1fr;
+    }
+}

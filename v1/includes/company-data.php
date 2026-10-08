@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/membership.php';
+
 function eca_has_table(PDO $conn, string $table): bool
 {
     static $cache = [];
@@ -18,16 +20,69 @@ function eca_has_table(PDO $conn, string $table): bool
     return $cache[$table];
 }
 
+function eca_has_column(PDO $conn, string $table, string $column): bool
+{
+    static $cache = [];
+    $key = $table . '.' . $column;
+    if (array_key_exists($key, $cache)) {
+        return $cache[$key];
+    }
+    try {
+        $stmt = $conn->prepare(
+            'SELECT 1 FROM information_schema.columns
+             WHERE table_schema = DATABASE() AND table_name = ? AND column_name = ? LIMIT 1'
+        );
+        $stmt->execute([$table, $column]);
+        $cache[$key] = (bool) $stmt->fetchColumn();
+    } catch (Throwable $e) {
+        $cache[$key] = false;
+    }
+    return $cache[$key];
+}
+
 function eca_table_count(PDO $conn, string $table): int
 {
+    static $cache = [];
+    if (array_key_exists($table, $cache)) {
+        return $cache[$table];
+    }
     if (!eca_has_table($conn, $table)) {
         return 0;
     }
     try {
-        return (int) $conn->query('SELECT COUNT(*) FROM `' . str_replace('`', '', $table) . '`')->fetchColumn();
+        $cache[$table] = (int) $conn->query('SELECT COUNT(*) FROM `' . str_replace('`', '', $table) . '`')->fetchColumn();
+        return $cache[$table];
     } catch (Throwable $e) {
+        $cache[$table] = 0;
         return 0;
     }
+}
+
+function eca_member_directory_company(PDO $conn, array $member): ?array
+{
+    $membership = trim((string) ($member['membership'] ?? ''));
+    $email = trim((string) ($member['email'] ?? ''));
+    try {
+        if ($membership !== '') {
+            $stmt = $conn->prepare('SELECT id, name, registration_number, email, phone, address, industry, status, website, description FROM companies WHERE registration_number = ? LIMIT 1');
+            $stmt->execute([$membership]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row) {
+                return $row;
+            }
+        }
+        if ($email !== '') {
+            $stmt = $conn->prepare('SELECT id, name, registration_number, email, phone, address, industry, status, website, description FROM companies WHERE email = ? LIMIT 1');
+            $stmt->execute([$email]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row) {
+                return $row;
+            }
+        }
+    } catch (Throwable $e) {
+        return null;
+    }
+    return null;
 }
 
 function eca_company_select_sql(string $table): string
@@ -50,18 +105,35 @@ function eca_company_select_sql(string $table): string
             WHEN LOWER(COALESCE(address, '')) IN ('building','builiding','civil','electrical','mechanical','specialist') THEN address
             ELSE COALESCE(NULLIF(industry, ''), address)
         END) AS Clasification,
-        status AS Status
+        status AS Status,
+        website AS website,
+        description AS description
     FROM `{$table}`";
 }
 
 function eca_directory_base_sql(PDO $conn, string $mode = 'members'): array
 {
+    $clientPk = eca_has_column($conn, 'tbl_client', 'client_id') ? 'client_id' : 'id';
+    $memberColumns = 'SELECT
+        ' . $clientPk . ' AS id,
+        TradingName,
+        CompanyRegistrationName,
+        MembershipNumber,
+        EmailAddress,
+        Cellphone,
+        Region,
+        Clasification,
+        Status,
+        NULL AS website,
+        NULL AS description
+        FROM tbl_client';
+
     if ($mode === 'balingani') {
         if (eca_has_table($conn, 'companies1') && eca_table_count($conn, 'companies1') > 0) {
             return ['sql' => eca_company_select_sql('companies1'), 'params' => []];
         }
         if (eca_has_table($conn, 'tbl_client')) {
-            return ['sql' => 'SELECT * FROM tbl_client WHERE Enterprise = :enterprise', 'params' => [':enterprise' => 'Female']];
+            return ['sql' => $memberColumns . ' WHERE Enterprise = :enterprise', 'params' => [':enterprise' => 'Female']];
         }
         return ['sql' => '', 'params' => []];
     }
@@ -70,14 +142,14 @@ function eca_directory_base_sql(PDO $conn, string $mode = 'members'): array
         return ['sql' => eca_company_select_sql('companies'), 'params' => []];
     }
     if (eca_has_table($conn, 'tbl_client')) {
-        return ['sql' => 'SELECT * FROM tbl_client', 'params' => []];
+        return ['sql' => $memberColumns, 'params' => []];
     }
     return ['sql' => '', 'params' => []];
 }
 
 function eca_directory_industries(): array
 {
-    return ['Building', 'Civil', 'Electrical', 'Mechanical', 'Specialist'];
+    return array_values(eca_specialisation_options());
 }
 
 function eca_request_industry(): string
@@ -91,16 +163,31 @@ function eca_request_industry(): string
     return '';
 }
 
-function eca_industry_filter_values(string $industry): array
+function eca_industry_tokens(string $industry): array
 {
-    $key = strtolower(trim($industry));
+    $key = strtolower(trim(preg_replace('/\s+/', ' ', $industry) ?? $industry));
+    $key = str_replace(['mechenical', 'mecanical'], 'mechanical', $key);
     if ($key === '' || in_array($key, ['all', 'all industries', '*'], true)) {
         return [];
     }
-    if ($key === 'building' || $key === 'builiding') {
-        return ['building', 'builiding'];
-    }
-    return [$key];
+    $electricalTokens = ['electrical/mechanical', 'electrical', 'electric', 'mechanical'];
+    $map = [
+        'building' => ['building', 'builiding'],
+        'builiding' => ['building', 'builiding'],
+        'civil' => ['civil'],
+        'electrical' => $electricalTokens,
+        'electric' => $electricalTokens,
+        'mechanical' => $electricalTokens,
+        'electrical/mechanical' => $electricalTokens,
+        'electrical / mechanical' => $electricalTokens,
+        'specialist' => ['specialist'],
+    ];
+    return $map[$key] ?? [$key];
+}
+
+function eca_industry_filter_values(string $industry): array
+{
+    return eca_industry_tokens($industry);
 }
 
 function eca_type_filter_url(string $base, string $search = '', string $industry = '', int $page = 1): string
@@ -141,13 +228,12 @@ function eca_directory_type_counts(PDO $conn, string $mode = 'members'): array
         $stmt->execute($base['params']);
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
             $key = strtolower((string) ($row['Clasification'] ?? ''));
-            if ($key === 'builiding') {
-                $key = 'building';
-            }
             foreach ($types as $type) {
-                if (strtolower($type) === $key) {
-                    $counts[$type] += (int) $row['total'];
-                    break;
+                foreach (eca_industry_tokens($type) as $token) {
+                    if ($token !== '' && str_contains($key, $token)) {
+                        $counts[$type] += (int) $row['total'];
+                        break;
+                    }
                 }
             }
         }
@@ -160,10 +246,13 @@ function eca_directory_type_counts(PDO $conn, string $mode = 'members'): array
 
 function eca_fetch_directory(PDO $conn, string $search, string $industry, int $limit, int $offset, string $mode = 'members', bool $prefixFirst = false): array
 {
+    $search = mb_substr(trim($search), 0, 80);
     $base = eca_directory_base_sql($conn, $mode);
     if ($base['sql'] === '') {
         return ['rows' => [], 'total' => 0];
     }
+    $limit = max(1, min($limit, 500));
+    $offset = max(0, $offset);
 
     $sql = 'SELECT * FROM (' . $base['sql'] . ') AS directory_rows WHERE 1=1';
     $params = $base['params'];
@@ -174,12 +263,18 @@ function eca_fetch_directory(PDO $conn, string $search, string $industry, int $l
             'TradingName',
             'CompanyRegistrationName',
             'MembershipNumber',
-            'Clasification',
-            'Region',
-            'EmailAddress',
-            'Cellphone',
-            'Status',
         ];
+        if (mb_strlen($search) > 1) {
+            $fields[] = 'Region';
+        }
+        if (mb_strlen($search) > 2) {
+            $fields = array_merge($fields, [
+                'Clasification',
+                'EmailAddress',
+                'Cellphone',
+                'Status',
+            ]);
+        }
         $ors = [];
         foreach ($fields as $i => $field) {
             $ph = ':search' . $i;
@@ -193,15 +288,15 @@ function eca_fetch_directory(PDO $conn, string $search, string $industry, int $l
         $sql .= ' AND (' . implode(' OR ', $ors) . ')';
     }
     if ($industry !== '') {
-        $values = eca_industry_filter_values($industry);
-        $placeholders = [];
+        $values = eca_industry_tokens($industry);
+        $ors = [];
         foreach ($values as $i => $val) {
             $ph = ':ind' . $i;
-            $placeholders[] = $ph;
-            $params[$ph] = $val;
+            $ors[] = 'LOWER(Clasification) LIKE ' . $ph;
+            $params[$ph] = '%' . $val . '%';
         }
-        if ($placeholders) {
-            $sql .= ' AND LOWER(Clasification) IN (' . implode(',', $placeholders) . ')';
+        if ($ors) {
+            $sql .= ' AND (' . implode(' OR ', $ors) . ')';
         }
     }
 

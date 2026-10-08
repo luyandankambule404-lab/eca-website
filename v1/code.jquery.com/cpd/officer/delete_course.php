@@ -1,6 +1,6 @@
 <?php
 require_once "../auth.php";
-require_role('ADMIN');
+require_role(['SUPPERADMIN', 'OFFICER']);
 require_once "../config.php";
 
 $id=$_GET['id'];

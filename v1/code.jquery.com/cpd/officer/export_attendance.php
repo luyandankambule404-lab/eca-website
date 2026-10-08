@@ -1,31 +1,39 @@
 <?php
 
-require_once "../config.php";
+require_once "../auth.php";
+require_role(['SUPPERADMIN', 'OFFICER']);
 
-$course_id = $_GET['course_id'];
+$course_id = (int)($_GET['course_id'] ?? 0);
 
 header("Content-Type: application/vnd.ms-excel");
 header("Content-Disposition: attachment; filename=attendance_report.xls");
 
 echo "Name\tEmail\tCompany\tAttendance%\tCertificate\n";
 
-$students = $conn->query("
+$students_stmt = $conn->prepare("
 SELECT *
 FROM cpd_applications
-WHERE course_id='$course_id'
+WHERE course_id=?
+");
+$students_stmt->bind_param("i", $course_id);
+$students_stmt->execute();
+$students = $students_stmt->get_result();
+
+$present_stmt = $conn->prepare("
+SELECT COUNT(*) c
+FROM course_attendance
+WHERE course_id=?
+AND application_id=?
+AND status='PRESENT'
 ");
 
 while($s=$students->fetch_assoc()){
 
-$app_id = $s['id'];
+$app_id = (int)$s['id'];
 
-$present = $conn->query("
-SELECT COUNT(*) c
-FROM course_attendance
-WHERE course_id='$course_id'
-AND application_id='$app_id'
-AND status='PRESENT'
-")->fetch_assoc()['c'];
+$present_stmt->bind_param("ii", $course_id, $app_id);
+$present_stmt->execute();
+$present = $present_stmt->get_result()->fetch_assoc()['c'];
 
 $days_total = 3;
 

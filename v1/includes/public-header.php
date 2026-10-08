@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/responsive-assets.php';
+eca_responsive_assets();
 if (!isset($currentPage) || $currentPage === '') {
     $currentPage = basename($_SERVER['SCRIPT_NAME'] ?? $_SERVER['PHP_SELF'] ?? 'index.php');
 }
@@ -23,108 +25,121 @@ $navIs = static function (array $pages) use ($currentPage): bool {
 
 $homeHref = $p('index');
 $searchAction = $p('directory');
-$aboutOn = $navIs(['about', 'about-bod', 'about-by-laws', 'contact']);
-$connectOn = $navIs(['directory', 'balingani-directory']);
-$memberOn = $navIs(['application', 'apply_artisan', 'renewal', 'checklist', 'pricing']);
-$eduOn = $navIs(['resources', 'faq', 'documents']);
+$aboutOn = $navIs(['about', 'about-bod', 'about-by-laws', 'about-mission', 'about-structure', 'about-history', 'contact']);
+$connectOn = $navIs(['directory', 'balingani-directory', 'tenders', 'tender', 'events']);
+$memberOn = $navIs(['application', 'apply_artisan', 'renewal', 'checklist', 'verify', 'track', 'membership-registration']);
+$registerOn = $navIs(['membership-registration', 'application', 'apply_artisan', 'renewal']);
+$eduOn = $navIs([
+    'resources', 'faq', 'documents', 'training', 'wellness', 'education', 'education-training', 'education-course',
+    'education-knowledge', 'education-article', 'education-learner', 'education-development', 'education-programme',
+    'education-policy', 'education-resources', 'digital-intelligence', 'professionalization', 'wellness-inclusivity',
+    'technical-support',
+]);
 $newsOn = $navIs(['news', 'gallery', 'news-details']);
+$advocacyOn = $navIs(['advocacy']);
 $homeOn = $navIs(['index']);
+$uriPath = strtolower((string) (parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: ''));
+if (
+    str_starts_with($uriPath, '/wellness')
+    || str_starts_with($uriPath, '/client/wellness')
+    || str_starts_with($uriPath, '/education')
+    || str_starts_with($uriPath, '/digital-intelligence')
+    || str_starts_with($uriPath, '/professionalization')
+    || str_starts_with($uriPath, '/wellness-inclusivity')
+    || str_starts_with($uriPath, '/technical-support')
+) {
+    $eduOn = true;
+    $homeOn = false;
+}
 ?>
     <header class="eca-public-header">
-        <div class="eca-utility">
-            <div class="eca-utility-inner">
-                <div class="eca-utility-left">
-                    <span class="eca-utility-brand">Eswatini Contractors Association</span>
-                    <div class="eca-utility-social" aria-label="Social media">
-                        <a href="https://www.facebook.com/people/Eswatini-Contractors-Association/61582863643851/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
-                        <a href="https://www.instagram.com/eca.sz/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
-                        <a href="https://www.linkedin.com/company/eswatini-contractors-association-eca" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
-                    </div>
-                </div>
-                <div class="eca-utility-tools">
-                    <form class="eca-utility-search" action="<?= htmlspecialchars($searchAction, ENT_QUOTES, 'UTF-8') ?>" method="get" role="search">
-                        <label class="eca-sr-only" for="ecaSiteSearch">Search the member directory</label>
-                        <input id="ecaSiteSearch" type="search" name="search" placeholder="Search contractors" value="<?= htmlspecialchars((string) ($_GET['search'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
-                        <button type="submit" aria-label="Search directory"><i class="bi bi-search" aria-hidden="true"></i></button>
-                    </form>
-                    <?php require __DIR__ . '/login-menu.php'; ?>
-                </div>
-            </div>
-        </div>
+        <?php require __DIR__ . '/utility-bar.php'; ?>
         <div class="eca-masthead">
-            <a class="eca-landing-logo" href="<?= htmlspecialchars($homeHref, ENT_QUOTES, 'UTF-8') ?>">
-                <img src="img/ecalogo.png" alt="Eswatini Contractors Association">
+            <a class="eca-landing-logo" href="<?= htmlspecialchars($homeHref, ENT_QUOTES, 'UTF-8') ?>" aria-label="ECA home">
+                <img src="/img/ecalogo.png" alt="Eswatini Contractors Association" width="754" height="326" decoding="async">
             </a>
             <button class="eca-landing-toggle" type="button" aria-expanded="false" aria-controls="ecaLandingNav" aria-label="Open menu">
                 <i class="bi bi-list"></i>
             </button>
             <nav class="eca-landing-nav eca-mega-nav" id="ecaLandingNav">
-                <a href="<?= htmlspecialchars($homeHref, ENT_QUOTES, 'UTF-8') ?>" class="<?= $homeOn ? 'is-active' : '' ?>">Home</a>
+                <a href="<?= htmlspecialchars($homeHref, ENT_QUOTES, 'UTF-8') ?>"<?= $homeOn ? ' class="is-active"' : '' ?>>Home</a>
 
                 <div class="eca-nav-drop eca-mega-drop<?= $aboutOn ? ' is-current' : '' ?>">
-                    <button class="eca-nav-link<?= $aboutOn ? ' is-active' : '' ?>" type="button" aria-expanded="false" aria-haspopup="true">About ECA <i class="bi bi-chevron-down"></i></button>
+                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">About ECA <i class="bi bi-chevron-down"></i></button>
                     <div class="eca-nav-menu eca-mega-menu">
                         <p class="eca-mega-label">The association</p>
                         <a href="<?= htmlspecialchars($p('about'), ENT_QUOTES, 'UTF-8') ?>">About ECA</a>
-                        <a href="<?= htmlspecialchars($p('about-bod'), ENT_QUOTES, 'UTF-8') ?>">Executive committee</a>
+                        <a href="/about-history.php">Our History</a>
+                        <a href="/about-mission.php">Mission &amp; purpose</a>
+                        <a href="/about-structure.php">Organizational structure</a>
+                        <a href="<?= htmlspecialchars($p('about-bod'), ENT_QUOTES, 'UTF-8') ?>">Leadership</a>
                         <a href="about-by-laws.php">Bylaws</a>
                         <a href="<?= htmlspecialchars($p('contact'), ENT_QUOTES, 'UTF-8') ?>">Contact</a>
                     </div>
                 </div>
 
                 <div class="eca-nav-drop eca-mega-drop<?= $connectOn ? ' is-current' : '' ?>">
-                    <button class="eca-nav-link<?= $connectOn ? ' is-active' : '' ?>" type="button" aria-expanded="false" aria-haspopup="true">Connect <i class="bi bi-chevron-down"></i></button>
-                    <div class="eca-nav-menu eca-mega-menu">
-                        <p class="eca-mega-label">Find a contractor</p>
-                        <a href="<?= htmlspecialchars($p('directory'), ENT_QUOTES, 'UTF-8') ?>">Member directory</a>
-                        <a href="<?= htmlspecialchars($p('balingani-directory'), ENT_QUOTES, 'UTF-8') ?>">Balingani</a>
+                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Connect <i class="bi bi-chevron-down"></i></button>
+                    <div class="eca-nav-menu eca-mega-menu eca-mega-menu-wide">
+                        <div class="eca-mega-col">
+                            <p class="eca-mega-label">Find a contractor</p>
+                            <a href="<?= htmlspecialchars($p('directory'), ENT_QUOTES, 'UTF-8') ?>">Member directory</a>
+                            <a href="<?= htmlspecialchars($p('balingani-directory'), ENT_QUOTES, 'UTF-8') ?>">Balingani</a>
+                        </div>
+                        <div class="eca-mega-col">
+                            <p class="eca-mega-label">Opportunities</p>
+                            <a href="/tenders.php">Tenders</a>
+                            <a href="/events.php">Events</a>
+                        </div>
                     </div>
                 </div>
 
                 <div class="eca-nav-drop eca-mega-drop<?= $memberOn ? ' is-current' : '' ?>">
-                    <button class="eca-nav-link<?= $memberOn ? ' is-active' : '' ?>" type="button" aria-expanded="false" aria-haspopup="true">Membership <i class="bi bi-chevron-down"></i></button>
-                    <div class="eca-nav-menu eca-mega-menu eca-mega-menu-wide">
-                        <div class="eca-mega-col">
-                            <p class="eca-mega-label">Join ECA</p>
-                            <a href="<?= htmlspecialchars($p('application'), ENT_QUOTES, 'UTF-8') ?>">Apply</a>
-                            <a href="apply_artisan.php">Artisan application</a>
-                            <a href="<?= htmlspecialchars($p('renewal'), ENT_QUOTES, 'UTF-8') ?>">Renew</a>
-                        </div>
-                        <div class="eca-mega-col">
-                            <p class="eca-mega-label">Members</p>
-                            <a href="<?= htmlspecialchars($p('directory'), ENT_QUOTES, 'UTF-8') ?>">Member directory</a>
-                            <a href="<?= htmlspecialchars($p('checklist'), ENT_QUOTES, 'UTF-8') ?>">Membership checklist</a>
-                            <a href="<?= htmlspecialchars($p('pricing'), ENT_QUOTES, 'UTF-8') ?>">Pricing</a>
-                        </div>
+                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Membership <i class="bi bi-chevron-down"></i></button>
+                    <div class="eca-nav-menu eca-mega-menu">
+                        <p class="eca-mega-label">Members</p>
+                        <a href="<?= htmlspecialchars($p('directory'), ENT_QUOTES, 'UTF-8') ?>">Member directory</a>
+                        <a href="/verify.php">Verify membership</a>
+                        <a href="/track.php">Track application</a>
+                        <a href="<?= htmlspecialchars($p('checklist'), ENT_QUOTES, 'UTF-8') ?>">Membership checklist</a>
                     </div>
                 </div>
 
+                <a href="/advocacy.php"<?= $advocacyOn ? ' class="is-active"' : '' ?>>Advocacy</a>
+
                 <div class="eca-nav-drop eca-mega-drop<?= $eduOn ? ' is-current' : '' ?>">
-                    <button class="eca-nav-link<?= $eduOn ? ' is-active' : '' ?>" type="button" aria-expanded="false" aria-haspopup="true">Education <i class="bi bi-chevron-down"></i></button>
+                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Our work <i class="bi bi-chevron-down"></i></button>
                     <div class="eca-nav-menu eca-mega-menu eca-mega-menu-wide">
                         <div class="eca-mega-col">
-                            <p class="eca-mega-label">Learning</p>
-                            <a href="<?= htmlspecialchars($p('resources'), ENT_QUOTES, 'UTF-8') ?>">Resources</a>
-                            <a href="/documents/">Documents</a>
-                            <a href="<?= htmlspecialchars($p('faq'), ENT_QUOTES, 'UTF-8') ?>">FAQ</a>
+                            <p class="eca-mega-label">Organizational pillars</p>
+                            <a href="/digital-intelligence.php">Digital Intelligence</a>
+                            <a href="/professionalization.php">Professionalization</a>
+                            <a href="/technical-support.php">Technical Support</a>
+                            <a href="/wellness-inclusivity.php">Wellness &amp; Inclusivity</a>
                         </div>
                         <div class="eca-mega-col">
-                            <p class="eca-mega-label">CPD training</p>
-                            <a href="/cpd/login.php">CPD contractor</a>
-                            <a href="/cpd/admin_login.php">CPD staff</a>
+                            <p class="eca-mega-label">Learning &amp; care</p>
+                            <a href="/education-knowledge.php">Knowledge centre</a>
+                            <a href="/education-training.php">Training &amp; CPD</a>
+                            <a href="/wellness/">Wellness Hub</a>
+                            <a href="/client/wellness/">Member wellness events</a>
                         </div>
                     </div>
                 </div>
 
                 <div class="eca-nav-drop eca-mega-drop<?= $newsOn ? ' is-current' : '' ?>">
-                    <button class="eca-nav-link<?= $newsOn ? ' is-active' : '' ?>" type="button" aria-expanded="false" aria-haspopup="true">News <i class="bi bi-chevron-down"></i></button>
+                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">News <i class="bi bi-chevron-down"></i></button>
                     <div class="eca-nav-menu eca-mega-menu">
                         <p class="eca-mega-label">Updates</p>
                         <a href="<?= htmlspecialchars($p('news'), ENT_QUOTES, 'UTF-8') ?>">News</a>
                         <a href="<?= htmlspecialchars($p('gallery'), ENT_QUOTES, 'UTF-8') ?>">Gallery</a>
                     </div>
                 </div>
+
+                <a href="/membership-registration.php"<?= $registerOn ? ' class="is-active"' : '' ?>>Register</a>
             </nav>
         </div>
     </header>
-    <script src="/js/public-nav.js" defer></script>
+    <script src="/js/public-nav.js?v=20261008-dirlink" defer></script>
+    <script src="/js/login-menu.js?v=20260929-drop" defer></script>
+    <script src="/js/directory-live-search.js?v=20260923-dir" defer></script>

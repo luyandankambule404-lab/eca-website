@@ -1,20 +1,28 @@
 <?php
 
-require_once "../config.php";
+require_once "../auth.php";
+require_role(['SUPPERADMIN', 'ADMIN']);
 
-$id = intval($_GET['id']);
+$id = (int)($_GET['id'] ?? 0);
 
-$q = $conn->query("
+$stmt = $conn->prepare("
 SELECT 
 cpd_applications.*,
 courses.title AS course_name
 FROM cpd_applications
 LEFT JOIN courses 
 ON cpd_applications.course_id = courses.id
-WHERE cpd_applications.id=$id
+WHERE cpd_applications.id = ?
+LIMIT 1
 ");
-
-$row = $q->fetch_assoc();
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$row = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+if (!$row) {
+    http_response_code(404);
+    exit('Application not found.');
+}
 
 ?>
 
@@ -39,21 +47,21 @@ margin-bottom:10px;
 
 <div class="app-card">
 
-<h4 class="mb-3"><?= $row['course_name'] ?></h4>
+<h4 class="mb-3"><?= e($row['course_name']) ?></h4>
 
 <div class="row">
 
 <div class="col-md-6">
 <div class="info-box">
 <strong>Company</strong><br>
-<?= $row['company_name'] ?>
+<?= e($row['company_name']) ?>
 </div>
 </div>
 
 <div class="col-md-6">
 <div class="info-box">
 <strong>Membership</strong><br>
-<?= $row['membership_number'] ?>
+<?= e($row['membership_number']) ?>
 </div>
 </div>
 
@@ -64,21 +72,21 @@ margin-bottom:10px;
 <div class="col-md-4">
 <div class="info-box">
 <strong>Representative</strong><br>
-<?= $row['full_name'] ?>
+<?= e($row['full_name']) ?>
 </div>
 </div>
 
 <div class="col-md-4">
 <div class="info-box">
 <strong>Email</strong><br>
-<?= $row['email'] ?>
+<?= e($row['email']) ?>
 </div>
 </div>
 
 <div class="col-md-4">
 <div class="info-box">
 <strong>Phone</strong><br>
-<?= $row['phone'] ?>
+<?= e($row['phone']) ?>
 </div>
 </div>
 
@@ -87,7 +95,7 @@ margin-bottom:10px;
 
 <div class="info-box">
 <strong>Learning Objectives</strong><br>
-<?= nl2br($row['learning_objectives']) ?>
+<?= nl2br(e($row['learning_objectives'])) ?>
 </div>
 
 
@@ -95,7 +103,7 @@ margin-bottom:10px;
 
 <?php if($row['qualification']): ?>
 
-<a href="../<?= $row['qualification'] ?>" 
+<a href="../uploads/<?= e(basename(str_replace('\\', '/', (string)$row['qualification']))) ?>" 
 class="btn btn-light btn-sm" target="_blank">
 View Qualification
 </a>
@@ -105,7 +113,7 @@ View Qualification
 
 <?php if($row['payment_proof']): ?>
 
-<a href="../<?= $row['payment_proof'] ?>" 
+<a href="../uploads/<?= e(basename(str_replace('\\', '/', (string)$row['payment_proof']))) ?>" 
 class="btn btn-warning btn-sm" target="_blank">
 View Payment Proof
 </a>

@@ -26,3 +26,94 @@
   from = "/client/*"
   to = "/contact.html"
   status = 302
+
+[[redirects]]
+  from = "/admin/*"
+  to = "/contact.html"
+  status = 302
+
+[[redirects]]
+  from = "/cpd/*"
+  to = "/contact.html"
+  status = 302
+
+[[redirects]]
+  from = "/verify"
+  to = "/directory.html"
+  status = 302
+
+[[redirects]]
+  from = "/verify.php"
+  to = "/directory.html"
+  status = 302
+
+[[redirects]]
+  from = "/track"
+  to = "/contact.html"
+  status = 302
+
+[[redirects]]
+  from = "/track.php"
+  to = "/contact.html"
+  status = 302
+
+[[redirects]]
+  from = "/tenders"
+  to = "/resources.html"
+  status = 302
+
+[[redirects]]
+  from = "/tenders.php"
+  to = "/resources.html"
+  status = 302
+
+[[redirects]]
+  from = "/events"
+  to = "/gallery.html"
+  status = 302
+
+[[redirects]]
+  from = "/events.php"
+  to = "/gallery.html"
+  status = 302
+
+[[redirects]]
+  from = "/training"
+  to = "/education-training.html"
+  status = 302
+
+[[redirects]]
+  from = "/training.php"
+  to = "/education-training.html"
+  status = 302
+
+[[redirects]]
+  from = "/education"
+  to = "/education.html"
+  status = 301
+
+[[redirects]]
+  from = "/education-course.php"
+  query = {slug = ":slug"}
+  to = "/education-course-:slug.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/education-programme.php"
+  query = {slug = ":slug"}
+  to = "/education-programme-:slug.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/education-article.php"
+  query = {slug = ":slug"}
+  to = "/education-article-:slug.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/sitemap.php"
+  to = "/sitemap.xml"
+  status = 302

@@ -1,0 +1,329 @@
+/* =========================================================
+   ECA dashboards — same light interface as the homepage
+   navy #192754, red #d50d0e, paper background.
+   ========================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
+:root {
+    --eca-navy: #192754;
+    --eca-navy-deep: #192754;
+    --eca-red: #d50d0e;
+    --eca-gold: #d50d0e;
+    --eca-ink: #111827;
+    --eca-muted: #667085;
+    --eca-border: #e6eaf2;
+    --eca-paper: #f5f7fb;
+    --eca-white: #ffffff;
+    --eca-shadow: 0 12px 30px rgba(25, 39, 84, 0.06);
+}
+
+html,
+body {
+    color: var(--eca-ink);
+    background: var(--eca-paper) !important;
+    font-family: "Plus Jakarta Sans", "Open Sans", "Segoe UI", sans-serif;
+}
+
+.eca-dash-topbar {
+    background: #192754;
+    color: #fff;
+    font-size: 13px;
+}
+
+.eca-dash-topbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 38px;
+    padding: 0 24px;
+}
+
+.eca-dash-topbar a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.eca-dash-topbar a:hover {
+    color: #d50d0e;
+}
+
+.eca-navbar,
+.topbar {
+    background: #fff !important;
+    border-bottom: 1px solid #edf0f5 !important;
+    box-shadow: none !important;
+}
+
+.header-cpd-title,
+.topbar h5,
+.system-title h1 {
+    color: #192754 !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.03em !important;
+    text-transform: none !important;
+}
+
+.brand-title,
+.brand-sub,
+.welcome,
+.username {
+    color: #192754 !important;
+}
+
+.brand-sub,
+.welcome {
+    color: #667085 !important;
+}
+
+.user-profile,
+.user-pill,
+.user-chip {
+    background: #f5f7fb !important;
+    border: 1px solid #e6eaf2 !important;
+    color: #192754 !important;
+    box-shadow: none !important;
+}
+
+.avatar-circle {
+    background: rgba(25, 39, 84, 0.08) !important;
+    color: #192754 !important;
+}
+
+.sidebar {
+    background: #fff !important;
+    color: #192754 !important;
+    border-right: 1px solid #edf0f5 !important;
+    box-shadow: none !important;
+}
+
+.sidebar a,
+.sidebar-nav a {
+    color: #192754 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.sidebar a:hover,
+.sidebar-nav a:hover,
+.sidebar a.active,
+.sidebar-nav a.active {
+    color: #192754 !important;
+    background: rgba(25, 39, 84, 0.06) !important;
+}
+
+.sidebar a.active,
+.sidebar-nav a.active {
+    box-shadow: inset 3px 0 0 #d50d0e !important;
+}
+
+.sidebar-nav a.active::before,
+.sidebar-nav a.active::after,
+.kpi-card-premium::before,
+.kpi-card-premium::after,
+.metric-card::after {
+    display: none !important;
+}
+
+.sidebar a i,
+.sidebar-nav a i {
+    color: #192754 !important;
+}
+
+.nav-link-unique,
+.brand-box {
+    background: #192754 !important;
+    border: 0 !important;
+    color: #fff !important;
+}
+
+.nav-link-unique .icon-wrap {
+    background: rgba(255, 255, 255, 0.14) !important;
+}
+
+.dashboard-content,
+.dashboard-wrap,
+.admin-stage,
+.main {
+    background: var(--eca-paper) !important;
+}
+
+.kpi-card-premium,
+.kpi-dark,
+.kpi-red,
+.kpi-lead,
+.kpi-soft,
+.metric-card,
+.metric-card.blue,
+.metric-card.orange,
+.card-premium,
+.quick-tile,
+.stat-box,
+.panel,
+.flow-card,
+.course-card,
+.card-panel,
+.top-performer-card {
+    background: #fff !important;
+    color: #192754 !important;
+    border: 1px solid #e6eaf2 !important;
+    box-shadow: var(--eca-shadow) !important;
+}
+
+.kpi-label,
+.metric-label,
+.kpi-premium-label,
+.kpi-foot,
+.kpi-chip {
+    color: #667085 !important;
+    background: transparent !important;
+    border-color: #e6eaf2 !important;
+}
+
+.kpi-value,
+.metric-value,
+.kpi-premium-value {
+    color: #192754 !important;
+}
+
+.kpi-icon,
+.kpi-premium-icon {
+    background: rgba(25, 39, 84, 0.07) !important;
+    color: #192754 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+.top-performer-head,
+.flow-head,
+.flow-head.blue,
+.flow-head.gray,
+.flow-head.green,
+.system-title,
+.course-hero {
+    background: #192754 !important;
+    color: #fff !important;
+}
+
+.btn-brand,
+.btn-primary,
+.btn-red,
+.eca-learn-more {
+    background: #192754 !important;
+    border-color: #192754 !important;
+    color: #fff !important;
+}
+
+.btn-brand:hover,
+.btn-primary:hover,
+.btn-red:hover,
+.eca-learn-more:hover {
+    background: #d50d0e !important;
+    border-color: #d50d0e !important;
+    color: #fff !important;
+}
+
+.btn-soft,
+.btn-secondary {
+    background: #fff !important;
+    border: 1px solid #e6eaf2 !important;
+    color: #192754 !important;
+}
+
+.eca-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 10px;
+    color: #d50d0e;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.eca-kicker::before {
+    content: "";
+    width: 28px;
+    height: 2px;
+    background: currentColor;
+}
+
+.progress,
+.progress-brand {
+    height: 10px;
+    overflow: hidden;
+    background: #eef1f8 !important;
+    border-radius: 999px;
+}
+
+.progress-bar {
+    background: #192754 !important;
+}
+
+.table thead th,
+.table-cpd th,
+.eca-table-head th {
+    background: #192754 !important;
+    color: #fff !important;
+    border: 0 !important;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.table tbody td,
+.table-cpd td {
+    color: #111827 !important;
+    font-weight: 600;
+    border-color: #e6eaf2 !important;
+}
+
+.panel-box,
+.stat-box,
+.quick-tile,
+.card-premium {
+    border-radius: 18px !important;
+}
+
+.goal-left {
+    background: #192754 !important;
+    color: #fff !important;
+}
+
+.goal-right {
+    background: #eef1f8 !important;
+    color: #192754 !important;
+}
+
+.bar.orange { background: #d50d0e !important; }
+.bar.green { background: #192754 !important; }
+
+.legend-item,
+.legend-item strong,
+.bar-label,
+.bar-label .date,
+.performer-role {
+    color: #111827 !important;
+}
+
+.member-rank img {
+    border-color: #192754 !important;
+}
+
+.member-rank .txt {
+    color: #d50d0e !important;
+}
+
+.member-rank .txt span,
+.info-line,
+.panel-head {
+    color: #192754 !important;
+}
+
+.alert-warning {
+    color: #192754;
+    background: #fff8e8;
+    border-color: #d50d0e;
+}

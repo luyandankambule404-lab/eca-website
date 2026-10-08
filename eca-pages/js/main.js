@@ -13,6 +13,7 @@
 
 (function ($) {
     "use strict";
+    if (!$) return;
 
     // Spinner
     var spinner = function () {
@@ -26,7 +27,9 @@
     
     
     // Initiate the wowjs
-    new WOW().init();
+    if (window.WOW && document.querySelector('.wow')) {
+        new WOW().init();
+    }
 
 
     // Sticky Navbar
@@ -48,29 +51,30 @@
         }
     });
     $('.back-to-top').click(function () {
-        $('html, body').animate({scrollTop: 0}, 1500, 'easeInOutExpo');
+        $('html, body').animate({scrollTop: 0}, 300);
         return false;
     });
 
 
     // Facts counter
-    $('[data-toggle="counter-up"]').counterUp({
-        delay: 10,
-        time: 2000
-    });
+    if ($.fn.counterUp && $('[data-toggle="counter-up"]').length) {
+        $('[data-toggle="counter-up"]').counterUp({
+            delay: 10,
+            time: 1200
+        });
+    }
 
 
     // Date and time picker
-    $('.date').datetimepicker({
-        format: 'L'
-    });
-    $('.time').datetimepicker({
-        format: 'LT'
-    });
+    if ($.fn.datetimepicker) {
+        $('.date').datetimepicker({ format: 'L' });
+        $('.time').datetimepicker({ format: 'LT' });
+    }
 
 
     // Header carousel
-    $(".header-carousel").owlCarousel({
+    if ($.fn.owlCarousel && $(".header-carousel").length) {
+        $(".header-carousel").owlCarousel({
         autoplay: false,
         animateOut: 'fadeOutLeft',
         items: 1,
@@ -81,11 +85,13 @@
             '<i class="bi bi-chevron-left"></i>',
             '<i class="bi bi-chevron-right"></i>'
         ]
-    });
+        });
+    }
 
 
     // Testimonials carousel
-    $(".testimonial-carousel").owlCarousel({
+    if ($.fn.owlCarousel && $(".testimonial-carousel").length) {
+        $(".testimonial-carousel").owlCarousel({
         autoplay: false,
         smartSpeed: 1000,
         center: true,
@@ -104,14 +110,16 @@
                 items:2
             }
         }
-    });
+        });
+    }
 
     
-})(jQuery);
+})(window.jQuery);
 
 (function () {
     var root = document.querySelector("[data-eca-landing]");
     if (!root) return;
+    window.ecaModernHome = true;
     var slides = Array.prototype.slice.call(root.querySelectorAll(".eca-landing-slide"));
     var dots = Array.prototype.slice.call(root.querySelectorAll(".eca-landing-dots button"));
     var toggle = root.querySelector(".eca-landing-toggle");
@@ -131,10 +139,16 @@
         if (!slides.length) return;
         index = (next + slides.length) % slides.length;
         slides.forEach(function (slide, i) {
-            slide.classList.toggle("is-active", i === index);
+            var active = i === index;
+            slide.classList.toggle("is-active", active);
+            slide.setAttribute("aria-hidden", active ? "false" : "true");
+            slide.inert = !active;
         });
         dots.forEach(function (dot, i) {
-            dot.classList.toggle("is-active", i === index);
+            var active = i === index;
+            dot.classList.toggle("is-active", active);
+            dot.setAttribute("aria-selected", active ? "true" : "false");
+            dot.setAttribute("tabindex", active ? "0" : "-1");
         });
         closeEcaDrops();
     }
@@ -145,6 +159,17 @@
     if (nextBtn) nextBtn.addEventListener("click", function () { go(index + 1); });
     dots.forEach(function (dot, i) {
         dot.addEventListener("click", function () { go(i); });
+        dot.addEventListener("keydown", function (event) {
+            if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+            event.preventDefault();
+            var target = i;
+            if (event.key === "ArrowLeft") target = i - 1;
+            if (event.key === "ArrowRight") target = i + 1;
+            if (event.key === "Home") target = 0;
+            if (event.key === "End") target = dots.length - 1;
+            go(target);
+            dots[index].focus();
+        });
     });
     if (!root.dataset.ecaNavReady) {
         root.dataset.ecaNavReady = "1";
@@ -185,5 +210,6 @@
             if (event.key === "Escape") closeEcaDrops();
         });
     }
+    go(index);
 })();
 

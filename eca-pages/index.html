@@ -10,7 +10,7 @@
     <meta name="keywords" content="contractors in Eswatini, construction companies Eswatini, building contractors Mbabane, civil contractors Manzini, Eswatini Contractors Association, ECA Eswatini, verified contractors Eswatini">
     <meta name="author" content="Eswatini Contractors Association">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://eca.co.sz/index.php">
+    <link rel="canonical" href="https://eca.co.sz/">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
@@ -32,16 +32,15 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="lib/animate/animate.min.css" rel="stylesheet">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
-    <link href="css/theme.css?v=10" rel="stylesheet">
-    <link href="css/home.css?v=17" rel="stylesheet">
+    <link href="css/theme.css?v=20260922-2" rel="stylesheet">
+    <link href="css/home.css?v=20260922-1" rel="stylesheet">
 
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -75,46 +74,11 @@
       "url":"https://eca.co.sz/",
       "potentialAction":{
         "@type":"SearchAction",
-        "target":"/news.html?search={search_term_string}",
+        "target":"https://eca.co.sz/directory.php?search={search_term_string}",
         "query-input":"required name=search_term_string"
       }
     }
     </script>
-    <!-- Favicon -->
-    <link href="favicon.ico" rel="icon">
-
-    <!-- Google Web Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com/">
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&amp;family=Roboto:wght@500;700;900&amp;display=swap" rel="stylesheet"> 
-
-    <!-- Icon Font Stylesheet -->
-    <link href="cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-    <link href="cdn.jsdelivr.net/npm/bootstrap-icons%401.4.1/font/bootstrap-icons.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Libraries Stylesheet -->
-    <link href="lib/animate/animate.min.css" rel="stylesheet">
-    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-    <link href="lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
-
-    <!-- Customized Bootstrap Stylesheet -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Template Stylesheet -->
-    <link href="css/style.css" rel="stylesheet">
-    <link href="css/theme.css?v=10" rel="stylesheet">
-    <link href="css/home.css?v=17" rel="stylesheet">
-    
-    <!-- Slick CSS -->
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
-
-<!-- jQuery (required for Slick) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- Slick JS -->
-<script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
 <style>
 /* =============================
    HERO SLIDER BASE
@@ -955,24 +919,7 @@
 </head>
 
 <body class="eca-home">
-    <!-- Spinner Start -->
-    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
-        <div class="spinner-grow text-primary" style="width: 3rem; height: 3rem;" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
-    </div>
-  
 
-
-
-
-
-<!-- Bootstrap Icons -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
-
-<!-- Bootstrap Icons -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <div class="eca-landing eca-public" data-eca-landing>
     <header class="eca-public-header">
         <div class="eca-utility">
@@ -988,26 +935,27 @@
                 <div class="eca-utility-tools">
                     <form class="eca-utility-search" action="directory.html" method="get" role="search">
                         <label class="eca-sr-only" for="ecaSiteSearch">Search the member directory</label>
-                        <input id="ecaSiteSearch" type="search" name="search" placeholder="Search contractors" value="">
+                        <input id="ecaSiteSearch" type="search" name="search" value="" autocomplete="off" required pattern=".*\S.*" title="Enter a company name or membership number">
                         <button type="submit" aria-label="Search directory"><i class="bi bi-search" aria-hidden="true"></i></button>
                     </form>
                     <div class="eca-nav-drop eca-login-drop" data-eca-login-drop>
                         <button class="eca-nav-link eca-nav-login" type="button" aria-expanded="false" aria-haspopup="menu" aria-controls="ecaLoginMenu">
-                            Login <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                            <i class="bi bi-person-circle" aria-hidden="true"></i>
+                            Login
+                            <i class="bi bi-chevron-down" aria-hidden="true"></i>
                         </button>
-                        <div class="eca-nav-menu" id="ecaLoginMenu" role="menu">
-                            <a href="/admin/login.php" role="menuitem">Admin</a>
-                            <a href="/client/" role="menuitem">Member portal</a>
-                            <a href="/cpd/login.php" role="menuitem">CPD contractor</a>
-                            <a href="/cpd/admin_login.php" role="menuitem">CPD staff</a>
-                        </div>
+                            <div class="eca-nav-menu" id="ecaLoginMenu" role="menu">
+        <a href="/admin/login.php" role="menuitem">Officer</a>
+        <a href="/client/" role="menuitem">Member</a>
+        <a href="/cpd/login.php" role="menuitem">Learner</a>
+    </div>
                     </div>
                     <script src="/js/login-menu.js" defer></script>
                 </div>
             </div>
         </div>
         <div class="eca-masthead">
-            <a class="eca-landing-logo" href="index.html">
+            <a class="eca-landing-logo" href="index.html" aria-label="ECA home">
                 <img src="img/ecalogo.png" alt="Eswatini Contractors Association">
             </a>
             <button class="eca-landing-toggle" type="button" aria-expanded="false" aria-controls="ecaLandingNav" aria-label="Open menu">
@@ -1027,42 +975,49 @@
                 </div>
                 <div class="eca-nav-drop eca-mega-drop">
                     <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Connect <i class="bi bi-chevron-down"></i></button>
-                    <div class="eca-nav-menu eca-mega-menu">
-                        <p class="eca-mega-label">Find a contractor</p>
-                        <a href="directory.html">Member directory</a>
-                        <a href="balingani-directory.html">Balingani</a>
+                    <div class="eca-nav-menu eca-mega-menu eca-mega-menu-wide">
+                        <div class="eca-mega-col">
+                            <p class="eca-mega-label">Find a contractor</p>
+                            <a href="directory.html">Member directory</a>
+                            <a href="balingani-directory.html">Balingani</a>
+                        </div>
+                        <div class="eca-mega-col">
+                            <p class="eca-mega-label">Opportunities</p>
+                            <a href="/tenders.php">Tenders</a>
+                            <a href="/events.php">Events</a>
+                        </div>
                     </div>
                 </div>
                 <div class="eca-nav-drop eca-mega-drop">
                     <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Membership <i class="bi bi-chevron-down"></i></button>
                     <div class="eca-nav-menu eca-mega-menu eca-mega-menu-wide">
                         <div class="eca-mega-col">
-                            <p class="eca-mega-label">Join ECA</p>
-                            <a href="application.html">Apply</a>
-                            <a href="apply_artisan.php">Artisan application</a>
-                            <a href="renewal.html">Renew</a>
-                        </div>
-                        <div class="eca-mega-col">
                             <p class="eca-mega-label">Members</p>
                             <a href="directory.html">Member directory</a>
+                            <a href="/verify.php">Verify membership</a>
+                            <a href="/track.php">Track application</a>
                             <a href="checklist.html">Membership checklist</a>
-                            <a href="pricing.html">Pricing</a>
                         </div>
                     </div>
                 </div>
                 <div class="eca-nav-drop eca-mega-drop">
-                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Education <i class="bi bi-chevron-down"></i></button>
+                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Membership development <i class="bi bi-chevron-down"></i></button>
                     <div class="eca-nav-menu eca-mega-menu eca-mega-menu-wide">
                         <div class="eca-mega-col">
-                            <p class="eca-mega-label">Learning</p>
-                            <a href="resources.html">Resources</a>
+                                                        <p class="eca-mega-label">Learning</p>
+                            <a href="education.html">Education hub</a>
+                            <a href="education-training.html">Training &amp; CPD</a>
+                            <a href="education-knowledge.html">Knowledge centre</a>
+                            <a href="education-learner.html">Learner Portal</a>
+                            <a href="education-development.html">Contractor development</a>
+                            <a href="education-policy.html">Industry &amp; policy</a>
+                            <a href="education-resources.html">Resources</a>
                             <a href="/documents/">Documents</a>
                             <a href="faq.html">FAQ</a>
                         </div>
                         <div class="eca-mega-col">
-                            <p class="eca-mega-label">CPD training</p>
-                            <a href="/cpd/login.php">CPD contractor</a>
-                            <a href="/cpd/admin_login.php">CPD staff</a>
+                            <p class="eca-mega-label">Member benefits</p>
+                            <a href="/wellness/">Wellness Hub</a>
                         </div>
                     </div>
                 </div>
@@ -1074,67 +1029,48 @@
                         <a href="gallery.html">Gallery</a>
                     </div>
                 </div>
+                <a href="/membership-registration.php">Membership Registration</a>
             </nav>
         </div>
     </header>
-    <script src="/js/public-nav.js" defer></script>
+    <script src="/js/public-nav.js?v=20260922-3" defer></script>
 
     <div class="eca-landing-stage">
         <button class="eca-landing-arrow eca-landing-prev" type="button" aria-label="Previous slide">&#8249;</button>
         <button class="eca-landing-arrow eca-landing-next" type="button" aria-label="Next slide">&#8250;</button>
 
         <div class="eca-landing-frame">
-            <article class="eca-landing-slide is-active" style="background-image: url('img/construction-site-f-compressed.jpg');">
+            <article class="eca-landing-slide is-active" id="ecaHeroSlide1" style="background-image: url('img/construction-site-f-compressed.jpg');">
                 <div class="eca-landing-grid">
                     <div class="eca-landing-copy">
-                        <span class="eca-landing-badge">Building a stronger construction community</span>
-                        <h1>Advancing Eswatini’s contractors through unity, standards, and opportunity.</h1>
-                        <p>The Eswatini Contractors Association supports local contractors with practical advocacy, industry training, safety guidance, and a trusted voice in national construction development.</p>
+                        <span class="eca-landing-badge">Eswatini's construction industry body</span>
+                        <h1 class="eca-slide-heading">Building Eswatini's construction industry together.</h1>
+                        <p>ECA represents and develops local contractors through trusted advocacy, professional standards, training, and access to industry opportunity.</p>
                         <div class="eca-landing-actions">
-                            <div class="eca-member-split">
-                                <a class="eca-landing-btn-primary" href="application.html">Become a member <i class="bi bi-arrow-right"></i></a>
-                                <button class="eca-member-toggle" type="button" aria-expanded="false" aria-haspopup="true" aria-label="Membership options">
-                                    <i class="bi bi-chevron-down"></i>
-                                </button>
-                                <div class="eca-member-menu">
-                                    <a href="application.html"><i class="bi bi-file-earmark-text" aria-hidden="true"></i><span>Membership application</span></a>
-                                    <a href="apply_artisan.php"><i class="bi bi-tools" aria-hidden="true"></i><span>Artisan application</span></a>
-                                    <a href="renewal.html"><i class="bi bi-arrow-repeat" aria-hidden="true"></i><span>Membership renewal</span></a>
-                                </div>
-                            </div>
-                            <a class="eca-landing-btn-ghost" href="resources.html">View programs</a>
+                            <a class="eca-landing-btn-primary" href="/membership-registration.php">Membership Registration <i class="bi bi-arrow-right"></i></a>
+                            <a class="eca-landing-btn-ghost" href="directory.html">Find a contractor</a>
                         </div>
                     </div>
                     <aside class="eca-landing-card">
-                        <h2>For contractors, suppliers, and construction partners across Eswatini.</h2>
-                        <p>A coordinated member network helping firms access standards, training, information, and a stronger shared voice.</p>
+                        <h2>A stronger industry starts with trusted contractors.</h2>
+                        <p>Join the professional network supporting construction businesses across Eswatini since 1991.</p>
                         <ul>
                             <li>Member guidance and representation</li>
                             <li>Training, safety, and quality standards</li>
                             <li>Industry advocacy and sector dialogue</li>
                         </ul>
-                        <a class="eca-landing-card-btn" href="resources.html">Start Learning Today</a>
+                        <a class="eca-landing-card-btn" href="/verify.php">Verify a contractor</a>
                     </aside>
                 </div>
             </article>
-            <article class="eca-landing-slide" style="background-image: url('img/VanSchendel-Construction.jpg');">
+            <article class="eca-landing-slide" id="ecaHeroSlide2" style="background-image: url('img/VanSchendel-Construction.jpg');">
                 <div class="eca-landing-grid">
                     <div class="eca-landing-copy">
                         <span class="eca-landing-badge">Building a stronger construction community</span>
-                        <h1>A trusted voice for contractors in Mbabane, Manzini, and nationwide.</h1>
+                        <h2 class="eca-slide-heading">A trusted voice for contractors in Mbabane, Manzini, and nationwide.</h2>
                         <p>Join the professional body that has represented Eswatini’s construction industry since 1991 — with membership, resources, and a seat at the table.</p>
                         <div class="eca-landing-actions">
-                            <div class="eca-member-split">
-                                <a class="eca-landing-btn-primary" href="application.html">Become a member <i class="bi bi-arrow-right"></i></a>
-                                <button class="eca-member-toggle" type="button" aria-expanded="false" aria-haspopup="true" aria-label="Membership options">
-                                    <i class="bi bi-chevron-down"></i>
-                                </button>
-                                <div class="eca-member-menu">
-                                    <a href="application.html"><i class="bi bi-file-earmark-text" aria-hidden="true"></i><span>Membership application</span></a>
-                                    <a href="apply_artisan.php"><i class="bi bi-tools" aria-hidden="true"></i><span>Artisan application</span></a>
-                                    <a href="renewal.html"><i class="bi bi-arrow-repeat" aria-hidden="true"></i><span>Membership renewal</span></a>
-                                </div>
-                            </div>
+                            <a class="eca-landing-btn-primary" href="/membership-registration.php">Membership Registration <i class="bi bi-arrow-right"></i></a>
                             <a class="eca-landing-btn-ghost" href="about.html">About ECA</a>
                         </div>
                     </div>
@@ -1153,43 +1089,101 @@
         </div>
 
         <div class="eca-landing-dots" role="tablist" aria-label="Hero slides">
-            <button type="button" class="is-active" aria-label="Show slide 1"></button>
-            <button type="button" aria-label="Show slide 2"></button>
+            <button type="button" role="tab" class="is-active" aria-controls="ecaHeroSlide1" aria-label="Show slide 1"></button>
+            <button type="button" role="tab" aria-controls="ecaHeroSlide2" aria-label="Show slide 2"></button>
         </div>
     </div>
 </div>
 
+<main id="main-content" tabindex="-1">
+<section class="eca-service-gateway" aria-labelledby="ecaServicesHeading">
+    <div class="container">
+        <div class="eca-section-head">
+            <p class="eca-kicker" style="color:#fff;">Digital services</p>
+            <h2 id="ecaServicesHeading">Find, verify, and manage your ECA relationship.</h2>
+            <p>Start with the official contractor directory or use your ECA reference to access a trusted service.</p>
+        </div>
+        <div class="eca-service-grid">
+            <div class="eca-service-search">
+                <h3>Find an ECA contractor</h3>
+                <p>Search by company, membership number, category, region, or public status.</p>
+                <form class="eca-directory-search" action="directory.html" method="get" role="search">
+                    <label class="eca-sr-only" for="homeContractorSearch">Search the contractor directory</label>
+                    <input id="homeContractorSearch" type="search" name="search" placeholder="Company or membership number" required>
+                    <button type="submit">Search directory</button>
+                </form>
+            </div>
+            <div class="eca-service-link is-accent">
+                <h3>Verify membership</h3>
+                <p>Confirm a contractor's public ECA standing using a membership or certificate number.</p>
+                <a href="/verify.php">Verify a contractor</a>
+            </div>
+            <div class="eca-service-link">
+                <h3>Track an application</h3>
+                <p>Use the application reference and matching email to view the latest real status.</p>
+                <a href="/track.php">Track application</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="eca-home-story" aria-labelledby="ecaHistoryHeading">
+    <div class="container eca-story-grid">
+        <div class="eca-story-copy">
+            <p class="eca-kicker">Our history</p>
+            <h2 id="ecaHistoryHeading">Representing contractors since 1991.</h2>
+            <p>ECA represents, protects, and advances the interests of construction companies and allied tradespeople while promoting professional and ethical industry development.</p>
+            <a class="eca-btn eca-btn-navy" href="about.html">About ECA</a>
+        </div>
+        <ol class="eca-history-list">
+            <li><span class="eca-history-year">1991</span><p>ECA's roots were established through a coalition of local contractors.</p></li>
+            <li><span class="eca-history-year">2013</span><p>ECA played a leading role in the development of the Construction Industry Council Act.</p></li>
+            <li><span class="eca-history-year">2018</span><p>Eswatini adopted its national name, marking a new chapter for local institutions.</p></li>
+            <li><span class="eca-history-year">2019</span><p>The Association adopted its current ECA identity.</p></li>
+            <li><span class="eca-history-year">2020</span><p>The Women in Construction initiative strengthened focus on participation in the sector.</p></li>
+            <li><span class="eca-history-year">2021</span><p>ECA continued its construction industry advocacy.</p></li>
+            <li><span class="eca-history-year">Present</span><p>ECA continues representing contractors and advancing Eswatini's construction industry.</p></li>
+        </ol>
+    </div>
+</section>
+
 <section class="eca-section eca-home-actions" aria-label="Get started">
     <div class="container">
         <div class="eca-page-intro">
-            <p class="eca-kicker">Get started</p>
-            <h2>What you need, in one place.</h2>
-            <p>Use the directory, join the association, or check how to choose a contractor you can trust.</p>
+            <p class="eca-kicker">Industry development</p>
+            <h2>How ECA supports a stronger construction sector.</h2>
+            <p>Membership, learning, wellness, representation, and inclusive participation—connected through one association.</p>
         </div>
         <div class="eca-action-grid">
-            <a class="eca-action-card" href="directory.html">
-                <i class="fas fa-address-book" aria-hidden="true"></i>
-                <h3>Find a contractor</h3>
-                <p>Find verified ECA contractors working across Eswatini.</p>
-                <span>Browse directory</span>
-            </a>
             <a class="eca-action-card" href="application.html">
                 <i class="fas fa-id-card" aria-hidden="true"></i>
                 <h3>Join ECA</h3>
                 <p>Apply for membership and stand with the industry's professional body.</p>
                 <span>Start application</span>
             </a>
-            <a class="eca-action-card" href="resources.html">
-                <i class="fas fa-graduation-cap" aria-hidden="true"></i>
-                <h3>CPD and training</h3>
-                <p>Open ECA resources and continuing professional development for contractors.</p>
-                <span>View training</span>
+            <a class="eca-action-card" href="/wellness/">
+                <i class="fas fa-heartbeat" aria-hidden="true"></i>
+                <h3>Wellness Hub</h3>
+                <p>Strong minds. Strong businesses. Strong builds. Practical support for the people behind the projects.</p>
+                <span>Open Wellness Hub</span>
             </a>
-            <a class="eca-action-card" href="news.html">
-                <i class="fas fa-newspaper" aria-hidden="true"></i>
-                <h3>News and events</h3>
-                <p>Read association updates and see what is happening across the industry.</p>
-                <span>Latest news</span>
+            <a class="eca-action-card" href="education.html">
+                <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                <h3>Education &amp; CPD</h3>
+                <p>Training, contractor knowledge, development programmes and policy briefings in one place.</p>
+                <span>Explore education</span>
+            </a>
+            <a class="eca-action-card" href="about.html">
+                <i class="fas fa-landmark" aria-hidden="true"></i>
+                <h3>Industry advocacy</h3>
+                <p>Learn how ECA represents contractors in sector dialogue and policy development.</p>
+                <span>Our role</span>
+            </a>
+            <a class="eca-action-card" href="balingani-directory.html">
+                <i class="fas fa-people-carry" aria-hidden="true"></i>
+                <h3>Women in Construction</h3>
+                <p>Discover the Balingani directory and ECA's focus on inclusive industry participation.</p>
+                <span>View Balingani</span>
             </a>
         </div>
     </div>
@@ -1227,6 +1221,8 @@
     </div>
 </section>
 
+</main>
+
 <footer class="eca-site-footer">
     <div class="container">
         <div class="row g-4">
@@ -1246,17 +1242,21 @@
             <div class="col-lg-2 col-md-4">
                 <h5>Membership</h5>
                 <a href="directory.html">Member directory</a>
-                <a href="application.html">Apply</a>
-                <a href="renewal.html">Renew</a>
+                <a href="application.html">Membership application</a>
+                <a href="renewal.html">Membership renewal</a>
                 <a href="balingani-directory.html">Balingani</a>
             </div>
             <div class="col-lg-3 col-md-4">
-                <h5>Education</h5>
-                <a href="resources.html">Resources</a>
+                                <h5>Membership development</h5>
+                <a href="education.html">Education hub</a>
+                <a href="education-training.html">Training &amp; CPD</a>
+                <a href="education-knowledge.html">Knowledge centre</a>
+                <a href="education-resources.html">Resources</a>
                 <a href="/documents/">Documents</a>
                 <a href="faq.html">FAQs</a>
-                <a href="/cpd/login.php">CPD contractor</a>
-                <a href="/cpd/admin_login.php">CPD staff</a>
+                <a href="/cpd/login.php">Learner login</a>
+                <a href="/admin/login.php">Officer login</a>
+                <a href="/wellness/">Wellness Hub</a>
             </div>
             <div class="col-lg-2 col-md-4">
                 <h5>News</h5>
@@ -1286,108 +1286,18 @@
 </style>
 
 
-<style>
-.service-item {
-    background-color: #ffffff;
-    border-radius: 15px;
-    padding: 40px 30px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    height: 100%;
-}
-
-.card-accent {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 8px;
-    border-top-left-radius: 15px;
-    border-top-right-radius: 15px;
-}
-
-.accent-blue { background: linear-gradient(90deg, #192754, #c8102e); }
-.accent-green { background: linear-gradient(90deg, #0f3d38, #192754); }
-.accent-orange { background: linear-gradient(90deg, #c4a35a, #192754); }
-
-.service-item h4 {
-    color: #192754;
-    font-weight: 700;
-}
-
-.service-item p {
-    color: #333;
-}
-
-.service-item a.btn {
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.service-item:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.25);
-}
-
-.service-item a.btn:hover {
-    background-color: #0d6efd;
-    color: #fff;
-}
-
-/* Footer Styles */
-.footer-link:hover {
-    color: #00c3ff !important;
-    padding-left: 5px;
-    transition: all 0.3s ease;
-}
-/* Ensure headers stay white */
-.footer-header {
-    color: #fff !important;
-    cursor: pointer;
-}
-.footer-header:hover {
-    color: #00c3ff !important; /* Optional hover effect */
-}
-.btn-social {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.3s ease, background 0.3s ease;
-}
-.btn-social:hover {
-    transform: scale(1.1);
-    background: #00c3ff;
-    border-color: #00c3ff;
-}
-</style>
-
-
-
     <!-- Back to Top -->
     <a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top"><i class="bi bi-arrow-up"></i></a>
 
 
     <!-- JavaScript Libraries -->
-    <script src="../code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="../cdn.jsdelivr.net/npm/bootstrap%405.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="lib/wow/wow.min.js"></script>
-    <script src="lib/easing/easing.min.js"></script>
-    <script src="lib/waypoints/waypoints.min.js"></script>
-    <script src="lib/counterup/counterup.min.js"></script>
-    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
-    <script src="lib/tempusdominus/js/moment.min.js"></script>
-    <script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
-    <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 
     <!-- Template Javascript -->
-    <script src="js/main.js"></script>
-    <script src="/js/login-menu.js" defer></script>
+    <script src="js/main.js?v=20260918-2"></script>
     <script>
     (function () {
+        if (window.ecaModernHome) return;
         var root = document.querySelector("[data-eca-landing]");
         if (!root) return;
         var slides = Array.prototype.slice.call(root.querySelectorAll(".eca-landing-slide"));
@@ -1466,17 +1376,12 @@
     </script>
 	
 	<script>
-	window.addEventListener('load', function (){ 
-	var spinner = document.getElementById('spinner');
-	if (spinner) {
-	spinner.classList.remove('show');
-	}
-	});
 	
 const uPrevBtn = document.querySelector('.unique-slider .u-prev');
 const uNextBtn = document.querySelector('.unique-slider .u-next');
 const searchBtn = document.getElementById('searchBtn');
 const searchInput = document.getElementById('searchInput');
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 if (uPrevBtn && uNextBtn) {
     const uSlides = document.querySelectorAll('.unique-slider .u-slide');
     let uIndex = 0;
@@ -1491,7 +1396,7 @@ if (uPrevBtn && uNextBtn) {
         uIndex = (uIndex + 1) % uSlides.length;
         showUSlide(uIndex);
     });
-    if (uSlides.length) {
+    if (uSlides.length && !prefersReducedMotion) {
         setInterval(() => {
             uIndex = (uIndex + 1) % uSlides.length;
             showUSlide(uIndex);
@@ -1553,6 +1458,8 @@ if (searchBtn && searchInput && newsContainer && sliderContainer) {
                 <img
                     src="img/mdb-training-poster.jpeg"
                     alt="Multilateral Development Bank Standard Bidding Documents Compliance Training poster"
+                    loading="lazy"
+                    decoding="async"
                     class="eca-poster-image">
             </a>
         </div>

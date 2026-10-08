@@ -1,7 +1,12 @@
 <?php
 require_once "../auth.php";
-require_role('ADMIN');
+require_role(['SUPPERADMIN', 'OFFICER']);
 require_once "../config.php";
+require_once "../helpers.php";
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    cpd_require_csrf();
+}
 
 $msg = "";
 $msg_type = "success";
@@ -17,8 +22,8 @@ if(!is_dir($uploadDir)){
 /* =========================
    DELETE RESOURCE
 ========================= */
-if(isset($_GET['delete']) && is_numeric($_GET['delete'])){
-    $id = (int)$_GET['delete'];
+if(isset($_POST['delete_resource'])){
+    $id = (int)($_POST['resource_id'] ?? 0);
 
     $q = $conn->prepare("SELECT file_path FROM course_resources WHERE id=? LIMIT 1");
     $q->bind_param("i", $id);
@@ -244,6 +249,7 @@ require_once "../header.php";
         </div>
 
         <form method="POST" enctype="multipart/form-data">
+          <?= cpd_csrf_input() ?>
           <div class="mb-3">
             <label class="form-label fw-bold">Course</label>
             <select name="course_id" class="form-select form-control-premium" required>
@@ -376,11 +382,13 @@ require_once "../header.php";
                       <div class="text-muted small"><?= date('h:i A', strtotime($row['created_at'])) ?></div>
                     </td>
                     <td>
-                      <a href="?delete=<?= (int)$row['id'] ?>"
-                         class="btn btn-sm btn-danger rounded-pill px-3"
-                         onclick="return confirm('Delete this resource?')">
-                         <i class="fa-solid fa-trash"></i>
-                      </a>
+                      <form method="POST" class="d-inline" onsubmit="return confirm('Delete this resource?')">
+                        <?= cpd_csrf_input() ?>
+                        <input type="hidden" name="resource_id" value="<?= (int)$row['id'] ?>">
+                        <button type="submit" name="delete_resource" class="btn btn-sm btn-danger rounded-pill px-3">
+                          <i class="fa-solid fa-trash"></i>
+                        </button>
+                      </form>
                     </td>
                   </tr>
                 <?php endwhile; ?>

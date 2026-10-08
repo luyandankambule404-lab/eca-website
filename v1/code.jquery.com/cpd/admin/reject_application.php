@@ -53,6 +53,7 @@ $start     = !empty($app['start_date']) ? date("d M Y H:i", strtotime($app['star
 $end       = !empty($app['end_date']) ? date("d M Y H:i", strtotime($app['end_date'])) : 'N/A';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    cpd_require_csrf();
     $reason = trim($_POST['reason'] ?? '');
 
     if ($reason === '') {
@@ -82,8 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $mail->setFrom('info@eca.co.sz', 'ECA CPD Training');
                 $mail->addAddress($email);
-                $mail->addBCC('brightwell.kunene@gmail.com');
-
                 $mail->isHTML(true);
                 $mail->Subject = "ECA Training Application Update";
 
@@ -234,6 +233,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <form method="post">
+                <?= cpd_csrf_input() ?>
                 <div class="mb-3">
                     <label class="form-label fw-bold">Reason for Rejection</label>
                     <textarea name="reason" class="form-control" placeholder="Enter the reason for rejecting this application..." required><?php echo e($reason); ?></textarea>

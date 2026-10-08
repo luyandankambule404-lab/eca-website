@@ -1,7 +1,16 @@
 <?php
 require_once "../auth.php";
-require_role('ADMIN');
+require_role(['SUPPERADMIN', 'OFFICER']);
 require_once "../config.php";
+require_once "../helpers.php";
+
+if ($conn instanceof mysqli) {
+    cpd_ensure_support_ticket_schema($conn);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    cpd_require_csrf();
+}
 
 $msg = "";
 $msg_type = "success";
@@ -14,22 +23,31 @@ if(isset($_POST['update_ticket'])){
     $status      = trim($_POST['status'] ?? '');
     $admin_reply = trim($_POST['admin_reply'] ?? '');
 
-    if($id > 0 && $status !== ''){
-        $stmt = $conn->prepare("
-            UPDATE support_tickets
-            SET status = ?,
-                admin_reply = ?,
-                updated_at = NOW()
-            WHERE id = ?
-        ");
-        $stmt->bind_param("ssi", $status, $admin_reply, $id);
-
-        if($stmt->execute()){
-            $msg = "Support ticket updated successfully.";
-            $msg_type = "success";
-        }else{
-            $msg = "Failed to update support ticket.";
-            $msg_type = "danger";
+    if($id > 0 && $status !== '' && $conn instanceof mysqli && cpd_table_exists($conn, 'support_tickets')){
+        $sets = ['status = ?'];
+        $types = 's';
+        $bind = [$status];
+        if (cpd_table_has_column($conn, 'support_tickets', 'admin_reply')) {
+            $sets[] = 'admin_reply = ?';
+            $types .= 's';
+            $bind[] = $admin_reply;
+        }
+        if (cpd_table_has_column($conn, 'support_tickets', 'updated_at')) {
+            $sets[] = 'updated_at = NOW()';
+        }
+        $types .= 'i';
+        $bind[] = $id;
+        $stmt = $conn->prepare('UPDATE support_tickets SET ' . implode(', ', $sets) . ' WHERE id = ? LIMIT 1');
+        if ($stmt) {
+            $stmt->bind_param($types, ...$bind);
+            if($stmt->execute()){
+                $msg = "Support ticket updated successfully.";
+                $msg_type = "success";
+            }else{
+                $msg = "Failed to update support ticket.";
+                $msg_type = "danger";
+            }
+            $stmt->close();
         }
     }
 }
@@ -37,8 +55,8 @@ if(isset($_POST['update_ticket'])){
 /* =========================
    DELETE TICKET
 ========================= */
-if(isset($_GET['delete']) && is_numeric($_GET['delete'])){
-    $id = (int)$_GET['delete'];
+if(isset($_POST['delete_ticket'])){
+    $id = (int)($_POST['ticket_id'] ?? 0);
 
     $stmt = $conn->prepare("DELETE FROM support_tickets WHERE id=? LIMIT 1");
     $stmt->bind_param("i", $id);
@@ -64,33 +82,35 @@ $where  = " WHERE 1=1 ";
 $params = [];
 $types  = "";
 
-if($search !== ''){
-    $where .= " AND (ticket_no LIKE ? OR full_name LIKE ? OR email LIKE ? OR subject LIKE ? OR message LIKE ?) ";
-    $like = "%{$search}%";
-    $params[] = $like;
-    $params[] = $like;
-    $params[] = $like;
-    $params[] = $like;
-    $params[] = $like;
-    $types .= "sssss";
+$hasTickets = $conn instanceof mysqli && cpd_table_exists($conn, 'support_tickets');
+
+if($hasTickets && $search !== ''){
+    $searchCols = [];
+    foreach (['ticket_no', 'full_name', 'email', 'subject', 'message'] as $column) {
+        if (cpd_table_has_column($conn, 'support_tickets', $column)) {
+            $searchCols[] = $column . ' LIKE ?';
+        }
+    }
+    if ($searchCols) {
+        $where .= ' AND (' . implode(' OR ', $searchCols) . ') ';
+        $like = '%' . $search . '%';
+        foreach ($searchCols as $unused) {
+            $params[] = $like;
+            $types .= 's';
+        }
+    }
 }
 
-if($status_f !== ''){
-    $where .= " AND status = ? ";
-    $params[] = $status_f;
-    $types .= "s";
+if($hasTickets && $status_f !== ''){
+    $where .= ' AND ' . cpd_status_equals_sql('status', [$status_f]) . ' ';
 }
 
-if($priority !== ''){
-    $where .= " AND priority = ? ";
-    $params[] = $priority;
-    $types .= "s";
+if($hasTickets && $priority !== '' && cpd_table_has_column($conn, 'support_tickets', 'priority')){
+    $where .= ' AND ' . cpd_status_equals_sql('priority', [$priority]) . ' ';
 }
 
-if($category !== ''){
-    $where .= " AND category = ? ";
-    $params[] = $category;
-    $types .= "s";
+if($hasTickets && $category !== '' && cpd_table_has_column($conn, 'support_tickets', 'category')){
+    $where .= ' AND ' . cpd_status_equals_sql('category', [$category]) . ' ';
 }
 
 /* =========================
@@ -100,29 +120,36 @@ $total_tickets = 0;
 $open_tickets  = 0;
 $progress_tix  = 0;
 $resolved_tix  = 0;
+$category_stats = false;
 
-$q = $conn->query("SELECT COUNT(*) c FROM support_tickets");
-if($q) $total_tickets = (int)$q->fetch_assoc()['c'];
+if ($hasTickets) {
+    try {
+        $q = $conn->query("SELECT COUNT(*) c FROM support_tickets");
+        if($q) $total_tickets = (int)$q->fetch_assoc()['c'];
 
-$q = $conn->query("SELECT COUNT(*) c FROM support_tickets WHERE status='Open'");
-if($q) $open_tickets = (int)$q->fetch_assoc()['c'];
+        $q = $conn->query("SELECT COUNT(*) c FROM support_tickets WHERE " . cpd_status_equals_sql('status', ['open', 'pending', 'new']));
+        if($q) $open_tickets = (int)$q->fetch_assoc()['c'];
 
-$q = $conn->query("SELECT COUNT(*) c FROM support_tickets WHERE status='In Progress'");
-if($q) $progress_tix = (int)$q->fetch_assoc()['c'];
+        $q = $conn->query("SELECT COUNT(*) c FROM support_tickets WHERE " . cpd_status_equals_sql('status', ['in progress', 'in_progress']));
+        if($q) $progress_tix = (int)$q->fetch_assoc()['c'];
 
-$q = $conn->query("SELECT COUNT(*) c FROM support_tickets WHERE status IN ('Resolved','Closed')");
-if($q) $resolved_tix = (int)$q->fetch_assoc()['c'];
+        $q = $conn->query("SELECT COUNT(*) c FROM support_tickets WHERE " . cpd_status_equals_sql('status', ['resolved', 'closed']));
+        if($q) $resolved_tix = (int)$q->fetch_assoc()['c'];
 
-/* =========================
-   CATEGORY STATS
-========================= */
-$category_stats = $conn->query("
-    SELECT category, COUNT(*) total
-    FROM support_tickets
-    GROUP BY category
-    ORDER BY total DESC, category ASC
-    LIMIT 6
-");
+        if (cpd_table_has_column($conn, 'support_tickets', 'category')) {
+            $category_stats = $conn->query("
+                SELECT category, COUNT(*) total
+                FROM support_tickets
+                WHERE category IS NOT NULL AND TRIM(category) <> ''
+                GROUP BY category
+                ORDER BY total DESC, category ASC
+                LIMIT 6
+            ");
+        }
+    } catch (Throwable $e) {
+        $category_stats = false;
+    }
+}
 
 /* =========================
    TICKETS LIST
@@ -134,12 +161,15 @@ $sql = "
     ORDER BY created_at DESC, id DESC
 ";
 
-$stmt = $conn->prepare($sql);
-if($types !== ''){
-    $stmt->bind_param($types, ...$params);
+$stmt = $hasTickets ? $conn->prepare($sql) : false;
+$result = false;
+if ($stmt) {
+    if($types !== ''){
+        $stmt->bind_param($types, ...$params);
+    }
+    $stmt->execute();
+    $result = $stmt->get_result();
 }
-$stmt->execute();
-$result = $stmt->get_result();
 
 require_once "../header.php";
 ?>
@@ -375,11 +405,13 @@ require_once "../header.php";
                           <i class="fa-solid fa-eye"></i>
                         </button>
 
-                        <a href="?delete=<?= (int)$row['id'] ?>"
-                           class="btn btn-sm btn-danger rounded-pill px-3"
-                           onclick="return confirm('Delete this support ticket?')">
-                           <i class="fa-solid fa-trash"></i>
-                        </a>
+                        <form method="POST" class="d-inline" onsubmit="return confirm('Delete this support ticket?')">
+                          <?= cpd_csrf_input() ?>
+                          <input type="hidden" name="ticket_id" value="<?= (int)$row['id'] ?>">
+                          <button type="submit" name="delete_ticket" class="btn btn-sm btn-danger rounded-pill px-3">
+                            <i class="fa-solid fa-trash"></i>
+                          </button>
+                        </form>
                       </div>
                     </td>
                   </tr>
@@ -399,6 +431,7 @@ require_once "../header.php";
                         </div>
 
                         <form method="POST">
+                          <?= cpd_csrf_input() ?>
                           <div class="modal-body pt-0">
                             <input type="hidden" name="ticket_id" value="<?= (int)$row['id'] ?>">
 

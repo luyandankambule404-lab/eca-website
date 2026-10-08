@@ -3,10 +3,22 @@
 
 <head>
     <meta charset="utf-8">
-    <title>E.C.A | Home</title>
+    <title>ECA Member Directory | Eswatini Contractors Association</title>
+    <meta name="description" content="Search the directory of contractors registered with the Eswatini Contractors Association and find member contact and company details.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://eca.co.sz/directory.php">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ECA Member Directory | Eswatini Contractors Association">
+    <meta property="og:description" content="Search the directory of contractors registered with the Eswatini Contractors Association and find member contact and company details.">
+    <meta property="og:url" content="https://eca.co.sz/directory.php">
+    <meta property="og:site_name" content="Eswatini Contractors Association">
+    <meta property="og:image" content="https://eca.co.sz/img/ecalogo.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ECA Member Directory | Eswatini Contractors Association">
+    <meta name="twitter:description" content="Search the directory of contractors registered with the Eswatini Contractors Association and find member contact and company details.">
+    <meta name="twitter:image" content="https://eca.co.sz/img/ecalogo.png">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
-    <meta content="Eswatini Contractors’ Official Website" name="description">
 
     <!-- Favicon -->
     <link href="img/favicon.ico" rel="icon">
@@ -17,8 +29,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500&amp;family=Roboto:wght@500;700;900&amp;display=swap" rel="stylesheet"> 
 
     <!-- Icon Font Stylesheet -->
-    <link href="cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-    <link href="cdn.jsdelivr.net/npm/bootstrap-icons%401.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
 
     <!-- Libraries Stylesheet -->
     <link href="lib/animate/animate.min.css" rel="stylesheet">
@@ -30,7 +42,7 @@
 
     <!-- Template Stylesheet -->
     <link href="css/style.css" rel="stylesheet">
-    <link href="css/theme.css?v=10" rel="stylesheet">
+    <link href="css/theme.css?v=20260919-6" rel="stylesheet">
     
     <!-- Slick CSS -->
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
@@ -102,7 +114,7 @@
     <!-- Spinner End -->
 <div class="eca-landing eca-landing-inner eca-public" data-eca-landing>
     <header class="eca-public-header">
-        <div class="eca-utility">
+                        <div class="eca-utility">
             <div class="eca-utility-inner">
                 <div class="eca-utility-left">
                     <span class="eca-utility-brand">Eswatini Contractors Association</span>
@@ -115,33 +127,35 @@
                 <div class="eca-utility-tools">
                     <form class="eca-utility-search" action="directory.html" method="get" role="search">
                         <label class="eca-sr-only" for="ecaSiteSearch">Search the member directory</label>
-                        <input id="ecaSiteSearch" type="search" name="search" placeholder="Search contractors" value="">
+                        <input id="ecaSiteSearch" type="search" name="search" value="" autocomplete="off" required pattern=".*\S.*" title="Enter a company name or membership number">
                         <button type="submit" aria-label="Search directory"><i class="bi bi-search" aria-hidden="true"></i></button>
                     </form>
                     <div class="eca-nav-drop eca-login-drop" data-eca-login-drop>
                         <button class="eca-nav-link eca-nav-login" type="button" aria-expanded="false" aria-haspopup="menu" aria-controls="ecaLoginMenu">
-                            Login <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                            <i class="bi bi-person-circle" aria-hidden="true"></i>
+                            Login
+                            <i class="bi bi-chevron-down" aria-hidden="true"></i>
                         </button>
-                        <div class="eca-nav-menu" id="ecaLoginMenu" role="menu">
-                            <a href="/admin/login.php" role="menuitem">Admin</a>
-                            <a href="/client/" role="menuitem">Member portal</a>
-                            <a href="/cpd/login.php" role="menuitem">CPD contractor</a>
-                            <a href="/cpd/admin_login.php" role="menuitem">CPD staff</a>
-                        </div>
+                            <div class="eca-nav-menu" id="ecaLoginMenu" role="menu">
+        <a href="/admin/login.php" role="menuitem">Officer</a>
+        <a href="/client/" role="menuitem">Member</a>
+        <a href="/cpd/login.php" role="menuitem">Learner</a>
+    </div>
                     </div>
                     <script src="/js/login-menu.js" defer></script>
+
                 </div>
             </div>
         </div>
-        <div class="eca-masthead">
-            <a class="eca-landing-logo" href="index.html">
+<div class="eca-masthead">
+            <a class="eca-landing-logo" href="index.html" aria-label="ECA home">
                 <img src="img/ecalogo.png" alt="Eswatini Contractors Association">
             </a>
             <button class="eca-landing-toggle" type="button" aria-expanded="false" aria-controls="ecaLandingNav" aria-label="Open menu">
                 <i class="bi bi-list"></i>
             </button>
             <nav class="eca-landing-nav eca-mega-nav" id="ecaLandingNav">
-                <a href="index.html" class="">Home</a>
+                <a href="index.html">Home</a>
                 <div class="eca-nav-drop eca-mega-drop">
                     <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">About ECA <i class="bi bi-chevron-down"></i></button>
                     <div class="eca-nav-menu eca-mega-menu">
@@ -153,43 +167,50 @@
                     </div>
                 </div>
                 <div class="eca-nav-drop eca-mega-drop is-current">
-                    <button class="eca-nav-link is-active" type="button" aria-expanded="false" aria-haspopup="true">Connect <i class="bi bi-chevron-down"></i></button>
-                    <div class="eca-nav-menu eca-mega-menu">
-                        <p class="eca-mega-label">Find a contractor</p>
-                        <a href="directory.html">Member directory</a>
-                        <a href="balingani-directory.html">Balingani</a>
+                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Connect <i class="bi bi-chevron-down"></i></button>
+                    <div class="eca-nav-menu eca-mega-menu eca-mega-menu-wide">
+                        <div class="eca-mega-col">
+                            <p class="eca-mega-label">Find a contractor</p>
+                            <a href="directory.html">Member directory</a>
+                            <a href="balingani-directory.html">Balingani</a>
+                        </div>
+                        <div class="eca-mega-col">
+                            <p class="eca-mega-label">Opportunities</p>
+                            <a href="/tenders.php">Tenders</a>
+                            <a href="/events.php">Events</a>
+                        </div>
                     </div>
                 </div>
                 <div class="eca-nav-drop eca-mega-drop">
                     <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Membership <i class="bi bi-chevron-down"></i></button>
                     <div class="eca-nav-menu eca-mega-menu eca-mega-menu-wide">
                         <div class="eca-mega-col">
-                            <p class="eca-mega-label">Join ECA</p>
-                            <a href="application.html">Apply</a>
-                            <a href="apply_artisan.php">Artisan application</a>
-                            <a href="renewal.html">Renew</a>
-                        </div>
-                        <div class="eca-mega-col">
                             <p class="eca-mega-label">Members</p>
                             <a href="directory.html">Member directory</a>
+                            <a href="/verify.php">Verify membership</a>
+                            <a href="/track.php">Track application</a>
                             <a href="checklist.html">Membership checklist</a>
-                            <a href="pricing.html">Pricing</a>
                         </div>
                     </div>
                 </div>
                 <div class="eca-nav-drop eca-mega-drop">
-                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Education <i class="bi bi-chevron-down"></i></button>
+                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Membership development <i class="bi bi-chevron-down"></i></button>
                     <div class="eca-nav-menu eca-mega-menu eca-mega-menu-wide">
                         <div class="eca-mega-col">
-                            <p class="eca-mega-label">Learning</p>
-                            <a href="resources.html">Resources</a>
+                                                        <p class="eca-mega-label">Learning</p>
+                            <a href="education.html">Education hub</a>
+                            <a href="education-training.html">Training &amp; CPD</a>
+                            <a href="education-knowledge.html">Knowledge centre</a>
+                            <a href="education-learner.html">Learner Portal</a>
+                            <a href="education-development.html">Contractor development</a>
+                            <a href="education-policy.html">Industry &amp; policy</a>
+                            <a href="education-resources.html">Resources</a>
                             <a href="/documents/">Documents</a>
                             <a href="faq.html">FAQ</a>
                         </div>
                         <div class="eca-mega-col">
-                            <p class="eca-mega-label">CPD training</p>
-                            <a href="/cpd/login.php">CPD contractor</a>
-                            <a href="/cpd/admin_login.php">CPD staff</a>
+                            <p class="eca-mega-label">Member benefits</p>
+                            <a href="/client/wellness/">Wellness portal</a>
                         </div>
                     </div>
                 </div>
@@ -351,28 +372,17 @@
 
     <!-- Search & Filter -->
     <div class="search-card">
-        <form method="GET" class="row g-3 align-items-center">
-            <div class="col-md-6 position-relative">
-                <i class="bi bi-search search-icon"></i>
-                <input type="text" name="search" 
-                       value="" 
-                       class="form-control" placeholder="Search company or industry...">
-            </div>
-            <div class="col-md-4">
-                <select name="industry" class="form-select">
-                    <option value="">All Industries</option>
-                    <option value="Building"   >Building</option>
-                    <option value="Civil"      >Civil</option>
-                    <option value="Specialist" >Specialist</option>
-                    <option value="Electrical" >Electrical</option>
-                    <option value="Mechanical" >Mechanical</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button class="btn btn-primary w-100 btn-search">
-                    <i class="bi bi-funnel-fill"></i> Filter
-                </button>
-            </div>
+        <form class="eca-directory-search" method="get" action="directory.html" role="search">
+            <label class="eca-sr-only" for="directorySearch">Search the contractor directory</label>
+            <input id="directorySearch" type="search" name="search" value="" placeholder="Company or membership number" autocomplete="off">
+            <select name="industry" aria-label="Industry">
+                <option value="">All Industries</option>
+                <option value="Building">Building</option>
+                <option value="Civil">Civil</option>
+                <option value="Electrical/Mechanical">Electrical/Mechanical</option>
+                <option value="Specialist">Specialist</option>
+            </select>
+            <button type="submit">Search directory</button>
         </form>
     </div>
 
@@ -388,8 +398,6 @@
     </nav>
 </div>
 
-
-<iframe src="https://www.google.com/maps/embed?pb=!1m16!1m12!1m3!1d3575.9398627152696!2d31.139841774754323!3d-26.328446731859643!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!2m1!1sCooper%20Center%20eswatini%20contractors%20Association!5e0!3m2!1sen!2s!4v1756185111680!5m2!1sen!2s" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
 
 <footer class="eca-site-footer">
     <div class="container">
@@ -410,17 +418,20 @@
             <div class="col-lg-2 col-md-4">
                 <h5>Membership</h5>
                 <a href="directory.html">Member directory</a>
-                <a href="application.html">Apply</a>
-                <a href="renewal.html">Renew</a>
+                <a href="application.html">Membership application</a>
+                <a href="renewal.html">Membership renewal</a>
                 <a href="balingani-directory.html">Balingani</a>
             </div>
             <div class="col-lg-3 col-md-4">
-                <h5>Education</h5>
-                <a href="resources.html">Resources</a>
+                                <h5>Membership development</h5>
+                <a href="education.html">Education hub</a>
+                <a href="education-training.html">Training &amp; CPD</a>
+                <a href="education-knowledge.html">Knowledge centre</a>
+                <a href="education-resources.html">Resources</a>
                 <a href="/documents/">Documents</a>
                 <a href="faq.html">FAQs</a>
-                <a href="/cpd/login.php">CPD contractor</a>
-                <a href="/cpd/admin_login.php">CPD staff</a>
+                <a href="/cpd/login.php">Learner login</a>
+                <a href="/admin/login.php">Officer login</a>
             </div>
             <div class="col-lg-2 col-md-4">
                 <h5>News</h5>
@@ -536,8 +547,8 @@
 
 
     <!-- JavaScript Libraries -->
-    <script src="../code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="../cdn.jsdelivr.net/npm/bootstrap%405.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="lib/wow/wow.min.js"></script>
     <script src="lib/easing/easing.min.js"></script>
     <script src="lib/waypoints/waypoints.min.js"></script>
@@ -561,6 +572,7 @@
 const uSlides = document.querySelectorAll('.unique-slider .u-slide');
 const uPrevBtn = document.querySelector('.unique-slider .u-prev');
 const uNextBtn = document.querySelector('.unique-slider .u-next');
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let uIndex = 0;
 
 function showUSlide(index) {
@@ -569,24 +581,24 @@ function showUSlide(index) {
     });
 }
 
-uPrevBtn.addEventListener('click', () => {
+uPrevBtn?.addEventListener('click', () => {
     uIndex = (uIndex - 1 + uSlides.length) % uSlides.length;
     showUSlide(uIndex);
 });
 
-uNextBtn.addEventListener('click', () => {
+uNextBtn?.addEventListener('click', () => {
     uIndex = (uIndex + 1) % uSlides.length;
     showUSlide(uIndex);
 });
 
 // Auto-play
-setInterval(() => {
+if (uSlides.length && uPrevBtn && uNextBtn && !prefersReducedMotion) setInterval(() => {
     uIndex = (uIndex + 1) % uSlides.length;
     showUSlide(uIndex);
 }, 5000);
 
 // Initialize
-showUSlide(uIndex);
+if (uSlides.length && uPrevBtn && uNextBtn) showUSlide(uIndex);
 
 
 const newsContainer = document.getElementById('newsContainer');
@@ -594,6 +606,7 @@ const sliderContainer = document.getElementById('sliderContainer');
 let slideInterval;
 
 function renderSlider() {
+    if (!sliderContainer) return;
     let slides = sliderContainer.querySelectorAll('.u-slide');
     if (!slides.length) return;
     let currentIndex = 0;
@@ -608,24 +621,27 @@ function renderSlider() {
     }
 
     clearInterval(slideInterval);
-    slideInterval = setInterval(nextSlide, 4000);
+    if (!prefersReducedMotion && sliderContainer.querySelector('.u-prev') && sliderContainer.querySelector('.u-next')) slideInterval = setInterval(nextSlide, 4000);
 
     // Prev/Next buttons
     const prevBtn = sliderContainer.querySelector('.u-prev');
     const nextBtn = sliderContainer.querySelector('.u-next');
+    if (!prevBtn || !nextBtn) return;
 
     prevBtn.onclick = () => { currentIndex = (currentIndex - 1 + slides.length) % slides.length; showSlide(currentIndex); resetInterval(); };
     nextBtn.onclick = () => { nextSlide(); resetInterval(); };
 
     function resetInterval() {
         clearInterval(slideInterval);
-        slideInterval = setInterval(nextSlide, 4000);
+        if (!prefersReducedMotion) slideInterval = setInterval(nextSlide, 4000);
     }
 }
 
 // AJAX search
 function performSearch() {
-    let query = document.getElementById('searchInput').value;
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput || !newsContainer || !sliderContainer) return;
+    let query = searchInput.value;
 
     fetch('search-news.php', {
         method: 'POST',
@@ -641,8 +657,8 @@ function performSearch() {
 }
 
 // Event listeners
-document.getElementById('searchBtn').addEventListener('click', performSearch);
-document.getElementById('searchInput').addEventListener('keypress', function(e){
+document.getElementById('searchBtn')?.addEventListener('click', performSearch);
+document.getElementById('searchInput')?.addEventListener('keypress', function(e){
     if(e.key === 'Enter') performSearch();
 });
 

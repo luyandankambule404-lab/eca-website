@@ -1,14 +1,6 @@
 <?php
-session_start();
-require_once "../config.php";
-
-/* =========================
-   STAFF ACCESS CHECK
-========================= */
-$currentRole = strtoupper($_SESSION['role'] ?? '');
-if (!isset($_SESSION['user_id']) || !in_array($currentRole, ['SUPPERADMIN', 'ADMIN', 'OFFICER'], true)) {
-    die("Access denied.");
-}
+require_once "../auth.php";
+require_role(['SUPPERADMIN', 'ADMIN', 'OFFICER']);
 
 /* =========================
    PHPMailer

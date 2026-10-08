@@ -1,6 +1,7 @@
 <?php
-session_start();
 require_once "config.php";
+require_once "helpers.php";
+cpd_session_start();
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -13,15 +14,11 @@ require 'PHPMailer/src/SMTP.php';
    GET LATEST OPEN COURSE
 ========================= */
 $courseSql = "SELECT * FROM courses WHERE status='OPEN' ORDER BY id DESC LIMIT 1";
-$courseRes = $conn->query($courseSql);
+$courseRes = $conn ? $conn->query($courseSql) : false;
 $course = $courseRes ? $courseRes->fetch_assoc() : null;
 
 if (!$course) {
-    http_response_code(200);
-    echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">';
-    echo '<title>Registration Closed | ECA Training</title>';
-    echo '<style>body{margin:0;font-family:Arial,sans-serif;background:#f5f7fb;color:#192754;}main{max-width:640px;margin:12vh auto;padding:32px;background:#fff;border-radius:16px;box-shadow:0 16px 40px rgba(25,39,84,.12);}h1{margin:0 0 12px;}p{line-height:1.6;}a{color:#d50d0e;font-weight:700;}</style>';
-    echo '</head><body><main><p style="color:#d50d0e;font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:12px;">ECA CPD</p><h1>Registration closed</h1><p>There is no open CPD course taking applications at the moment.</p><p><a href="/">Back to ECA home</a> · <a href="/cpd/login.php">CPD login</a></p></main></body></html>';
+    header('Location: /cpd/closed.php');
     exit;
 }
 
@@ -51,7 +48,7 @@ $coursePoints = $course['points'] ?? '4.00';
 $upload_dir = __DIR__ . "/uploads/";
 
 if (!is_dir($upload_dir)) {
-    @mkdir($upload_dir, 0777, true);
+    @mkdir($upload_dir, 0750, true);
 }
 
 /* =========================
@@ -111,7 +108,20 @@ function handle_upload(
         ];
     }
 
-    $safeName = time() . "_" . $field . "_" . preg_replace('/[^A-Za-z0-9_\.-]/', '_', $original);
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($_FILES[$field]['tmp_name']);
+    $allowedMimes = [
+        'pdf' => ['application/pdf'],
+        'doc' => ['application/msword', 'application/octet-stream'],
+        'docx' => ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/zip'],
+        'jpg' => ['image/jpeg'],
+        'jpeg' => ['image/jpeg'],
+        'png' => ['image/png'],
+    ];
+    if (!isset($allowedMimes[$ext]) || !in_array($mime, $allowedMimes[$ext], true)) {
+        return ['ok' => false, 'error' => "The uploaded {$field} file content is not valid."];
+    }
+
+    $safeName = $field . '_' . bin2hex(random_bytes(16)) . '.' . $ext;
     $targetPath = $upload_dir . $safeName;
 
     if (!move_uploaded_file($_FILES[$field]['tmp_name'], $targetPath)) {
@@ -157,6 +167,7 @@ function get_company_by_membership(mysqli $conn, string $membership_number): ?ar
    FORM SUBMISSION
 ========================= */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
+    cpd_require_csrf();
 
     $course_id           = isset($_POST['course_id']) ? (int)$_POST['course_id'] : 0;
     $membership          = clean_input($_POST['membership_number'] ?? '');
@@ -253,7 +264,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         ");
 
         if (!$stmt) {
-            $err = "Failed to prepare application query: " . $conn->error;
+            error_log('CPD application prepare failed: ' . $conn->error);
+            $err = "The application could not be prepared. Please try again.";
         } else {
             $stmt->bind_param(
                 "isssssssssssssss",
@@ -371,7 +383,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 $_POST = [];
                 $company_details = null;
             } else {
-                $err = "Error: " . $stmt->error;
+                error_log('CPD application save failed: ' . $stmt->error);
+                $err = "The application could not be saved. Please try again.";
             }
 
             $stmt->close();
@@ -466,6 +479,54 @@ $readonly_active       = $company_details['active'] ?? ($_POST['company_active']
             border:1px solid rgba(255,255,255,.25);
             color:#fff;
             text-decoration:none;
+        }
+
+        .nav-actions{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            margin-left:auto;
+        }
+
+        .btn-back-dash{
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            min-height:38px;
+            padding:0 14px;
+            border-radius:999px;
+            border:1px solid rgba(255,255,255,.35);
+            background:rgba(255,255,255,.12);
+            color:#fff !important;
+            font-size:.84rem;
+            font-weight:800;
+            text-decoration:none !important;
+            white-space:nowrap;
+        }
+
+        .btn-back-dash:hover{
+            background:rgba(255,255,255,.22);
+            color:#fff !important;
+        }
+
+        .page-back-row{
+            max-width:980px;
+            margin:0 auto 14px;
+            padding:0 12px;
+        }
+
+        .page-back-row a{
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            color:#061f52;
+            font-weight:800;
+            font-size:.9rem;
+            text-decoration:none;
+        }
+
+        .page-back-row a:hover{
+            color:#c1121f;
         }
 
         .page-wrap{padding:34px 0 55px;}
@@ -847,7 +908,7 @@ $readonly_active       = $company_details['active'] ?? ($_POST['company_active']
 
         @media print{
             body{background:#fff;}
-            .eca-navbar,.submit-bar,.btn-lookup,.btn-momo{display:none!important;}
+            .eca-navbar,.submit-bar,.btn-lookup,.btn-momo,.page-back-row,.btn-back-dash{display:none!important;}
             .page-wrap{padding:0;}
             .paper-card{box-shadow:none;border:none;border-radius:0;padding:20px;}
         }
@@ -862,13 +923,14 @@ $readonly_active       = $company_details['active'] ?? ($_POST['company_active']
             .btn-submit-app{width:100%;}
         }
     </style>
+    <?php require_once dirname(__DIR__, 2) . '/includes/responsive-assets.php'; eca_responsive_assets(); ?>
 </head>
 
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark eca-navbar sticky-top">
     <div class="container-fluid px-3 px-lg-4">
-        <a class="navbar-brand d-flex align-items-center gap-3 text-decoration-none" href="/cpd/index.php">
+        <a class="navbar-brand d-flex align-items-center gap-3 text-decoration-none" href="/cpd/contractor/dashboard.php">
             <div class="logo-box">
                 <img src="https://eca.co.sz/cpd/images/logo.jpg" class="brand-logo" alt="ECA Logo">
             </div>
@@ -877,9 +939,16 @@ $readonly_active       = $company_details['active'] ?? ($_POST['company_active']
             </div>
         </a>
 
-        <a class="user-profile" href="#">
-            <i class="fa-solid fa-user"></i>
-        </a>
+        <div class="nav-actions">
+            <a class="btn-back-dash hub-origin-back" href="/cpd/contractor/dashboard.php">
+                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                <span>Learner Dashboard</span>
+            </a>
+            <?php $GLOBALS['eca_dashboard_back_rendered'] = true; ?>
+            <a class="user-profile" href="/cpd/contractor/dashboard.php" title="Learner Dashboard" aria-label="Learner Dashboard">
+                <i class="fa-solid fa-user"></i>
+            </a>
+        </div>
     </div>
 </nav>
 
@@ -933,6 +1002,7 @@ $readonly_active       = $company_details['active'] ?? ($_POST['company_active']
             <?php endif; ?>
 
             <form method="POST" enctype="multipart/form-data">
+                <?= cpd_csrf_input() ?>
                 <input type="hidden" name="course_id" value="<?= (int)$course['id'] ?>">
 
                 <div class="pdf-section">
@@ -941,7 +1011,7 @@ $readonly_active       = $company_details['active'] ?? ($_POST['company_active']
                     <div class="lookup-row">
                         <div class="row g-3 align-items-end">
                             <div class="col-md-8">
-                                <label class="pdf-label">ECA Membership Number (e.g ECA1000)</label>
+                                <label class="form-label pdf-label">ECA Membership Number (e.g ECA1000)</label>
                                 <input
                                     type="text"
                                     name="membership_number"
@@ -963,39 +1033,39 @@ $readonly_active       = $company_details['active'] ?? ($_POST['company_active']
 
                     <div class="row g-4">
                         <div class="col-md-6">
-                            <label class="pdf-label">Company Trading Name</label>
+                            <label class="form-label pdf-label">Company Trading Name</label>
                             <input type="text" name="company_name" id="company_name" class="form-control" value="<?= e($readonly_company_name) ?>" readonly required>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="pdf-label">CIC Registration Grade / Discipline</label>
+                            <label class="form-label pdf-label">CIC Registration Grade / Discipline</label>
                             <input type="text" name="discipline" id="discipline" class="form-control" value="<?= e($readonly_discipline) ?>" readonly required>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="pdf-label">Company Registration Name</label>
+                            <label class="form-label pdf-label">Company Registration Name</label>
                             <input type="text" name="company_registration_name" id="company_registration_name" class="form-control" value="<?= e($readonly_registration) ?>" readonly>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="pdf-label">Company Email / Phone</label>
+                            <label class="form-label pdf-label">Company Email / Phone</label>
                             <input type="text" name="company_email_phone" id="company_email_phone" class="form-control" value="<?= e(trim($readonly_email . ' / ' . $readonly_phone, ' /')) ?>" readonly>
                             <input type="hidden" name="company_email" id="company_email" value="<?= e($readonly_email) ?>">
                             <input type="hidden" name="company_phone" id="company_phone" value="<?= e($readonly_phone) ?>">
                         </div>
 
                         <div class="col-md-4">
-                            <label class="pdf-label">Region</label>
+                            <label class="form-label pdf-label">Region</label>
                             <input type="text" name="region" id="region" class="form-control" value="<?= e($readonly_region) ?>" readonly>
                         </div>
 
                         <div class="col-md-4">
-                            <label class="pdf-label">Company Status</label>
+                            <label class="form-label pdf-label">Company Status</label>
                             <input type="text" name="company_status" id="company_status" class="form-control" value="<?= e($readonly_status) ?>" readonly>
                         </div>
 
                         <div class="col-md-4">
-                            <label class="pdf-label">Active Status</label>
+                            <label class="form-label pdf-label">Active Status</label>
                             <input type="text" name="company_active" id="company_active" class="form-control" value="<?= e($readonly_active) ?>" readonly>
                         </div>
                     </div>
@@ -1006,27 +1076,27 @@ $readonly_active       = $company_details['active'] ?? ($_POST['company_active']
 
                     <div class="row g-4">
                         <div class="col-md-6">
-                            <label class="pdf-label">Full Name (as per ID)</label>
+                            <label class="form-label pdf-label">Full Name (as per ID)</label>
                             <input type="text" name="full_name" class="form-control" value="<?= old('full_name') ?>" required>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="pdf-label">ID Number</label>
+                            <label class="form-label pdf-label">ID Number</label>
                             <input type="text" name="id_number" class="form-control" value="<?= old('id_number') ?>" required>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="pdf-label">Email Address</label>
+                            <label class="form-label pdf-label">Email Address</label>
                             <input type="email" name="email" class="form-control" value="<?= old('email') ?>">
                         </div>
 
                         <div class="col-md-3">
-                            <label class="pdf-label">Phone Number</label>
+                            <label class="form-label pdf-label">Phone Number</label>
                             <input type="text" name="phone" class="form-control" value="<?= old('phone') ?>">
                         </div>
 
                         <div class="col-md-3">
-                            <label class="pdf-label">Gender</label>
+                            <label class="form-label pdf-label">Gender</label>
                             <select name="gender" class="form-select">
                                 <option value="">Select</option>
                                 <option value="M" <?= is_selected('gender', 'M') ?>>Male</option>
@@ -1035,7 +1105,7 @@ $readonly_active       = $company_details['active'] ?? ($_POST['company_active']
                         </div>
 
                         <div class="col-12">
-                            <label class="pdf-label">Position / Role</label>
+                            <label class="form-label pdf-label">Position / Role</label>
                             <div class="pdf-checks">
                                 <label class="pdf-check"><input type="radio" name="position" value="Director" <?= is_checked_value('position','Director') ?> required>Director</label>
                                 <label class="pdf-check"><input type="radio" name="position" value="Site Agent" <?= is_checked_value('position','Site Agent') ?>>Site Agent</label>
@@ -1051,7 +1121,7 @@ $readonly_active       = $company_details['active'] ?? ($_POST['company_active']
 
                     <div class="row g-4">
                         <div class="col-12">
-                            <label class="pdf-label">Highest Qualification</label>
+                            <label class="form-label pdf-label">Highest Qualification</label>
                             <div class="pdf-checks">
                                 <label class="pdf-check"><input type="radio" name="qualification_level" value="Diploma" <?= is_checked_value('qualification_level','Diploma') ?> required>Diploma</label>
                                 <label class="pdf-check"><input type="radio" name="qualification_level" value="BCom/BSc" <?= is_checked_value('qualification_level','BCom/BSc') ?>>BCom/BSc</label>
@@ -1061,20 +1131,20 @@ $readonly_active       = $company_details['active'] ?? ($_POST['company_active']
                         </div>
 
                         <div class="col-md-6">
-                            <label class="pdf-label">Qualification / Field of Study</label>
+                            <label class="form-label pdf-label">Qualification / Field of Study</label>
                             <input type="text" name="qualification_name" class="form-control" value="<?= old('qualification_name') ?>" placeholder="Optional">
                         </div>
 
                         <div class="col-md-6">
                             <div class="file-panel">
-                                <label class="pdf-label">Attach Minimum Qualification</label>
+                                <label class="form-label pdf-label">Attach Minimum Qualification</label>
                                 <input type="file" name="qualification" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
                                 <small class="text-muted">Allowed: PDF, DOC, DOCX, JPG, PNG. Maximum 2 MB.</small>
                             </div>
                         </div>
 
                         <div class="col-12">
-                            <label class="pdf-label">Learning Objectives (Briefly state what you hope to achieve)</label>
+                            <label class="form-label pdf-label">Learning Objectives (Briefly state what you hope to achieve)</label>
                             <textarea name="learning_objectives" class="form-control" required><?= old('learning_objectives') ?></textarea>
                         </div>
                     </div>
@@ -1085,7 +1155,7 @@ $readonly_active       = $company_details['active'] ?? ($_POST['company_active']
 
                     <div class="row g-4 align-items-start">
                         <div class="col-md-7">
-                            <label class="pdf-label">Method of Payment</label>
+                            <label class="form-label pdf-label">Method of Payment</label>
                             <div class="pdf-checks">
                                 <label class="pdf-check"><input type="radio" name="payment_method" value="EFT" <?= is_checked_value('payment_method','EFT') ?> required>EFT</label>
                                 <label class="pdf-check"><input type="radio" name="payment_method" value="Mobile Money" <?= is_checked_value('payment_method','Mobile Money') ?>>Mobile Money</label>
@@ -1112,7 +1182,7 @@ $readonly_active       = $company_details['active'] ?? ($_POST['company_active']
 
                         <div class="col-md-5">
                             <div class="file-panel">
-                                <label class="pdf-label">Proof of Payment</label>
+                                <label class="form-label pdf-label">Proof of Payment</label>
                                 <input type="file" name="payment_proof" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
                                 <button type="button" class="btn btn-momo mt-3" data-bs-toggle="modal" data-bs-target="#momoModal">
                                     <i class="fa-solid fa-mobile-screen-button me-2"></i>Pay With MoMo
@@ -1176,6 +1246,8 @@ $readonly_active       = $company_details['active'] ?? ($_POST['company_active']
             </div>
 
             <form id="momoForm" method="POST">
+                <?= cpd_csrf_input() ?>
+                <input type="hidden" name="course_id" value="<?= (int)$course['id'] ?>">
                 <input type="hidden" name="membership_number" id="momo_membership_number">
                 <input type="hidden" name="application_id" id="momo_application_id" value="<?= isset($application_id) ? (int)$application_id : '' ?>">
 

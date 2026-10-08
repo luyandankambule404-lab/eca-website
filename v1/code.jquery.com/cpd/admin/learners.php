@@ -2,25 +2,34 @@
 require_once "../auth.php";
 require_role(['SUPPERADMIN', 'OFFICER', 'ADMIN']);
 require_once "../config.php";
+require_once "../helpers.php";
+require_once dirname(__DIR__, 3) . '/includes/pagination.php';
+
+$page = eca_pager_page();
+$limit = eca_pager_limit();
+$paged = eca_paged_query_mysqli(
+    $conn,
+    "SELECT COUNT(*) FROM cpd_applications WHERE " . cpd_status_equals_sql('status', ['Approved']),
+    "SELECT cpd_applications.*, courses.title AS course_name
+     FROM cpd_applications
+     LEFT JOIN courses ON cpd_applications.course_id = courses.id
+     WHERE " . cpd_status_equals_sql('cpd_applications.status', ['Approved']),
+    '',
+    [],
+    $page,
+    $limit
+);
+$learnerRows = $paged['rows'];
+$learnerTotal = $paged['total'];
+$learnerPage = $paged['page'];
+$learnerPages = $paged['pages'];
+
 require_once "../header.php";
-
-/* LOAD ONLY APPROVED + IN PROGRESS */
-
-$result = $conn->query("
-SELECT 
-cpd_applications.*,
-courses.title AS course_name
-FROM cpd_applications
-LEFT JOIN courses 
-ON cpd_applications.course_id = courses.id
-WHERE cpd_applications.status='Approved'
-ORDER BY cpd_applications.id DESC
-");
 ?>
 
 <div class="container mt-4">
 
-<div class="card shadow-sm">
+<div class="card shadow-sm eca-form-panel eca-table-panel">
 <div class="card-body">
 
 <h3 class="mb-3">
@@ -33,7 +42,7 @@ These are contractors currently attending CPD training.
 
 <div class="table-responsive">
 
-<table id="learnersTable" class="table table-bordered table-striped align-middle">
+<table id="learnersTable" class="table table-bordered table-striped align-middle" data-dash-server-page="1">
 
 <thead class="table-dark">
 <tr>
@@ -51,33 +60,33 @@ These are contractors currently attending CPD training.
 
 <tbody>
 
-<?php while($row = $result->fetch_assoc()): ?>
+<?php foreach ($learnerRows as $row): ?>
 
 <tr>
 
-<td><?= $row['id'] ?></td>
+<td><?= (int)$row['id'] ?></td>
 
 <td>
 <span class="badge bg-primary">
-<?= $row['course_name'] ?>
+<?= e($row['course_name']) ?>
 </span>
 </td>
 
 <td>
-<strong><?= $row['company_name'] ?></strong><br>
-<small class="text-muted"><?= $row['discipline'] ?></small>
+<strong><?= e($row['company_name']) ?></strong><br>
+<small class="text-muted"><?= e($row['discipline']) ?></small>
 </td>
 
 <td>
-<?= $row['full_name'] ?><br>
-<small class="text-muted"><?= $row['email'] ?></small>
+<?= e($row['full_name']) ?><br>
+<small class="text-muted"><?= e($row['email']) ?></small>
 </td>
 
-<td><?= $row['phone'] ?></td>
+<td><?= e($row['phone']) ?></td>
 
 <td>
 <span class="badge bg-warning text-dark">
-<i class="fa fa-spinner"></i><?= $row['training_status'] ?>
+<i class="fa fa-spinner"></i><?= e($row['training_status']) ?>
 </span>
 </td>
 
@@ -85,7 +94,7 @@ These are contractors currently attending CPD training.
 
 <button 
 class="btn btn-sm btn-info viewApplication"
-data-id="<?= $row['id'] ?>">
+data-id="<?= (int)$row['id'] ?>">
 View
 </button>
 
@@ -94,7 +103,7 @@ View
 
 <?php else: ?>
 
-<a href="../training_cerficate.php?id=<?= $row['id'] ?>"
+<a href="../training_cerficate.php?id=<?= (int)$row['id'] ?>"
 class="btn btn-sm btn-primary"
 target="_blank">
 <i class="fa fa-download"></i> Certificate
@@ -107,13 +116,15 @@ target="_blank">
 
 </tr>
 
-<?php endwhile; ?>
+<?php endforeach; ?>
 
 </tbody>
 
 </table>
 
 </div>
+
+<?php eca_render_request_pager($learnerPage, $learnerPages, $learnerTotal, $limit); ?>
 
 </div>
 </div>
@@ -180,7 +191,9 @@ $(document).ready(function(){
 
 $('#learnersTable').DataTable({
 
-pageLength:10,
+paging:false,
+searching:false,
+info:false,
 
 dom:'Bfrtip',
 

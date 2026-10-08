@@ -1,0 +1,16 @@
+# Local / server secrets — do not upload
+config.php
+code.jquery.com/cpd/config.php
+.env
+
+# Logs and OS junk
+error_log
+*.log
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor / local
+.idea/
+.vscode/
+*.swp

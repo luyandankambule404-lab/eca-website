@@ -2,6 +2,10 @@
 require_once "../auth.php";
 require_role(['SUPPERADMIN', 'OFFICER', 'ADMIN']);
 require_once "../config.php";
+require_once dirname(__DIR__, 3) . '/includes/pagination.php';
+if ($conn instanceof mysqli) {
+    cpd_ensure_wallet_transaction_columns($conn);
+}
 
 /* =========================
    HELPERS
@@ -57,6 +61,7 @@ function redirect_back(){
    POST ACTIONS
 ========================= */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
+    cpd_require_csrf();
     $transaction_id = (int)($_POST['transaction_id'] ?? 0);
     $new_status = strtoupper(trim($_POST['new_status'] ?? ''));
 
@@ -67,51 +72,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
         redirect_back();
     }
 
-    if ($new_status === 'APPROVED') {
-        $stmt = $conn->prepare("
-            UPDATE wallet_transactions
-            SET 
-                status = 'APPROVED',
-                approved_at = COALESCE(approved_at, NOW()),
-                updated_at = NOW()
-            WHERE id = ?
-            LIMIT 1
-        ");
-    } elseif ($new_status === 'FAILED') {
-        $stmt = $conn->prepare("
-            UPDATE wallet_transactions
-            SET 
-                status = 'FAILED',
-                updated_at = NOW()
-            WHERE id = ?
-            LIMIT 1
-        ");
-    } else {
-        $stmt = $conn->prepare("
-            UPDATE wallet_transactions
-            SET 
-                status = 'PENDING',
-                approved_at = NULL,
-                updated_at = NOW()
-            WHERE id = ?
-            LIMIT 1
-        ");
+    $sets = ["status = ?"];
+    $types = 'si';
+    $bind = [$new_status, $transaction_id];
+    if ($new_status === 'APPROVED' && cpd_table_has_column($conn, 'wallet_transactions', 'approved_at')) {
+        $sets[] = 'approved_at = COALESCE(approved_at, NOW())';
+    } elseif ($new_status === 'PENDING' && cpd_table_has_column($conn, 'wallet_transactions', 'approved_at')) {
+        $sets[] = 'approved_at = NULL';
     }
-
-    if (!$stmt) {
-        $_SESSION['payment_error'] = "Failed to prepare update: " . $conn->error;
+    if (cpd_table_has_column($conn, 'wallet_transactions', 'updated_at')) {
+        $sets[] = 'updated_at = NOW()';
+    }
+    $stmt = $conn->prepare(
+        'UPDATE wallet_transactions SET ' . implode(', ', $sets) . ' WHERE id = ? LIMIT 1'
+    );
+    if ($stmt) {
+        $stmt->bind_param($types, $bind[0], $bind[1]);
+        if ($stmt->execute()) {
+            $_SESSION['payment_success'] = "Transaction updated to " . $new_status . ".";
+        } else {
+            $_SESSION['payment_error'] = "Unable to update that transaction. Please try again.";
+        }
+        $stmt->close();
         redirect_back();
     }
 
-    $stmt->bind_param("i", $transaction_id);
-
-    if ($stmt->execute()) {
-        $_SESSION['payment_success'] = "Transaction updated to " . $new_status . ".";
-    } else {
-        $_SESSION['payment_error'] = "Failed to update transaction: " . $stmt->error;
-    }
-
-    $stmt->close();
+    $_SESSION['payment_error'] = "Unable to update that transaction. Please try again.";
     redirect_back();
 }
 
@@ -148,23 +134,19 @@ if ($to_date !== '' && valid_date($to_date)) {
 }
 
 if ($search !== '') {
-    $where[] = "
-        (
-            t.request_id LIKE ?
-            OR t.membership_number LIKE ?
-            OR t.reference_id LIKE ?
-            OR t.transaction_id LIKE ?
-            OR t.mobile_number LIKE ?
-            OR CAST(t.application_id AS CHAR) LIKE ?
-            OR a.full_name LIKE ?
-            OR a.company_name LIKE ?
-        )
-    ";
-
-    $like = "%" . $search . "%";
-
-    for ($i = 0; $i < 8; $i++) {
-        $types .= "s";
+    $searchParts = [];
+    foreach (['request_id', 'membership_number', 'reference_id', 'transaction_id', 'mobile_number'] as $column) {
+        if (cpd_table_has_column($conn, 'wallet_transactions', $column)) {
+            $searchParts[] = 't.' . $column . ' LIKE ?';
+        }
+    }
+    $searchParts[] = 'CAST(t.application_id AS CHAR) LIKE ?';
+    $searchParts[] = 'a.full_name LIKE ?';
+    $searchParts[] = 'a.company_name LIKE ?';
+    $where[] = '(' . implode(' OR ', $searchParts) . ')';
+    $like = '%' . $search . '%';
+    foreach ($searchParts as $unused) {
+        $types .= 's';
         $params[] = $like;
     }
 }
@@ -198,7 +180,8 @@ $stats_sql = "
 $stats_stmt = $conn->prepare($stats_sql);
 
 if (!$stats_stmt) {
-    die("Stats query failed: " . h($conn->error));
+    http_response_code(503);
+    exit('Unable to load payment records. Please try again shortly.');
 }
 
 $stats_params = $params;
@@ -210,21 +193,29 @@ $stats_stmt->close();
 /* =========================
    TRANSACTIONS QUERY
 ========================= */
+$selectCols = [];
+foreach ([
+    'id',
+    'request_id',
+    'membership_number',
+    'application_id',
+    'reference_id',
+    'transaction_id',
+    'mobile_number',
+    'amount',
+    'status',
+    'approved_at',
+    'updated_at',
+    'remote_response',
+    'created_at',
+] as $column) {
+    $selectCols[] = cpd_table_has_column($conn, 'wallet_transactions', $column)
+        ? 't.' . $column
+        : 'NULL AS ' . $column;
+}
 $transactions_sql = "
     SELECT
-        t.id,
-        t.request_id,
-        t.membership_number,
-        t.application_id,
-        t.reference_id,
-        t.transaction_id,
-        t.mobile_number,
-        t.amount,
-        t.status,
-        t.approved_at,
-        t.updated_at,
-        t.remote_response,
-        t.created_at,
+        " . implode(",\n        ", $selectCols) . ",
         a.full_name,
         a.company_name,
         a.course_id
@@ -232,13 +223,37 @@ $transactions_sql = "
     LEFT JOIN cpd_applications a ON a.id = t.application_id
     $where_sql
     ORDER BY t.created_at DESC, t.id DESC
-    LIMIT 500
 ";
+
+$page = eca_pager_page();
+$limit = eca_pager_limit();
+$count_sql = "
+    SELECT COUNT(*)
+    FROM wallet_transactions t
+    LEFT JOIN cpd_applications a ON a.id = t.application_id
+    $where_sql
+";
+$count_stmt = $conn->prepare($count_sql);
+if (!$count_stmt) {
+    http_response_code(503);
+    exit('Unable to load payment records. Please try again shortly.');
+}
+$count_params = $params;
+bind_dynamic_params($count_stmt, $types, $count_params);
+$count_stmt->execute();
+$count_res = $count_stmt->get_result();
+$txn_total = $count_res ? (int) ($count_res->fetch_row()[0] ?? 0) : 0;
+$count_stmt->close();
+$txn_pages = $txn_total > 0 ? max(1, (int) ceil($txn_total / $limit)) : 1;
+$page = eca_pager_redirect_if_out_of_range($page, $txn_pages, $txn_total);
+$txn_offset = ($page - 1) * $limit;
+$transactions_sql .= ' LIMIT ' . (int) $limit . ' OFFSET ' . (int) $txn_offset;
 
 $transactions_stmt = $conn->prepare($transactions_sql);
 
 if (!$transactions_stmt) {
-    die("Transactions query failed: " . h($conn->error));
+    http_response_code(503);
+    exit('Unable to load payment records. Please try again shortly.');
 }
 
 $list_params = $params;
@@ -680,12 +695,12 @@ body{
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
             <div>
                 <div class="section-title">Transaction Records</div>
-                <div class="section-sub">Latest 500 wallet transactions are shown.</div>
+                <div class="section-sub">Showing <?= (int) $txn_total ?> wallet transaction(s).</div>
             </div>
         </div>
 
         <div class="table-wrap">
-            <table class="payment-table" id="paymentsTable">
+            <table class="payment-table" id="paymentsTable" data-dash-server-page="1">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -703,12 +718,21 @@ body{
                 </thead>
 
                 <tbody>
-                <?php if ($transactions && $transactions->num_rows > 0): ?>
+                <?php $paymentModals = []; ?>
+                <?php if ($txn_total > 0): ?>
                     <?php $i = 1; ?>
                     <?php while ($row = $transactions->fetch_assoc()): ?>
                         <?php
                             $modal_id = "responseModal_" . (int)$row['id'];
                             $status = strtoupper(trim($row['status'] ?? 'PENDING'));
+                            if (!empty($row['remote_response'])) {
+                                $paymentModals[] = [
+                                    'id' => $modal_id,
+                                    'request_id' => (string) ($row['request_id'] ?? ''),
+                                    'reference_id' => (string) ($row['reference_id'] ?? ''),
+                                    'remote_response' => (string) ($row['remote_response'] ?? ''),
+                                ];
+                            }
                         ?>
                         <tr>
                             <td><?= $i++ ?></td>
@@ -755,6 +779,7 @@ body{
                                 <div class="action-group">
                                     <?php if ($status !== 'APPROVED'): ?>
                                         <form method="POST" class="m-0" onsubmit="return confirm('Mark this transaction as APPROVED?');">
+                                            <?= cpd_csrf_input() ?>
                                             <input type="hidden" name="transaction_id" value="<?= (int)$row['id'] ?>">
                                             <input type="hidden" name="new_status" value="APPROVED">
                                             <button type="submit" name="update_status" class="btn btn-success-soft btn-sm">
@@ -765,6 +790,7 @@ body{
 
                                     <?php if ($status !== 'FAILED'): ?>
                                         <form method="POST" class="m-0" onsubmit="return confirm('Mark this transaction as FAILED?');">
+                                            <?= cpd_csrf_input() ?>
                                             <input type="hidden" name="transaction_id" value="<?= (int)$row['id'] ?>">
                                             <input type="hidden" name="new_status" value="FAILED">
                                             <button type="submit" name="update_status" class="btn btn-danger-soft btn-sm">
@@ -775,6 +801,7 @@ body{
 
                                     <?php if ($status !== 'PENDING'): ?>
                                         <form method="POST" class="m-0" onsubmit="return confirm('Return this transaction to PENDING?');">
+                                            <?= cpd_csrf_input() ?>
                                             <input type="hidden" name="transaction_id" value="<?= (int)$row['id'] ?>">
                                             <input type="hidden" name="new_status" value="PENDING">
                                             <button type="submit" name="update_status" class="btn btn-warning-soft btn-sm">
@@ -786,52 +813,48 @@ body{
                             </td>
                         </tr>
 
-                        <?php if (!empty($row['remote_response'])): ?>
-                            <div class="modal fade" id="<?= h($modal_id) ?>" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog modal-lg modal-dialog-centered">
-                                    <div class="modal-content border-0 rounded-4 shadow-lg">
-                                        <div class="modal-header text-white" style="background:linear-gradient(135deg,#1f4e79,#163754);">
-                                            <h5 class="modal-title fw-bold">
-                                                <i class="fa-solid fa-code me-2"></i>
-                                                Remote Response
-                                            </h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                        </div>
-
-                                        <div class="modal-body">
-                                            <div class="mb-3">
-                                                <strong>Request ID:</strong> <?= h($row['request_id']) ?><br>
-                                                <strong>Reference ID:</strong> <?= h($row['reference_id']) ?>
-                                            </div>
-
-                                            <pre class="response-box"><?= h($row['remote_response']) ?></pre>
-                                        </div>
-
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-soft" data-bs-dismiss="modal">Close</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endif; ?>
 
                     <?php endwhile; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="11">
-                            <div class="empty-state">
-                                <i class="fa-solid fa-wallet fa-2x mb-3"></i>
-                                <div class="fw-bold">No payment transactions found.</div>
-                                <div>Try changing the filters or checking if wallet transactions have been inserted.</div>
-                            </div>
-                        </td>
-                    </tr>
                 <?php endif; ?>
                 </tbody>
             </table>
+            <?php if ($txn_total <= 0): ?>
+                <div class="empty-state mt-3">
+                    <i class="fa-solid fa-wallet fa-2x mb-3"></i>
+                    <div class="fw-bold">No payment transactions found.</div>
+                    <div>Try changing the filters or checking if wallet transactions have been inserted.</div>
+                </div>
+            <?php endif; ?>
         </div>
+        <?php eca_render_request_pager($page, $txn_pages, $txn_total, $limit); ?>
     </div>
 </div>
+
+<?php foreach (($paymentModals ?? []) as $modal): ?>
+    <div class="modal fade" id="<?= h($modal['id']) ?>" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow-lg">
+                <div class="modal-header text-white" style="background:linear-gradient(135deg,#1f4e79,#163754);">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fa-solid fa-code me-2"></i>
+                        Remote Response
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <strong>Request ID:</strong> <?= h($modal['request_id']) ?><br>
+                        <strong>Reference ID:</strong> <?= h($modal['reference_id']) ?>
+                    </div>
+                    <pre class="response-box"><?= h($modal['remote_response']) ?></pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-soft" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endforeach; ?>
 
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -840,9 +863,34 @@ body{
 
 <script>
 $(document).ready(function(){
-    $('#paymentsTable').DataTable({
-        pageLength: 25,
-        lengthMenu: [10, 25, 50, 100],
+    var $table = $('#paymentsTable');
+    if (!$table.length) {
+        return;
+    }
+    // DataTables does not support tbody colspan (tn/18). Only init on real data rows.
+    var headCols = $table.find('thead tr:first th').length;
+    var $rows = $table.find('tbody tr');
+    if (headCols < 1 || !$rows.length) {
+        return;
+    }
+    var bodyOk = true;
+    $rows.each(function () {
+        var $tr = $(this);
+        if ($tr.find('td[colspan], th[colspan]').length) {
+            bodyOk = false;
+            return false;
+        }
+        if ($tr.children('td, th').length !== headCols) {
+            bodyOk = false;
+            return false;
+        }
+    });
+    if (!bodyOk) {
+        return;
+    }
+    $table.DataTable({
+        paging: false,
+        info: false,
         ordering: false,
         searching: false
     });

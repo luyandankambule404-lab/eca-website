@@ -1,13 +1,6 @@
 <?php
-session_start();
-require_once "../config.php";
-
-/* =========================
-   ADMIN ACCESS CHECK
-========================= */
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'ADMIN') {
-    die("Access denied.");
-}
+require_once "../auth.php";
+require_role(['SUPPERADMIN', 'OFFICER']);
 
 /* =========================
    PHPMailer

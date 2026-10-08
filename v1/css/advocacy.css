@@ -1,0 +1,399 @@
+/* ECA Advocacy — scoped additive styles only */
+
+.advocacy-page {
+    --adv-navy: #192754;
+    --adv-red: #d50d0e;
+    --adv-muted: #667085;
+    --adv-line: #e6eaf2;
+    --adv-soft: #f4f6fb;
+    --adv-card: #ffffff;
+}
+
+.advocacy-page .adv-wrap {
+    width: calc(100% - 48px);
+    max-width: 1132px;
+    margin: 0 auto 72px;
+    display: grid;
+    gap: 28px;
+}
+
+.advocacy-page .adv-panel {
+    padding: 28px 28px 30px;
+    border: 1px solid rgba(25, 39, 84, 0.08);
+    border-radius: 18px;
+    background: var(--adv-card);
+    box-shadow: 0 14px 36px rgba(25, 39, 84, 0.06);
+}
+
+.advocacy-page .adv-panel-head {
+    margin: 0 0 22px;
+    max-width: 760px;
+}
+
+.advocacy-page .adv-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px;
+    color: var(--adv-red);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.advocacy-page .adv-kicker::before {
+    content: "";
+    width: 18px;
+    height: 2px;
+    background: currentColor;
+}
+
+.advocacy-page .adv-panel-head h2 {
+    margin: 0 0 10px;
+    color: var(--adv-navy);
+    font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+}
+
+.advocacy-page .adv-panel-head p,
+.advocacy-page .adv-lead {
+    margin: 0;
+    color: var(--adv-muted);
+    font-size: 0.98rem;
+    line-height: 1.6;
+}
+
+.advocacy-page .adv-strong {
+    margin: 16px 0 0;
+    color: var(--adv-navy);
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.advocacy-page .adv-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.advocacy-page .adv-btn,
+.advocacy-page .adv-btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.advocacy-page .adv-btn {
+    color: #fff;
+    background: var(--adv-red);
+}
+
+.advocacy-page .adv-btn:hover {
+    background: var(--adv-navy);
+    color: #fff;
+}
+
+.advocacy-page .adv-btn-ghost {
+    color: var(--adv-navy);
+    border: 1px solid var(--adv-navy);
+    background: #fff;
+}
+
+.advocacy-page .adv-btn-ghost:hover {
+    background: var(--adv-navy);
+    color: #fff;
+}
+
+.advocacy-page .adv-list {
+    margin: 14px 0 0;
+    padding-left: 18px;
+    color: #243056;
+    line-height: 1.6;
+}
+
+.advocacy-page .adv-list li {
+    margin: 0 0 6px;
+}
+
+.advocacy-page .adv-process {
+    display: grid;
+    gap: 10px;
+}
+
+.advocacy-page .adv-step {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 14px;
+    align-items: start;
+    padding: 16px 18px;
+    border: 1px solid var(--adv-line);
+    border-radius: 14px;
+    background: var(--adv-soft);
+}
+
+.advocacy-page .adv-step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--adv-navy);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+}
+
+.advocacy-page .adv-step h3 {
+    margin: 0 0 4px;
+    color: var(--adv-navy);
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.advocacy-page .adv-step p {
+    margin: 0;
+    color: var(--adv-muted);
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+.advocacy-page .adv-step-arrow {
+    display: flex;
+    justify-content: center;
+    color: var(--adv-navy);
+    font-size: 1.1rem;
+    line-height: 1;
+    opacity: 0.55;
+}
+
+.advocacy-page .adv-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.advocacy-page .adv-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding: 20px 18px 18px;
+    border: 1px solid var(--adv-line);
+    border-radius: 16px;
+    background: var(--adv-soft);
+}
+
+.advocacy-page .adv-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 3px;
+    border-radius: 16px 16px 0 0;
+    background: var(--adv-navy);
+}
+
+.advocacy-page .adv-card i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    background: var(--adv-navy);
+    color: #fff;
+    font-size: 0.95rem;
+}
+
+.advocacy-page .adv-card h3 {
+    margin: 0 0 8px;
+    color: var(--adv-navy);
+    font-size: 1.02rem;
+    font-weight: 800;
+}
+
+.advocacy-page .adv-card p {
+    margin: 0;
+    color: var(--adv-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.advocacy-page .adv-action-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.advocacy-page .adv-action-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 16px;
+    border: 1px solid var(--adv-line);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--adv-navy);
+    font-size: 0.92rem;
+    font-weight: 700;
+}
+
+.advocacy-page .adv-action-item i {
+    color: var(--adv-red);
+    margin-top: 2px;
+}
+
+.advocacy-page .adv-empty {
+    padding: 22px 20px;
+    border: 1px dashed var(--adv-line);
+    border-radius: 14px;
+    background: var(--adv-soft);
+    color: var(--adv-muted);
+    font-size: 0.95rem;
+    line-height: 1.55;
+}
+
+.advocacy-page .adv-empty strong {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--adv-navy);
+    font-size: 1rem;
+}
+
+.advocacy-page .adv-voice {
+    background:
+        linear-gradient(90deg, rgba(25, 39, 84, 0.97) 0%, rgba(42, 63, 115, 0.94) 100%);
+    color: #fff;
+    border: 0;
+    box-shadow: 0 18px 40px rgba(25, 39, 84, 0.16);
+}
+
+.advocacy-page .adv-voice .adv-kicker {
+    color: #ffd5d5;
+}
+
+.advocacy-page .adv-voice .adv-kicker::before {
+    background: #d50d0e;
+}
+
+.advocacy-page .adv-voice h2,
+.advocacy-page .adv-voice p {
+    color: #fff;
+}
+
+.advocacy-page .adv-voice .adv-lead {
+    color: rgba(233, 238, 248, 0.9);
+}
+
+.advocacy-page .adv-voice .adv-btn-ghost {
+    border-color: rgba(255, 255, 255, 0.55);
+    color: #fff;
+    background: transparent;
+}
+
+.advocacy-page .adv-voice .adv-btn-ghost:hover {
+    background: #fff;
+    color: var(--adv-navy);
+    border-color: #fff;
+}
+
+@media (max-width: 991px) {
+    .advocacy-page .adv-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .advocacy-page .adv-wrap {
+        width: calc(100% - 24px);
+    }
+
+    .advocacy-page .adv-panel {
+        padding: 20px 16px 22px;
+    }
+
+    .advocacy-page .adv-grid,
+    .advocacy-page .adv-action-list {
+        grid-template-columns: 1fr;
+    }
+
+    .advocacy-page .adv-step {
+        grid-template-columns: 44px 1fr;
+        gap: 12px;
+        padding: 14px;
+    }
+}
+
+.advocacy-page .adv-updates-list {
+    display: grid;
+    gap: 14px;
+}
+
+.advocacy-page .adv-update-card {
+    padding: 16px 18px;
+    border: 1px solid #e6eaf2;
+    border-radius: 14px;
+    background: #f8fafc;
+}
+
+.advocacy-page .adv-update-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    margin: 0 0 8px;
+    color: #667085;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.advocacy-page .adv-update-cat {
+    color: #192754;
+}
+
+.advocacy-page .adv-update-card h3 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+}
+
+.advocacy-page .adv-update-card h3 a {
+    color: #192754;
+    text-decoration: none;
+}
+
+.advocacy-page .adv-update-card h3 a:hover {
+    color: #d50d0e;
+    text-decoration: underline;
+}
+
+.advocacy-page .adv-update-card p {
+    margin: 0;
+    color: #475467;
+    line-height: 1.5;
+}
+
+.advocacy-page .adv-update-source {
+    margin-top: 8px !important;
+    font-size: 0.85rem;
+    color: #667085 !important;
+}
+
+.advocacy-page .org-source-required,
+.advocacy-page .adv-empty.org-source-required {
+    border: 1px dashed #c2410c;
+    background: #fff7ed;
+    color: #7a2e0e;
+}

@@ -2,6 +2,11 @@
 require_once "../auth.php";
 require_role('SUPPERADMIN');
 require_once "../config.php";
+require_once "../helpers.php";
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    cpd_require_csrf();
+}
 
 $msg = "";
 $msg_type = "success";
@@ -39,8 +44,8 @@ if (!is_dir($uploadDir)) {
 /* =========================
    DELETE RESOURCE
 ========================= */
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    $id = (int)$_GET['delete'];
+if (isset($_POST['delete_resource'])) {
+    $id = (int)($_POST['resource_id'] ?? 0);
 
     $q = $conn->prepare("
         SELECT file_path 
@@ -162,15 +167,16 @@ if (isset($_POST['upload_resource'])) {
                 ");
 
                 if ($stmt) {
+                    $fileSizeValue = (string) $fileSize;
                     $stmt->bind_param(
-                        "isssssis",
+                        "isssssss",
                         $course_id,
                         $title,
                         $category,
                         $description,
                         $dbPath,
                         $ext,
-                        $fileSize,
+                        $fileSizeValue,
                         $status
                     );
 
@@ -941,6 +947,7 @@ input[type="file"].form-control-premium::file-selector-button{
           </div>
 
           <form method="POST" enctype="multipart/form-data">
+            <?= cpd_csrf_input() ?>
 
             <div class="mb-3">
               <label class="form-label">Course</label>
@@ -1132,13 +1139,13 @@ input[type="file"].form-control-premium::file-selector-button{
                       </td>
 
                       <td>
-                        <a 
-                          href="?delete=<?= (int)$row['id'] ?>"
-                          class="btn btn-sm btn-danger rounded-pill px-3"
-                          onclick="return confirm('Delete this resource?')"
-                        >
-                          <i class="fa-solid fa-trash"></i>
-                        </a>
+                        <form method="POST" class="d-inline" onsubmit="return confirm('Delete this resource?')">
+                          <?= cpd_csrf_input() ?>
+                          <input type="hidden" name="resource_id" value="<?= (int)$row['id'] ?>">
+                          <button type="submit" name="delete_resource" class="btn btn-sm btn-danger rounded-pill px-3">
+                            <i class="fa-solid fa-trash"></i>
+                          </button>
+                        </form>
                       </td>
                     </tr>
                   <?php endwhile; ?>

@@ -1,15 +1,24 @@
 <?php
 require_once "../auth.php";
-require_role('ADMIN');
+require_role(['SUPPERADMIN', 'OFFICER']);
 require_once "../config.php";
+require_once "../helpers.php";
+
+if ($conn instanceof mysqli) {
+    cpd_ensure_feedback_table($conn);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    cpd_require_csrf();
+}
 
 /* ================= ACTIONS ================= */
 $msg = "";
 $msg_type = "success";
 
 /* delete feedback */
-if(isset($_GET['delete']) && is_numeric($_GET['delete'])){
-    $id = (int)$_GET['delete'];
+if(isset($_POST['delete_feedback'])){
+    $id = (int)($_POST['feedback_id'] ?? 0);
 
     $stmt = $conn->prepare("DELETE FROM feedback WHERE id=? LIMIT 1");
     $stmt->bind_param("i", $id);
@@ -59,42 +68,56 @@ $k_total = 0;
 $k_avg   = 0;
 $k_5star = 0;
 $k_today = 0;
+$subject_stats = false;
+$result = false;
+$hasFeedback = $conn instanceof mysqli && cpd_table_exists($conn, 'feedback');
 
-$q = $conn->query("SELECT COUNT(*) c FROM feedback");
-if($q) $k_total = (int)$q->fetch_assoc()['c'];
+if ($hasFeedback) {
+    try {
+        $q = $conn->query("SELECT COUNT(*) c FROM feedback");
+        if($q) $k_total = (int)$q->fetch_assoc()['c'];
 
-$q = $conn->query("SELECT COALESCE(AVG(rating),0) a FROM feedback");
-if($q) $k_avg = round((float)$q->fetch_assoc()['a'], 1);
+        $q = $conn->query("SELECT COALESCE(AVG(rating),0) a FROM feedback");
+        if($q) $k_avg = round((float)$q->fetch_assoc()['a'], 1);
 
-$q = $conn->query("SELECT COUNT(*) c FROM feedback WHERE rating=5");
-if($q) $k_5star = (int)$q->fetch_assoc()['c'];
+        $q = $conn->query("SELECT COUNT(*) c FROM feedback WHERE rating=5");
+        if($q) $k_5star = (int)$q->fetch_assoc()['c'];
 
-$q = $conn->query("SELECT COUNT(*) c FROM feedback WHERE DATE(created_at)=CURDATE()");
-if($q) $k_today = (int)$q->fetch_assoc()['c'];
+        $q = $conn->query("SELECT COUNT(*) c FROM feedback WHERE DATE(created_at)=CURDATE()");
+        if($q) $k_today = (int)$q->fetch_assoc()['c'];
 
-/* ================= SUBJECT STATS ================= */
-$subject_stats = $conn->query("
-    SELECT subject, COUNT(*) total
-    FROM feedback
-    GROUP BY subject
-    ORDER BY total DESC, subject ASC
-    LIMIT 6
-");
+        $subject_stats = $conn->query("
+            SELECT subject, COUNT(*) total
+            FROM feedback
+            WHERE subject IS NOT NULL AND TRIM(subject) <> ''
+            GROUP BY subject
+            ORDER BY total DESC, subject ASC
+            LIMIT 6
+        ");
+    } catch (Throwable $e) {
+        $subject_stats = false;
+        $hasFeedback = false;
+    }
+}
 
 /* ================= FEEDBACK LIST ================= */
-$sql = "
-    SELECT id, user_id, email, full_name, subject, rating, message, created_at
-    FROM feedback
-    $where
-    ORDER BY created_at DESC, id DESC
-";
+if ($hasFeedback) {
+    $sql = "
+        SELECT *
+        FROM feedback
+        $where
+        ORDER BY created_at DESC, id DESC
+    ";
 
-$stmt = $conn->prepare($sql);
-if($types !== ''){
-    $stmt->bind_param($types, ...$params);
+    $stmt = $conn->prepare($sql);
+    if ($stmt) {
+        if($types !== ''){
+            $stmt->bind_param($types, ...$params);
+        }
+        $stmt->execute();
+        $result = $stmt->get_result();
+    }
 }
-$stmt->execute();
-$result = $stmt->get_result();
 
 require_once "../header.php";
 ?>
@@ -284,11 +307,13 @@ require_once "../header.php";
                       <div class="text-muted small"><?= date('h:i A', strtotime($row['created_at'])) ?></div>
                     </td>
                     <td>
-                      <a href="?delete=<?= (int)$row['id'] ?>"
-                         class="btn btn-sm btn-danger rounded-pill px-3"
-                         onclick="return confirm('Delete this feedback?')">
-                         <i class="fa-solid fa-trash"></i>
-                      </a>
+                      <form method="POST" class="d-inline" onsubmit="return confirm('Delete this feedback?')">
+                        <?= cpd_csrf_input() ?>
+                        <input type="hidden" name="feedback_id" value="<?= (int)$row['id'] ?>">
+                        <button type="submit" name="delete_feedback" class="btn btn-sm btn-danger rounded-pill px-3">
+                          <i class="fa-solid fa-trash"></i>
+                        </button>
+                      </form>
                     </td>
                   </tr>
                 <?php endwhile; ?>

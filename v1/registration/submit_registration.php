@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/../includes/env.php';
+require_once __DIR__ . '/../includes/session.php';
 require_once "config.php";
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -13,6 +14,16 @@ $mail = new PHPMailer(true);
 
 // --- HANDLE FORM SUBMISSION ---
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Production fail-closed: legacy training registration disabled unless explicitly allowed.
+    if (function_exists('eca_is_production') && eca_is_production()
+        && eca_env('ECA_ALLOW_LEGACY_TRAINING_REG', '') !== '1') {
+        http_response_code(403);
+        exit('This registration path is disabled.');
+    }
+
+    // CSRF: production requires token; local may use same-origin fallback via eca_require_public_post.
+    eca_require_public_post();
+
     // Sanitize inputs
     $company_name = $conn->real_escape_string($_POST['company_name']);
     $attendee_name = $conn->real_escape_string($_POST['attendee_name']);
@@ -32,8 +43,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $agreement = isset($_POST['agreement']) ? 1 : 0;
 
     // --- HANDLE FILE UPLOAD ---
-    $upload_dir = "../portal/uploads/";
-    if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+    // Prefer non-executable private storage when available; keep legacy path for local continuity.
+    $upload_dir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . '_private' . DIRECTORY_SEPARATOR . 'legacy-registration' . DIRECTORY_SEPARATOR;
+    if (!is_dir($upload_dir)) {
+        @mkdir($upload_dir, 0750, true);
+    }
+    if (!is_dir($upload_dir) || !is_writable($upload_dir)) {
+        $upload_dir = "../portal/uploads/";
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0750, true);
+        }
+    }
 
     $file_name = basename($_FILES["payment_proof"]["name"]);
     $target_file = $upload_dir . time() . "_" . preg_replace("/[^a-zA-Z0-9._-]/", "_", $file_name);
@@ -41,6 +61,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $allowed = array("jpg","jpeg","png","pdf");
 
     if (!in_array($file_type, $allowed)) {
+        die("Invalid file type. Only PDF, JPG, JPEG, or PNG allowed.");
+    }
+    $tmpProof = (string) ($_FILES["payment_proof"]["tmp_name"] ?? '');
+    $proofMime = $tmpProof !== '' && is_uploaded_file($tmpProof)
+        ? (string) (new finfo(FILEINFO_MIME_TYPE))->file($tmpProof)
+        : '';
+    $proofMimes = [
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'pdf' => 'application/pdf',
+    ];
+    if (!isset($proofMimes[$file_type]) || $proofMime !== $proofMimes[$file_type]) {
         die("Invalid file type. Only PDF, JPG, JPEG, or PNG allowed.");
     }
 

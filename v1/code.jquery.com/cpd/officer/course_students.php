@@ -1,8 +1,30 @@
 <?php
 require_once "../auth.php";
-require_role('ADMIN');
+require_role(['SUPPERADMIN', 'OFFICER']);
 require_once "../config.php";
 require_once "../header.php";
+
+if (!($conn instanceof mysqli)) {
+    http_response_code(503);
+    ?>
+    <section class="card border-0 shadow-sm">
+        <div class="card-body p-4 p-lg-5 text-center">
+            <div class="display-6 text-danger mb-3" aria-hidden="true">
+                <i class="fa-solid fa-database"></i>
+            </div>
+            <h2 class="h4">CPD database temporarily unavailable</h2>
+            <p class="text-muted mb-4">
+                Attendance records cannot be loaded right now. No information has been changed.
+                Please retry shortly or contact the system administrator.
+            </p>
+            <a class="btn btn-primary" href="/cpd/officer/course_students.php">Try again</a>
+            <a class="btn btn-outline-secondary ms-2" href="/index.php">Return home</a>
+        </div>
+    </section>
+    <?php
+    require_once "../footer.php";
+    exit;
+}
 
 function h($value){
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
@@ -184,10 +206,14 @@ if (isset($_POST['mark_all_present'])) {
     $date = $_POST['attendance_date'] ?? date('Y-m-d');
     $uid  = (int)($_SESSION['user_id'] ?? 0);
 
+    $approvedSql = function_exists('cpd_status_equals_sql')
+        ? cpd_status_equals_sql('status', ['approved'])
+        : "LOWER(TRIM(COALESCE(status,''))) = 'approved'";
+
     $apps_stmt = $conn->prepare("
         SELECT id
         FROM cpd_applications
-        WHERE course_id = ? AND status = 'Approved'
+        WHERE course_id = ? AND {$approvedSql}
     ");
     $apps_stmt->bind_param("i", $course_id);
     $apps_stmt->execute();
@@ -234,11 +260,15 @@ if (isset($_POST['mark_all_present'])) {
 /* =========================
    GET APPROVED APPLICANTS
 ========================= */
+$approvedSql = function_exists('cpd_status_equals_sql')
+    ? cpd_status_equals_sql('status', ['approved'])
+    : "LOWER(TRIM(COALESCE(status,''))) = 'approved'";
+
 $students_stmt = $conn->prepare("
     SELECT *
     FROM cpd_applications
     WHERE course_id = ?
-      AND status = 'Approved'
+      AND {$approvedSql}
     ORDER BY full_name ASC
 ");
 $students_stmt->bind_param("i", $course_id);
@@ -266,7 +296,7 @@ $total_stmt = $conn->prepare("
     SELECT COUNT(*) AS c
     FROM cpd_applications
     WHERE course_id = ?
-      AND status = 'Approved'
+      AND {$approvedSql}
 ");
 $total_stmt->bind_param("i", $course_id);
 $total_stmt->execute();
@@ -694,7 +724,7 @@ body{
         </div>
 
         <div class="table-wrap">
-            <table class="table-clean" id="studentsTable">
+            <table class="table-clean" id="studentsTable" data-no-paginate="1">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -804,14 +834,6 @@ body{
                         </td>
                     </tr>
                 <?php endwhile; ?>
-
-                <?php if ($total === 0): ?>
-                    <tr>
-                        <td colspan="7" style="text-align:center; padding:30px; color:#64748b;">
-                            No approved applicants found for this course.
-                        </td>
-                    </tr>
-                <?php endif; ?>
                 </tbody>
             </table>
         </div>
@@ -826,9 +848,14 @@ body{
 <script>
 $(document).ready(function(){
     var table = $('#studentsTable').DataTable({
-        pageLength: 10,
-        lengthMenu: [10, 25, 50, 100],
-        ordering: false
+        pageLength: 6,
+        lengthMenu: [6, 12, 24, 50],
+        ordering: false,
+        autoWidth: false,
+        language: {
+            emptyTable: 'No approved applicants found for this course.',
+            zeroRecords: 'No matching applicants found.'
+        }
     });
 
     $('#tableSearch').on('keyup', function(){

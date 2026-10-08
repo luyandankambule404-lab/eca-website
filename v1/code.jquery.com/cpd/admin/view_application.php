@@ -2,9 +2,10 @@
 require_once "../auth.php";
 require_role('ADMIN');
 require_once "../config.php";
+require_once "../helpers.php";
 require_once "../header.php";
 
-$id = $_GET['id'];
+$id = (int)($_GET['id'] ?? 0);
 
 $stmt = $conn->prepare("SELECT * FROM cpd_applications WHERE id=?");
 $stmt->bind_param("i",$id);
@@ -20,30 +21,30 @@ $row = $result->fetch_assoc();
 
 <h4>Application Details</h4>
 
-<p><strong>Company:</strong> <?= $row['company_name'] ?></p>
-<p><strong>Membership:</strong> <?= $row['membership_number'] ?></p>
-<p><strong>Discipline:</strong> <?= $row['discipline'] ?></p>
+<p><strong>Company:</strong> <?= e($row['company_name']) ?></p>
+<p><strong>Membership:</strong> <?= e($row['membership_number']) ?></p>
+<p><strong>Discipline:</strong> <?= e($row['discipline']) ?></p>
 
 <hr>
 
-<p><strong>Representative:</strong> <?= $row['full_name'] ?></p>
-<p><strong>Email:</strong> <?= $row['email'] ?></p>
-<p><strong>Phone:</strong> <?= $row['phone'] ?></p>
-<p><strong>ID:</strong> <?= $row['id_number'] ?></p>
+<p><strong>Representative:</strong> <?= e($row['full_name']) ?></p>
+<p><strong>Email:</strong> <?= e($row['email']) ?></p>
+<p><strong>Phone:</strong> <?= e($row['phone']) ?></p>
+<p><strong>ID:</strong> <?= e($row['id_number']) ?></p>
 
 <hr>
-<p><strong>Position:</strong> <?= $row['position'] ?></p>
+<p><strong>Position:</strong> <?= e($row['position']) ?></p>
 
 <p><strong>Learning Objectives:</strong></p>
-<p><?= nl2br($row['learning_objectives']) ?></p>
+<p><?= nl2br(e($row['learning_objectives'])) ?></p>
 
 <hr>
 
 <p><strong>Qualification:</strong></p>
-<a href="../<?= $row['qualification'] ?>" target="_blank">View File</a>
+<a href="../uploads/<?= e(basename(str_replace('\\', '/', (string)$row['qualification']))) ?>" target="_blank">View File</a>
 
 <p><strong>Payment Proof:</strong></p>
-<a href="../<?= $row['payment_proof'] ?>" target="_blank">View File</a>
+<a href="../uploads/<?= e(basename(str_replace('\\', '/', (string)$row['payment_proof']))) ?>" target="_blank">View File</a>
 
 </div>
 </div>

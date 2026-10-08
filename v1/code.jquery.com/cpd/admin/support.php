@@ -1,10 +1,26 @@
 <?php
 require_once "../auth.php";
-require_role(['SUPPERADMIN', 'OFFICER', 'ADMIN']);
+require_role(['SUPPERADMIN', 'ADMIN']);
 require_once "../config.php";
+require_once "../helpers.php";
+require_once dirname(__DIR__, 3) . '/includes/pagination.php';
+
+if ($conn instanceof mysqli) {
+    cpd_ensure_support_ticket_schema($conn);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    cpd_require_csrf();
+}
 
 $msg = "";
 $msg_type = "success";
+
+function eca_ticket_field(array $row, string $key, string $fallback = ''): string
+{
+    $value = trim((string) ($row[$key] ?? ''));
+    return $value !== '' ? $value : $fallback;
+}
 
 /* =========================
    UPDATE TICKET STATUS / REPLY
@@ -14,22 +30,31 @@ if(isset($_POST['update_ticket'])){
     $status      = trim($_POST['status'] ?? '');
     $admin_reply = trim($_POST['admin_reply'] ?? '');
 
-    if($id > 0 && $status !== ''){
-        $stmt = $conn->prepare("
-            UPDATE support_tickets
-            SET status = ?,
-                admin_reply = ?,
-                updated_at = NOW()
-            WHERE id = ?
-        ");
-        $stmt->bind_param("ssi", $status, $admin_reply, $id);
-
-        if($stmt->execute()){
-            $msg = "Support ticket updated successfully.";
-            $msg_type = "success";
-        }else{
-            $msg = "Failed to update support ticket.";
-            $msg_type = "danger";
+    if($id > 0 && $status !== '' && $conn instanceof mysqli && cpd_table_exists($conn, 'support_tickets')){
+        $sets = ['status = ?'];
+        $types = 's';
+        $bind = [$status];
+        if (cpd_table_has_column($conn, 'support_tickets', 'admin_reply')) {
+            $sets[] = 'admin_reply = ?';
+            $types .= 's';
+            $bind[] = $admin_reply;
+        }
+        if (cpd_table_has_column($conn, 'support_tickets', 'updated_at')) {
+            $sets[] = 'updated_at = NOW()';
+        }
+        $types .= 'i';
+        $bind[] = $id;
+        $stmt = $conn->prepare('UPDATE support_tickets SET ' . implode(', ', $sets) . ' WHERE id = ? LIMIT 1');
+        if ($stmt) {
+            $stmt->bind_param($types, ...$bind);
+            if($stmt->execute()){
+                $msg = "Support ticket updated successfully.";
+                $msg_type = "success";
+            }else{
+                $msg = "Failed to update support ticket.";
+                $msg_type = "danger";
+            }
+            $stmt->close();
         }
     }
 }
@@ -37,18 +62,21 @@ if(isset($_POST['update_ticket'])){
 /* =========================
    DELETE TICKET
 ========================= */
-if(isset($_GET['delete']) && is_numeric($_GET['delete'])){
-    $id = (int)$_GET['delete'];
+if(isset($_POST['delete_ticket']) && $conn instanceof mysqli && cpd_table_exists($conn, 'support_tickets')){
+    $id = (int)($_POST['ticket_id'] ?? 0);
 
     $stmt = $conn->prepare("DELETE FROM support_tickets WHERE id=? LIMIT 1");
-    $stmt->bind_param("i", $id);
+    if ($stmt) {
+        $stmt->bind_param("i", $id);
 
-    if($stmt->execute()){
-        $msg = "Support ticket deleted successfully.";
-        $msg_type = "success";
-    }else{
-        $msg = "Failed to delete support ticket.";
-        $msg_type = "danger";
+        if($stmt->execute()){
+            $msg = "Support ticket deleted successfully.";
+            $msg_type = "success";
+        }else{
+            $msg = "Failed to delete support ticket.";
+            $msg_type = "danger";
+        }
+        $stmt->close();
     }
 }
 
@@ -63,34 +91,35 @@ $category = trim($_GET['category'] ?? '');
 $where  = " WHERE 1=1 ";
 $params = [];
 $types  = "";
+$hasTickets = $conn instanceof mysqli && cpd_table_exists($conn, 'support_tickets');
 
-if($search !== ''){
-    $where .= " AND (ticket_no LIKE ? OR full_name LIKE ? OR email LIKE ? OR subject LIKE ? OR message LIKE ?) ";
-    $like = "%{$search}%";
-    $params[] = $like;
-    $params[] = $like;
-    $params[] = $like;
-    $params[] = $like;
-    $params[] = $like;
-    $types .= "sssss";
+if($hasTickets && $search !== ''){
+    $searchCols = [];
+    foreach (['ticket_no', 'full_name', 'email', 'subject', 'message'] as $column) {
+        if (cpd_table_has_column($conn, 'support_tickets', $column)) {
+            $searchCols[] = $column . ' LIKE ?';
+        }
+    }
+    if ($searchCols) {
+        $where .= ' AND (' . implode(' OR ', $searchCols) . ') ';
+        $like = '%' . $search . '%';
+        foreach ($searchCols as $unused) {
+            $params[] = $like;
+            $types .= 's';
+        }
+    }
 }
 
-if($status_f !== ''){
-    $where .= " AND status = ? ";
-    $params[] = $status_f;
-    $types .= "s";
+if($hasTickets && $status_f !== ''){
+    $where .= ' AND ' . cpd_status_equals_sql('status', [$status_f]) . ' ';
 }
 
-if($priority !== ''){
-    $where .= " AND priority = ? ";
-    $params[] = $priority;
-    $types .= "s";
+if($hasTickets && $priority !== '' && cpd_table_has_column($conn, 'support_tickets', 'priority')){
+    $where .= ' AND ' . cpd_status_equals_sql('priority', [$priority]) . ' ';
 }
 
-if($category !== ''){
-    $where .= " AND category = ? ";
-    $params[] = $category;
-    $types .= "s";
+if($hasTickets && $category !== '' && cpd_table_has_column($conn, 'support_tickets', 'category')){
+    $where .= ' AND ' . cpd_status_equals_sql('category', [$category]) . ' ';
 }
 
 /* =========================
@@ -100,46 +129,63 @@ $total_tickets = 0;
 $open_tickets  = 0;
 $progress_tix  = 0;
 $resolved_tix  = 0;
+$category_stats = false;
 
-$q = $conn->query("SELECT COUNT(*) c FROM support_tickets");
-if($q) $total_tickets = (int)$q->fetch_assoc()['c'];
+if ($hasTickets) {
+    try {
+        $q = $conn->query("SELECT COUNT(*) c FROM support_tickets");
+        if($q) $total_tickets = (int)$q->fetch_assoc()['c'];
 
-$q = $conn->query("SELECT COUNT(*) c FROM support_tickets WHERE status='Open'");
-if($q) $open_tickets = (int)$q->fetch_assoc()['c'];
+        $q = $conn->query("SELECT COUNT(*) c FROM support_tickets WHERE " . cpd_status_equals_sql('status', ['open', 'pending', 'new']));
+        if($q) $open_tickets = (int)$q->fetch_assoc()['c'];
 
-$q = $conn->query("SELECT COUNT(*) c FROM support_tickets WHERE status='In Progress'");
-if($q) $progress_tix = (int)$q->fetch_assoc()['c'];
+        $q = $conn->query("SELECT COUNT(*) c FROM support_tickets WHERE " . cpd_status_equals_sql('status', ['in progress', 'in_progress']));
+        if($q) $progress_tix = (int)$q->fetch_assoc()['c'];
 
-$q = $conn->query("SELECT COUNT(*) c FROM support_tickets WHERE status IN ('Resolved','Closed')");
-if($q) $resolved_tix = (int)$q->fetch_assoc()['c'];
+        $q = $conn->query("SELECT COUNT(*) c FROM support_tickets WHERE " . cpd_status_equals_sql('status', ['resolved', 'closed']));
+        if($q) $resolved_tix = (int)$q->fetch_assoc()['c'];
 
-/* =========================
-   CATEGORY STATS
-========================= */
-$category_stats = $conn->query("
-    SELECT category, COUNT(*) total
-    FROM support_tickets
-    GROUP BY category
-    ORDER BY total DESC, category ASC
-    LIMIT 6
-");
+        if (cpd_table_has_column($conn, 'support_tickets', 'category')) {
+            $category_stats = $conn->query("
+                SELECT category, COUNT(*) total
+                FROM support_tickets
+                WHERE category IS NOT NULL AND TRIM(category) <> ''
+                GROUP BY category
+                ORDER BY total DESC, category ASC
+                LIMIT 6
+            ");
+        }
+    } catch (Throwable $e) {
+        $category_stats = false;
+    }
+}
 
 /* =========================
    TICKETS LIST
 ========================= */
-$sql = "
-    SELECT *
-    FROM support_tickets
-    $where
-    ORDER BY created_at DESC, id DESC
-";
-
-$stmt = $conn->prepare($sql);
-if($types !== ''){
-    $stmt->bind_param($types, ...$params);
+$page = eca_pager_page();
+$limit = eca_pager_limit();
+$ticketRows = [];
+$ticketTotal = 0;
+$ticketPage = 1;
+$ticketPages = 1;
+$ticketOffset = 0;
+if ($hasTickets) {
+    $paged = eca_paged_query_mysqli(
+        $conn,
+        "SELECT COUNT(*) FROM support_tickets" . $where,
+        "SELECT * FROM support_tickets" . $where,
+        $types,
+        $params,
+        $page,
+        $limit
+    );
+    $ticketRows = $paged['rows'];
+    $ticketTotal = $paged['total'];
+    $ticketPage = $paged['page'];
+    $ticketPages = $paged['pages'];
+    $ticketOffset = $paged['offset'];
 }
-$stmt->execute();
-$result = $stmt->get_result();
 
 require_once "../header.php";
 ?>
@@ -297,9 +343,9 @@ require_once "../header.php";
           </div>
         </div>
 
-        <?php if($result && $result->num_rows > 0): ?>
+        <?php if($ticketTotal > 0): ?>
           <div class="table-responsive">
-            <table class="table table-premium align-middle">
+            <table class="table table-premium align-middle" data-dash-server-page="1">
               <thead>
                 <tr>
                   <th>#</th>
@@ -314,35 +360,35 @@ require_once "../header.php";
                 </tr>
               </thead>
               <tbody>
-                <?php $n = 1; while($row = $result->fetch_assoc()): ?>
+                <?php $n = $ticketOffset + 1; foreach ($ticketRows as $row): ?>
                   <tr>
                     <td><?= $n++ ?></td>
 
                     <td>
-                      <div class="fw-bold"><?= htmlspecialchars($row['ticket_no']) ?></div>
-                      <div class="text-muted small"><?= htmlspecialchars($row['subject']) ?></div>
+                      <div class="fw-bold"><?= htmlspecialchars(eca_ticket_field($row, 'ticket_no', '#' . (int) $row['id'])) ?></div>
+                      <div class="text-muted small"><?= htmlspecialchars(eca_ticket_field($row, 'subject', 'No subject')) ?></div>
                     </td>
 
                     <td>
-                      <div class="fw-bold"><?= htmlspecialchars($row['full_name']) ?></div>
-                      <div class="text-muted small"><?= htmlspecialchars($row['email']) ?></div>
+                      <div class="fw-bold"><?= htmlspecialchars(eca_ticket_field($row, 'full_name', 'Unknown')) ?></div>
+                      <div class="text-muted small"><?= htmlspecialchars(eca_ticket_field($row, 'email', '—')) ?></div>
                     </td>
 
                     <td>
                       <span class="badge text-bg-light rounded-pill px-3 py-2">
-                        <?= htmlspecialchars($row['category']) ?>
+                        <?= htmlspecialchars(eca_ticket_field($row, 'category', '—')) ?>
                       </span>
                     </td>
 
                     <td>
                       <?php
-                        $p = strtolower($row['priority']);
+                        $p = strtolower(eca_ticket_field($row, 'priority'));
                         $pClass = 'priority-medium';
                         if($p === 'high') $pClass = 'priority-high';
                         if($p === 'low') $pClass = 'priority-low';
                       ?>
                       <span class="ticket-badge <?= $pClass ?>">
-                        <i class="fa-solid fa-flag me-1"></i><?= htmlspecialchars($row['priority']) ?>
+                        <i class="fa-solid fa-flag me-1"></i><?= htmlspecialchars(eca_ticket_field($row, 'priority', '—')) ?>
                       </span>
                     </td>
 
@@ -359,7 +405,7 @@ require_once "../header.php";
                     </td>
 
                     <td style="min-width:240px;">
-                      <?= nl2br(htmlspecialchars(mb_strimwidth($row['message'], 0, 120, '...'))) ?>
+                      <?= nl2br(htmlspecialchars(mb_strimwidth(eca_ticket_field($row, 'message', 'No message'), 0, 120, '...'))) ?>
                     </td>
 
                     <td>
@@ -375,11 +421,13 @@ require_once "../header.php";
                           <i class="fa-solid fa-eye"></i>
                         </button>
 
-                        <a href="?delete=<?= (int)$row['id'] ?>"
-                           class="btn btn-sm btn-danger rounded-pill px-3"
-                           onclick="return confirm('Delete this support ticket?')">
-                           <i class="fa-solid fa-trash"></i>
-                        </a>
+                        <form method="POST" class="d-inline" onsubmit="return confirm('Delete this support ticket?')">
+                          <?= cpd_csrf_input() ?>
+                          <input type="hidden" name="ticket_id" value="<?= (int)$row['id'] ?>">
+                          <button type="submit" name="delete_ticket" class="btn btn-sm btn-danger rounded-pill px-3">
+                            <i class="fa-solid fa-trash"></i>
+                          </button>
+                        </form>
                       </div>
                     </td>
                   </tr>
@@ -391,14 +439,15 @@ require_once "../header.php";
                         <div class="modal-header border-0">
                           <div>
                             <h5 class="modal-title mb-1" style="font-weight:900;">
-                              <?= htmlspecialchars($row['ticket_no']) ?>
+                              <?= htmlspecialchars(eca_ticket_field($row, 'ticket_no', '#' . (int) $row['id'])) ?>
                             </h5>
-                            <div class="text-muted small"><?= htmlspecialchars($row['subject']) ?></div>
+                            <div class="text-muted small"><?= htmlspecialchars(eca_ticket_field($row, 'subject', 'No subject')) ?></div>
                           </div>
                           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
 
                         <form method="POST">
+                          <?= cpd_csrf_input() ?>
                           <div class="modal-body pt-0">
                             <input type="hidden" name="ticket_id" value="<?= (int)$row['id'] ?>">
 
@@ -406,21 +455,21 @@ require_once "../header.php";
                               <div class="col-md-6">
                                 <label class="form-label fw-bold">User</label>
                                 <div class="form-control form-control-premium bg-light">
-                                  <?= htmlspecialchars($row['full_name']) ?> — <?= htmlspecialchars($row['email']) ?>
+                                  <?= htmlspecialchars(eca_ticket_field($row, 'full_name', 'Unknown')) ?> — <?= htmlspecialchars(eca_ticket_field($row, 'email', '—')) ?>
                                 </div>
                               </div>
 
                               <div class="col-md-3">
                                 <label class="form-label fw-bold">Category</label>
                                 <div class="form-control form-control-premium bg-light">
-                                  <?= htmlspecialchars($row['category']) ?>
+                                  <?= htmlspecialchars(eca_ticket_field($row, 'category', '—')) ?>
                                 </div>
                               </div>
 
                               <div class="col-md-3">
                                 <label class="form-label fw-bold">Priority</label>
                                 <div class="form-control form-control-premium bg-light">
-                                  <?= htmlspecialchars($row['priority']) ?>
+                                  <?= htmlspecialchars(eca_ticket_field($row, 'priority', '—')) ?>
                                 </div>
                               </div>
                             </div>
@@ -428,7 +477,7 @@ require_once "../header.php";
                             <div class="mb-3">
                               <label class="form-label fw-bold">Message</label>
                               <div class="form-control form-control-premium bg-light" style="min-height:120px; white-space:pre-wrap;">
-                                <?= htmlspecialchars($row['message']) ?>
+                                <?= htmlspecialchars(eca_ticket_field($row, 'message', 'No message')) ?>
                               </div>
                             </div>
 
@@ -436,10 +485,11 @@ require_once "../header.php";
                               <div class="col-md-4">
                                 <label class="form-label fw-bold">Status</label>
                                 <select name="status" class="form-select form-control-premium" required>
-                                  <option value="Open" <?= $row['status']==='Open'?'selected':'' ?>>Open</option>
-                                  <option value="In Progress" <?= $row['status']==='In Progress'?'selected':'' ?>>In Progress</option>
-                                  <option value="Resolved" <?= $row['status']==='Resolved'?'selected':'' ?>>Resolved</option>
-                                  <option value="Closed" <?= $row['status']==='Closed'?'selected':'' ?>>Closed</option>
+                                  <?php $rowStatus = strtolower(trim((string) ($row['status'] ?? ''))); ?>
+                                  <option value="Open" <?= $rowStatus === 'open' ? 'selected' : '' ?>>Open</option>
+                                  <option value="In Progress" <?= in_array($rowStatus, ['in progress', 'in_progress'], true) ? 'selected' : '' ?>>In Progress</option>
+                                  <option value="Resolved" <?= $rowStatus === 'resolved' ? 'selected' : '' ?>>Resolved</option>
+                                  <option value="Closed" <?= $rowStatus === 'closed' ? 'selected' : '' ?>>Closed</option>
                                 </select>
                               </div>
 
@@ -460,10 +510,11 @@ require_once "../header.php";
                       </div>
                     </div>
                   </div>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
               </tbody>
             </table>
           </div>
+          <?php eca_render_request_pager($ticketPage, $ticketPages, $ticketTotal, $limit); ?>
         <?php else: ?>
           <div class="text-center py-5 text-muted">
             <i class="fa-solid fa-headset mb-3" style="font-size:42px;"></i>

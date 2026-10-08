@@ -2,9 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>E.C.A | Membership Renewal</title>
+  <title>ECA Membership Renewal | Eswatini Contractors Association</title>
+  <meta name="description" content="Renew your Eswatini Contractors Association membership online and submit current company, registration and supporting information.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://eca.co.sz/renewal.php">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ECA Membership Renewal | Eswatini Contractors Association">
+  <meta property="og:description" content="Renew your Eswatini Contractors Association membership online and submit current company, registration and supporting information.">
+  <meta property="og:url" content="https://eca.co.sz/renewal.php">
+  <meta property="og:site_name" content="Eswatini Contractors Association">
+  <meta property="og:image" content="https://eca.co.sz/img/ecalogo.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ECA Membership Renewal | Eswatini Contractors Association">
+  <meta name="twitter:description" content="Renew your Eswatini Contractors Association membership online and submit current company, registration and supporting information.">
+  <meta name="twitter:image" content="https://eca.co.sz/img/ecalogo.png">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <meta content="Eswatini Contractors’ Official Website" name="description">
 
   <link href="img/favicon.ico" rel="icon">
 
@@ -25,7 +37,7 @@
   <!-- Bootstrap + Template -->
   <link href="css/bootstrap.min.css" rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
-    <link href="css/theme.css?v=10" rel="stylesheet">
+    <link href="css/theme.css?v=20260919-4" rel="stylesheet">
 
   <style>
     .header-custom { background-color:#192754; color:#fff; }
@@ -202,7 +214,7 @@
 </div>
 <div class="eca-landing eca-landing-inner eca-public" data-eca-landing>
     <header class="eca-public-header">
-        <div class="eca-utility">
+                        <div class="eca-utility">
             <div class="eca-utility-inner">
                 <div class="eca-utility-left">
                     <span class="eca-utility-brand">Eswatini Contractors Association</span>
@@ -215,33 +227,35 @@
                 <div class="eca-utility-tools">
                     <form class="eca-utility-search" action="directory.html" method="get" role="search">
                         <label class="eca-sr-only" for="ecaSiteSearch">Search the member directory</label>
-                        <input id="ecaSiteSearch" type="search" name="search" placeholder="Search contractors" value="">
+                        <input id="ecaSiteSearch" type="search" name="search" value="" autocomplete="off" required pattern=".*\S.*" title="Enter a company name or membership number">
                         <button type="submit" aria-label="Search directory"><i class="bi bi-search" aria-hidden="true"></i></button>
                     </form>
                     <div class="eca-nav-drop eca-login-drop" data-eca-login-drop>
                         <button class="eca-nav-link eca-nav-login" type="button" aria-expanded="false" aria-haspopup="menu" aria-controls="ecaLoginMenu">
-                            Login <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                            <i class="bi bi-person-circle" aria-hidden="true"></i>
+                            Login
+                            <i class="bi bi-chevron-down" aria-hidden="true"></i>
                         </button>
-                        <div class="eca-nav-menu" id="ecaLoginMenu" role="menu">
-                            <a href="/admin/login.php" role="menuitem">Admin</a>
-                            <a href="/client/" role="menuitem">Member portal</a>
-                            <a href="/cpd/login.php" role="menuitem">CPD contractor</a>
-                            <a href="/cpd/admin_login.php" role="menuitem">CPD staff</a>
-                        </div>
+                            <div class="eca-nav-menu" id="ecaLoginMenu" role="menu">
+        <a href="/admin/login.php" role="menuitem">Officer</a>
+        <a href="/client/" role="menuitem">Member</a>
+        <a href="/cpd/login.php" role="menuitem">Learner</a>
+    </div>
                     </div>
                     <script src="/js/login-menu.js" defer></script>
+
                 </div>
             </div>
         </div>
-        <div class="eca-masthead">
-            <a class="eca-landing-logo" href="index.html">
+<div class="eca-masthead">
+            <a class="eca-landing-logo" href="index.html" aria-label="ECA home">
                 <img src="img/ecalogo.png" alt="Eswatini Contractors Association">
             </a>
             <button class="eca-landing-toggle" type="button" aria-expanded="false" aria-controls="ecaLandingNav" aria-label="Open menu">
                 <i class="bi bi-list"></i>
             </button>
             <nav class="eca-landing-nav eca-mega-nav" id="ecaLandingNav">
-                <a href="index.html" class="">Home</a>
+                <a href="index.html">Home</a>
                 <div class="eca-nav-drop eca-mega-drop">
                     <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">About ECA <i class="bi bi-chevron-down"></i></button>
                     <div class="eca-nav-menu eca-mega-menu">
@@ -254,42 +268,49 @@
                 </div>
                 <div class="eca-nav-drop eca-mega-drop">
                     <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Connect <i class="bi bi-chevron-down"></i></button>
-                    <div class="eca-nav-menu eca-mega-menu">
-                        <p class="eca-mega-label">Find a contractor</p>
-                        <a href="directory.html">Member directory</a>
-                        <a href="balingani-directory.html">Balingani</a>
+                    <div class="eca-nav-menu eca-mega-menu eca-mega-menu-wide">
+                        <div class="eca-mega-col">
+                            <p class="eca-mega-label">Find a contractor</p>
+                            <a href="directory.html">Member directory</a>
+                            <a href="balingani-directory.html">Balingani</a>
+                        </div>
+                        <div class="eca-mega-col">
+                            <p class="eca-mega-label">Opportunities</p>
+                            <a href="/tenders.php">Tenders</a>
+                            <a href="/events.php">Events</a>
+                        </div>
                     </div>
                 </div>
                 <div class="eca-nav-drop eca-mega-drop is-current">
-                    <button class="eca-nav-link is-active" type="button" aria-expanded="false" aria-haspopup="true">Membership <i class="bi bi-chevron-down"></i></button>
+                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Membership <i class="bi bi-chevron-down"></i></button>
                     <div class="eca-nav-menu eca-mega-menu eca-mega-menu-wide">
-                        <div class="eca-mega-col">
-                            <p class="eca-mega-label">Join ECA</p>
-                            <a href="application.html">Apply</a>
-                            <a href="apply_artisan.php">Artisan application</a>
-                            <a href="renewal.html">Renew</a>
-                        </div>
                         <div class="eca-mega-col">
                             <p class="eca-mega-label">Members</p>
                             <a href="directory.html">Member directory</a>
+                            <a href="/verify.php">Verify membership</a>
+                            <a href="/track.php">Track application</a>
                             <a href="checklist.html">Membership checklist</a>
-                            <a href="pricing.html">Pricing</a>
                         </div>
                     </div>
                 </div>
                 <div class="eca-nav-drop eca-mega-drop">
-                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Education <i class="bi bi-chevron-down"></i></button>
+                    <button class="eca-nav-link" type="button" aria-expanded="false" aria-haspopup="true">Membership development <i class="bi bi-chevron-down"></i></button>
                     <div class="eca-nav-menu eca-mega-menu eca-mega-menu-wide">
                         <div class="eca-mega-col">
-                            <p class="eca-mega-label">Learning</p>
-                            <a href="resources.html">Resources</a>
+                                                        <p class="eca-mega-label">Learning</p>
+                            <a href="education.html">Education hub</a>
+                            <a href="education-training.html">Training &amp; CPD</a>
+                            <a href="education-knowledge.html">Knowledge centre</a>
+                            <a href="education-learner.html">Learner Portal</a>
+                            <a href="education-development.html">Contractor development</a>
+                            <a href="education-policy.html">Industry &amp; policy</a>
+                            <a href="education-resources.html">Resources</a>
                             <a href="/documents/">Documents</a>
                             <a href="faq.html">FAQ</a>
                         </div>
                         <div class="eca-mega-col">
-                            <p class="eca-mega-label">CPD training</p>
-                            <a href="/cpd/login.php">CPD contractor</a>
-                            <a href="/cpd/admin_login.php">CPD staff</a>
+                            <p class="eca-mega-label">Member benefits</p>
+                            <a href="/client/wellness/">Wellness portal</a>
                         </div>
                     </div>
                 </div>
@@ -379,11 +400,19 @@
         <input type="hidden" name="declaration_signature" id="declarationSignature" value="">
         <input type="hidden" name="declaration_designation" id="declarationDesignation" value="">
 
+        <nav class="eca-form-progress" aria-label="Renewal progress">
+          <a href="#step-company"><span>A</span> Company</a>
+          <a href="#step-specialisation"><span>B</span> Specialisation</a>
+          <a href="#step-terms"><span>C</span> Terms</a>
+          <a href="#step-documents"><span>D</span> Documents</a>
+          <a href="#submitBtn"><span>E</span> Submit</a>
+        </nav>
+
         <!-- Company Info -->
-        <h5 class="text-primary">A) Particulars of Company</h5>
+        <h5 class="text-primary" id="step-company">A) Particulars of Company</h5>
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label">Company Registered Name</label>
+            <label class="form-label">Company registered name</label>
             <input type="text" name="registered_name" class="form-control" required>
           </div>
           <div class="col-md-6 mb-3">
@@ -404,37 +433,28 @@
         </div>
 
         <!-- Specialisation -->
-        <h5 class="text-primary">B) Area of Specialisation</h5>
+        <h5 class="text-primary" id="step-specialisation">B) Area of Specialisation</h5>
         <div class="row">
           <div class="col-md-6 mb-3">
             <select name="specialisation" id="specialisationSelect" class="form-select" required>
               <option value="">-- Select Specialisation --</option>
               <option value="Building">Building</option>
               <option value="Civil">Civil</option>
-              <option value="Electrical">Electrical</option>
-              <option value="Mechanical">Mechanical</option>
-              <option value="Plumbing / Drain Laying">Plumbing / Drain Laying</option>
-              <option value="Fencing / Precast Walling">Fencing / Precast Walling</option>
-              <option value="Air-conditioning & Refrigeration">Air-conditioning & Refrigeration</option>
-              <option value="Fire Prevention & Protection">Fire Prevention & Protection</option>
-              <option value="Steel / Aluminium / Roofing">Steel / Aluminium / Roofing</option>
-              <option value="Industrial Fabrication">Industrial Fabrication</option>
-              <option value="ICT / Electronics">ICT / Electronics</option>
-              <option value="Security & Surveillance">Security & Surveillance</option>
-               <option value="Specialist">Specialist</option>
-               
+              <option value="Electrical/Mechanical">Electrical/Mechanical</option>
+              <option value="Specialist">Specialist</option>
             </select>
           </div>
         </div>
 
         <div class="row" id="otherBox" style="display:none;">
           <div class="col-md-6 mb-3">
-            <input type="text" name="specialisation_other" id="otherInput" class="form-control" placeholder="Please specify your specialisation">
+            <label class="form-label" for="otherInput">Specify specialisation</label>
+            <input type="text" name="specialisation_other" id="otherInput" class="form-control" placeholder="Please specify">
           </div>
         </div>
 
         <!-- Terms -->
-        <h5 class="text-primary">C) Terms and Conditions</h5>
+        <h5 class="text-primary" id="step-terms">C) Terms and Conditions</h5>
         
         <!-- Declaration Trigger -->
         <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
@@ -448,7 +468,7 @@
         </div>
 
         <!-- Attachments -->
-        <h5 class="text-primary">D) Attachments / Supporting Documents</h5>
+        <h5 class="text-primary" id="step-documents">D) Attachments / Supporting Documents</h5>
         <p>Please upload the following documents <strong>PDFs only</strong> (Max size: 2MB each):</p>
 
         <div class="row">
@@ -464,7 +484,7 @@
         </div>
 
         <!-- Banking Details -->
-        <div class="alert alert-info">
+        <div class="alert alert-info eca-bank-box">
           <strong>Banking Details</strong><br>
           Name: Eswatini Contractors Association <br>
           Bank: Standard Bank <br>
@@ -621,8 +641,10 @@
 
 <!-- FAQ -->
 <div class="container my-5">
-  <div class="card">
-    <h2>❓ Frequently Asked Questions</h2>
+  <div class="card eca-faq-card">
+    <div class="eca-faq-heading">
+      <div><p>Renewal help</p><h2>Frequently Asked Questions</h2></div>
+    </div>
 
     <div class="faq">
 
@@ -667,11 +689,6 @@
   </div>
 </div>
 
-<!-- Map -->
-<iframe
-  src="https://www.google.com/maps/embed?pb=!1m16!1m12!1m3!1d3575.9398627152696!2d31.139841774754323!3d-26.328446731859643!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!2m1!1sCooper%20Center%20eswatini%20contractors%20Association!5e0!3m2!1sen!2s!4v1756185111680!5m2!1sen!2s"
-  width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-
 <footer class="eca-site-footer">
     <div class="container">
         <div class="row g-4">
@@ -691,17 +708,20 @@
             <div class="col-lg-2 col-md-4">
                 <h5>Membership</h5>
                 <a href="directory.html">Member directory</a>
-                <a href="application.html">Apply</a>
-                <a href="renewal.html">Renew</a>
+                <a href="application.html">Membership application</a>
+                <a href="renewal.html">Membership renewal</a>
                 <a href="balingani-directory.html">Balingani</a>
             </div>
             <div class="col-lg-3 col-md-4">
-                <h5>Education</h5>
-                <a href="resources.html">Resources</a>
+                                <h5>Membership development</h5>
+                <a href="education.html">Education hub</a>
+                <a href="education-training.html">Training &amp; CPD</a>
+                <a href="education-knowledge.html">Knowledge centre</a>
+                <a href="education-resources.html">Resources</a>
                 <a href="/documents/">Documents</a>
                 <a href="faq.html">FAQs</a>
-                <a href="/cpd/login.php">CPD contractor</a>
-                <a href="/cpd/admin_login.php">CPD staff</a>
+                <a href="/cpd/login.php">Learner login</a>
+                <a href="/admin/login.php">Officer login</a>
             </div>
             <div class="col-lg-2 col-md-4">
                 <h5>News</h5>
@@ -740,22 +760,22 @@
     if(spinner) spinner.classList.remove('show');
   });
 
-  // Specialisation Other
+  // Specialist must specify
   const select = document.getElementById("specialisationSelect");
   const otherBox = document.getElementById("otherBox");
   const otherInput = document.getElementById("otherInput");
 
-  if(select){
-    select.addEventListener("change", function(){
-      if(this.value === "Other"){
-        otherBox.style.display = "block";
-        otherInput.required = true;
-      } else {
-        otherBox.style.display = "none";
-        otherInput.required = false;
+  if(select && otherBox && otherInput){
+    const toggleSpecify = function(){
+      const needsSpecify = (this.value === "Specialist" || this.value === "Other");
+      otherBox.style.display = needsSpecify ? "block" : "none";
+      otherInput.required = needsSpecify;
+      if(!needsSpecify){
         otherInput.value = "";
       }
-    });
+    };
+    select.addEventListener("change", toggleSpecify);
+    toggleSpecify.call(select);
   }
 
 

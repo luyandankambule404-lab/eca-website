@@ -1,11 +1,12 @@
 <?php
 require_once "../auth.php";
-require_role('ADMIN');
+require_role(['SUPPERADMIN', 'ADMIN']);
+require_once "../helpers.php";
 
 /* ================= KPIs ================= */
 $k_contractors = (int)$conn->query("SELECT COUNT(*) c FROM user WHERE role='CONTRACTOR'")->fetch_assoc()['c'];
 $k_courses     = (int)$conn->query("SELECT COUNT(*) c FROM courses")->fetch_assoc()['c'];
-$k_pending     = (int)$conn->query("SELECT COUNT(*) c FROM course_applications WHERE status='PENDING'")->fetch_assoc()['c'];
+$k_pending     = ($conn instanceof mysqli) ? cpd_pending_application_count($conn) : 0;
 $k_points      = (float)$conn->query("SELECT COALESCE(SUM(points),0) s FROM cpd_points_ledger")->fetch_assoc()['s'];
 
 /* ================= PROGRESS (12 points / 3 years) =================
@@ -72,34 +73,34 @@ $progress_pct  = ($target_points > 0) ? min(100, round(($points_3y / $target_poi
 $sql1 = "
 SELECT COUNT(DISTINCT user_id) AS total_learners
 FROM cpd_points_ledger
-WHERE issued_at >= DATE_SUB(CURDATE(), INTERVAL 3 YEAR)
+WHERE $ledgerDateCol >= DATE_SUB(CURDATE(), INTERVAL 3 YEAR)
 ";
 $res1 = mysqli_query($conn, $sql1);
-$row1 = mysqli_fetch_assoc($res1);
-$total_learners = (int)$row1['total_learners'];
+$row1 = $res1 ? mysqli_fetch_assoc($res1) : null;
+$total_learners = (int)($row1['total_learners'] ?? 0);
 
 
 // TOTAL COMPANIES
 $sql2 = "
 SELECT COUNT(*) AS total_companies
-FROM users
+FROM user
 WHERE role = 'CONTRACTOR'
 ";
 $res2 = mysqli_query($conn, $sql2);
-$row2 = mysqli_fetch_assoc($res2);
-$total_companies = (int)$row2['total_companies'];
+$row2 = $res2 ? mysqli_fetch_assoc($res2) : null;
+$total_companies = (int)($row2['total_companies'] ?? 0);
 
 
 // TOTAL TRAININGS
 $sql3 = "
 SELECT COUNT(*) AS total_trainings
 FROM courses
-WHERE status = 'CLOSED'
+WHERE " . cpd_status_equals_sql('status', ['CLOSED']) . "
 AND start_date >= DATE_SUB(CURDATE(), INTERVAL 3 YEAR)
 ";
 $res3 = mysqli_query($conn, $sql3);
-$row3 = mysqli_fetch_assoc($res3);
-$total_trainings = (int)$row3['total_trainings'];
+$row3 = $res3 ? mysqli_fetch_assoc($res3) : null;
+$total_trainings = (int)($row3['total_trainings'] ?? 0);
 
 
 require_once "../header.php";

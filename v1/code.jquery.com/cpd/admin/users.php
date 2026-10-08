@@ -1,15 +1,19 @@
 <?php
 require_once "../auth.php";
-require_role('ADMIN');
+require_once dirname(__DIR__, 3) . '/includes/pagination.php';
+require_once dirname(__DIR__, 3) . '/includes/authz.php';
+require_role('SUPPERADMIN');
+eca_require_super_admin();
 
 $msg = $err = "";
 
 /* ===== Allowed values ===== */
 $allowed_roles = ['CONTRACTOR', 'OFFICER', 'ADMIN', 'SUPPERADMIN'];
-$allowed_statuses = ['ACTIVE', 'INACTIVE'];
+$allowed_statuses = ['ACTIVE', 'SUSPENDED'];
 
 /* ===== Actions: Add / Update / Toggle Status / Reset Password ===== */
 if (is_post()) {
+  cpd_require_csrf();
   $action = $_POST['action'] ?? '';
 
   // ADD USER
@@ -29,8 +33,8 @@ if (is_post()) {
       $status = 'ACTIVE';
     }
 
-    if ($name === '' || $email === '' || $pass === '') {
-      $err = "Full name, email and password are required.";
+    if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($pass) < 12) {
+      $err = "A valid name, email and password of at least 12 characters are required.";
     } else {
       $chk = $conn->prepare("SELECT id FROM user WHERE email=? LIMIT 1");
       $chk->bind_param("s", $email);
@@ -68,7 +72,7 @@ if (is_post()) {
       $status = 'ACTIVE';
     }
 
-    if ($id <= 0 || $name === '' || $email === '') {
+    if ($id <= 0 || $name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
       $err = "Missing user id, name or email.";
     } else {
       $chk = $conn->prepare("SELECT id FROM user WHERE email=? AND id<>? LIMIT 1");
@@ -91,11 +95,11 @@ if (is_post()) {
   if ($action === 'toggle') {
     $id = (int)($_POST['id'] ?? 0);
 
-    if ($id <= 0) {
+    if ($id <= 0 || $id === (int) ($_SESSION['user_id'] ?? 0)) {
       $err = "Invalid user id.";
     } else {
       $stmt = $conn->prepare("UPDATE user
-                              SET status = CASE WHEN status='ACTIVE' THEN 'INACTIVE' ELSE 'ACTIVE' END
+                              SET status = CASE WHEN status='ACTIVE' THEN 'SUSPENDED' ELSE 'ACTIVE' END
                               WHERE id=?");
       $stmt->bind_param("i", $id);
       $stmt->execute();
@@ -108,8 +112,8 @@ if (is_post()) {
     $id   = (int)($_POST['id'] ?? 0);
     $pass = (string)($_POST['new_password'] ?? '');
 
-    if ($id <= 0 || $pass === '') {
-      $err = "User id and new password are required.";
+    if ($id <= 0 || strlen($pass) < 12) {
+      $err = "User id and a password of at least 12 characters are required.";
     } else {
       $hash = password_hash($pass, PASSWORD_DEFAULT);
       $stmt = $conn->prepare("UPDATE user SET password_hash=? WHERE id=?");
@@ -132,14 +136,12 @@ if ($f_status !== '' && !in_array($f_status, $allowed_statuses, true)) {
   $f_status = '';
 }
 
-$sql = "SELECT id, role, company_name, full_name, email, phone, status, created_at
-        FROM user
-        WHERE 1=1";
+$where = " WHERE 1=1";
 $params = [];
 $types  = "";
 
 if ($q !== '') {
-  $sql .= " AND (full_name LIKE ? OR email LIKE ? OR company_name LIKE ? OR phone LIKE ?)";
+  $where .= " AND (full_name LIKE ? OR email LIKE ? OR company_name LIKE ? OR phone LIKE ?)";
   $like = "%$q%";
   $params[] = $like;
   $params[] = $like;
@@ -148,24 +150,31 @@ if ($q !== '') {
   $types .= "ssss";
 }
 if ($f_role !== '') {
-  $sql .= " AND role=?";
+  $where .= " AND role=?";
   $params[] = $f_role;
   $types .= "s";
 }
 if ($f_status !== '') {
-  $sql .= " AND status=?";
+  $where .= " AND status=?";
   $params[] = $f_status;
   $types .= "s";
 }
 
-$sql .= " ORDER BY id DESC";
-
-$stmt = $conn->prepare($sql);
-if (!empty($params)) {
-  $stmt->bind_param($types, ...$params);
-}
-$stmt->execute();
-$users = $stmt->get_result();
+$page = eca_pager_page();
+$limit = eca_pager_limit();
+$paged = eca_paged_query_mysqli(
+  $conn,
+  "SELECT COUNT(*) FROM user" . $where,
+  "SELECT id, role, company_name, full_name, email, phone, status, created_at FROM user" . $where,
+  $types,
+  $params,
+  $page,
+  $limit
+);
+$userRows = $paged['rows'];
+$userTotal = $paged['total'];
+$userPage = $paged['page'];
+$userPages = $paged['pages'];
 
 function role_badge_color($role) {
   switch ($role) {
@@ -200,6 +209,7 @@ require_once "../header.php";
     </div>
 
     <form method="post" class="row g-2">
+      <?= cpd_csrf_input() ?>
       <input type="hidden" name="action" value="add">
 
       <div class="col-md-3">
@@ -258,7 +268,7 @@ require_once "../header.php";
     <form method="get" class="row g-2 align-items-end">
       <div class="col-md-6">
         <label class="form-label">Search</label>
-        <input class="form-control" name="q" value="<?=e($q)?>" placeholder="Name, email, company, phone...">
+        <input class="form-control" id="userSearch" name="q" value="<?=e($q)?>" data-hub-search placeholder="Type a letter to filter name, email, company, phone..." autocomplete="off">
       </div>
 
       <div class="col-md-3">
@@ -298,7 +308,7 @@ require_once "../header.php";
     </div>
 
     <div class="table-responsive">
-      <table class="table align-middle">
+      <table class="table align-middle" data-dash-server-page="1">
         <thead>
           <tr>
             <th>ID</th>
@@ -314,7 +324,7 @@ require_once "../header.php";
         </thead>
 
         <tbody>
-        <?php while($u = $users->fetch_assoc()): ?>
+        <?php foreach ($userRows as $u): ?>
           <tr>
             <td class="fw-bold"><?=e($u['id'])?></td>
             <td>
@@ -340,6 +350,7 @@ require_once "../header.php";
               </button>
 
               <form method="post" class="d-inline">
+                <?= cpd_csrf_input() ?>
                 <input type="hidden" name="action" value="toggle">
                 <input type="hidden" name="id" value="<?=e($u['id'])?>">
                 <button class="btn btn-sm btn-soft btn-pill" type="submit">
@@ -359,6 +370,7 @@ require_once "../header.php";
             <td colspan="9">
               <div class="p-3 rounded-4" style="background:rgba(37,128,155,.06);border:1px solid rgba(15,23,42,.08);">
                 <form method="post" class="row g-2">
+                  <?= cpd_csrf_input() ?>
                   <input type="hidden" name="action" value="update">
                   <input type="hidden" name="id" value="<?=e($u['id'])?>">
 
@@ -413,6 +425,7 @@ require_once "../header.php";
             <td colspan="9">
               <div class="p-3 rounded-4" style="background:rgba(208,25,25,.06);border:1px solid rgba(15,23,42,.08);">
                 <form method="post" class="row g-2 align-items-end">
+                  <?= cpd_csrf_input() ?>
                   <input type="hidden" name="action" value="reset_password">
                   <input type="hidden" name="id" value="<?=e($u['id'])?>">
 
@@ -431,10 +444,11 @@ require_once "../header.php";
             </td>
           </tr>
 
-        <?php endwhile; ?>
+        <?php endforeach; ?>
         </tbody>
       </table>
     </div>
+    <?php eca_render_request_pager($userPage, $userPages, $userTotal, $limit); ?>
   </div>
 </div>
 

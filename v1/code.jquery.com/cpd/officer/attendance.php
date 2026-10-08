@@ -1,6 +1,6 @@
 <?php
 require_once "../auth.php";
-require_role('ADMIN');
+require_role(['SUPPERADMIN', 'OFFICER']);
 require_once "../config.php";
 require_once "../header.php";
 
@@ -476,13 +476,11 @@ body{
 </div>
 
 <script>
-document.getElementById('searchInput').addEventListener('keyup', function () {
+document.getElementById('searchInput').addEventListener('input', function () {
     const filter = this.value.toLowerCase().trim();
     document.querySelectorAll('#studentsTable tbody tr').forEach(function (row) {
-        const nameCell = row.querySelector('.name');
-        if (!nameCell) return;
-        const name = nameCell.textContent.toLowerCase();
-        row.style.display = name.includes(filter) ? '' : 'none';
+        const haystack = row.textContent.toLowerCase().replace(/\s+/g, ' ');
+        row.style.display = !filter || haystack.includes(filter) ? '' : 'none';
     });
 });
 </script>

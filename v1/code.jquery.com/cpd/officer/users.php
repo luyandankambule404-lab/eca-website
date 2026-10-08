@@ -1,6 +1,8 @@
 <?php
 require_once "../auth.php";
-require_role('ADMIN');
+require_role('SUPPERADMIN');
+header('Location: /cpd/admin/users.php', true, 302);
+exit;
 
 $msg = $err = "";
 
@@ -218,7 +220,7 @@ require_once "../header.php";
     <form method="get" class="row g-2 align-items-end">
       <div class="col-md-6">
         <label class="form-label">Search</label>
-        <input class="form-control" name="q" value="<?=e($q)?>" placeholder="Name, email, company, phone...">
+        <input class="form-control" id="userSearch" name="q" value="<?=e($q)?>" data-hub-search data-hub-search-table="table.align-middle" placeholder="Type a letter to filter name, email, company, phone..." autocomplete="off">
       </div>
 
       <div class="col-md-3">
@@ -391,4 +393,13 @@ require_once "../header.php";
   </div>
 </div>
 
+<script>
+document.getElementById('userSearch')?.addEventListener('input', function () {
+    const q = this.value.toLowerCase().trim();
+    document.querySelectorAll('.table tbody tr').forEach(function (row) {
+        const haystack = row.textContent.toLowerCase().replace(/\s+/g, ' ');
+        row.style.display = !q || haystack.includes(q) ? '' : 'none';
+    });
+});
+</script>
 <?php require_once "../footer.php"; ?>

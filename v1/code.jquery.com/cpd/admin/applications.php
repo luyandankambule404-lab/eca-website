@@ -1,32 +1,44 @@
 <?php 
 require_once "../auth.php";
-require_role(['SUPPERADMIN', 'OFFICER']);
+require_role(['SUPPERADMIN', 'ADMIN', 'OFFICER']);
 require_once "../config.php";
+require_once "../helpers.php";
+require_once dirname(__DIR__, 3) . '/includes/pagination.php';
+
+$page = eca_pager_page();
+$limit = eca_pager_limit();
+$pendingWhere = " WHERE NOT (" . cpd_status_equals_sql('cpd_applications.status', ['Approved']) . ")
+     AND NOT (" . cpd_status_equals_sql('cpd_applications.status', ['Rejected']) . ")";
+$where = $pendingWhere;
+$paged = eca_paged_query_mysqli(
+    $conn,
+    "SELECT COUNT(*) FROM cpd_applications WHERE NOT (" . cpd_status_equals_sql('status', ['Approved']) . ")
+     AND NOT (" . cpd_status_equals_sql('status', ['Rejected']) . ")",
+    "SELECT cpd_applications.*, courses.title AS course_name
+     FROM cpd_applications
+     LEFT JOIN courses ON cpd_applications.course_id = courses.id" . $where,
+    '',
+    [],
+    $page,
+    $limit
+);
+$appRows = $paged['rows'];
+$appTotal = $paged['total'];
+$appPage = $paged['page'];
+$appPages = $paged['pages'];
+
 require_once "../header.php";
-
-/* Load applications with course title */
-
-$result = $conn->query("
-SELECT 
-cpd_applications.*,
-courses.title AS course_name
-FROM cpd_applications
-LEFT JOIN courses 
-ON cpd_applications.course_id = courses.id
-WHERE cpd_applications.status != 'Approved'
-AND cpd_applications.status != 'Rejected' ORDER BY cpd_applications.id DESC
-");
 ?>
 
 <div class="container mt-4">
 <?php if(isset($_GET['msg'])): ?>
 
 <div class="alert alert-success">
-<i class="fa fa-check-circle"></i> <?= $_GET['msg'] ?>
+<i class="fa fa-check-circle"></i> <?= e($_GET['msg']) ?>
 </div>
 
 <?php endif; ?>
-<div class="card shadow-sm">
+<div class="card shadow-sm eca-form-panel eca-table-panel">
 <div class="card-body">
 
 <h3 class="mb-3">CPD Applications</h3>
@@ -34,7 +46,7 @@ AND cpd_applications.status != 'Rejected' ORDER BY cpd_applications.id DESC
 
 <div class="table-responsive">
 
-<table id="applicationsTable" class="table table-bordered table-striped align-middle">
+<table id="applicationsTable" class="table table-bordered table-striped align-middle" data-dash-server-page="1">
 
 <thead class="table-dark">
 <tr>
@@ -45,35 +57,35 @@ AND cpd_applications.status != 'Rejected' ORDER BY cpd_applications.id DESC
 <th>Phone</th>
 <th>Status</th>
 <th>Attachments</th>
-<th width="200">Action</th>
+<th>Action</th>
 </tr>
 </thead>
 
 <tbody>
 
-<?php while($row = $result->fetch_assoc()): ?>
+<?php foreach ($appRows as $row): ?>
 
 <tr>
 
-<td><?= $row['id'] ?></td>
+<td><?= (int)$row['id'] ?></td>
 
 <td>
 <span class="badge bg-primary">
-<?= $row['course_name'] ?>
+<?= e($row['course_name']) ?>
 </span>
 </td>
 
 <td>
-<strong><?= $row['company_name'] ?></strong><br>
-<small class="text-muted"><?= $row['discipline'] ?></small>
+<strong><?= e($row['company_name']) ?></strong><br>
+<small class="text-muted"><?= e($row['discipline']) ?></small>
 </td>
 
 <td>
-<?= $row['full_name'] ?><br>
-<small class="text-muted"><?= $row['email'] ?></small>
+<?= e($row['full_name']) ?><br>
+<small class="text-muted"><?= e($row['email']) ?></small>
 </td>
 
-<td><?= $row['phone'] ?></td>
+<td><?= e($row['phone']) ?></td>
 
 <td>
 
@@ -88,34 +100,34 @@ AND cpd_applications.status != 'Rejected' ORDER BY cpd_applications.id DESC
 </td>
 
 <td>
-
+<div class="cpd-app-files">
 <?php if(!empty($row['qualification'])): ?>
-<a href="../<?= $row['qualification'] ?>" 
+<a href="../uploads/<?= e(basename(str_replace('\\', '/', (string)$row['qualification']))) ?>" 
 target="_blank" 
-class="btn btn-sm btn-primary mb-1">
+class="btn btn-sm btn-primary">
 Qualification
 </a>
 <?php endif; ?>
 
 <?php if(!empty($row['payment_proof'])): ?>
-<a href="../<?= $row['payment_proof'] ?>" 
+<a href="../uploads/<?= e(basename(str_replace('\\', '/', (string)$row['payment_proof']))) ?>" 
 target="_blank" 
 class="btn btn-sm btn-success">
 Payment
 </a>
 <?php endif; ?>
-
+</div>
 </td>
 
 <td>
-
-<button 
+<div class="cpd-app-actions">
+<button type="button"
 class="btn btn-sm btn-info viewApplication"
-data-id="<?= $row['id'] ?>">
+data-id="<?= (int)$row['id'] ?>">
 View
 </button>
 
-<a href="update_status.php?id=<?= $row['id'] ?>&status=Approved"
+<a href="update_status.php?id=<?= (int)$row['id'] ?>&status=Approved"
 class="btn btn-sm btn-success"
 onclick="return confirm('Approve this application?')">
 Approve
@@ -124,12 +136,12 @@ Approve
 <a href="reject_application.php?id=<?= (int)$row['id'] ?>" class="btn btn-sm btn-danger">
     Reject
 </a>
-
+</div>
 </td>
 
 </tr>
 
-<?php endwhile; ?>
+<?php endforeach; ?>
 
 </tbody>
 
@@ -170,6 +182,7 @@ Approve
 
 </div>
 
+<?php eca_render_request_pager($appPage, $appPages, $appTotal, $limit); ?>
 
 <?php require_once "../footer.php"; ?>
 
@@ -198,7 +211,14 @@ $(document).ready(function(){
 
 $('#applicationsTable').DataTable({
 
-pageLength:10,
+paging:false,
+searching:false,
+info:false,
+autoWidth:false,
+
+columnDefs:[
+{ targets:-1, orderable:false, width:'310px' }
+],
 
 dom:'Bfrtip',
 

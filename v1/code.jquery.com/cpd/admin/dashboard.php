@@ -2,6 +2,7 @@
 require_once "../auth.php";
 require_role('SUPPERADMIN');
 require_once "../config.php";
+require_once "../helpers.php";
 
 /* =========================
    HELPERS
@@ -35,17 +36,7 @@ if ($q) $k_contractors = (int)($q->fetch_assoc()['c'] ?? 0);
 $q = $conn->query("SELECT COUNT(*) c FROM courses");
 if ($q) $k_courses = (int)($q->fetch_assoc()['c'] ?? 0);
 
-$pending_tables = ['cpd_applications', 'course_applications'];
-foreach ($pending_tables as $tbl) {
-    $check = $conn->query("SHOW TABLES LIKE '{$tbl}'");
-    if ($check && $check->num_rows > 0) {
-        $q = $conn->query("SELECT COUNT(*) c FROM {$tbl} WHERE status='PENDING'");
-        if ($q) {
-            $k_pending = (int)($q->fetch_assoc()['c'] ?? 0);
-            break;
-        }
-    }
-}
+$k_pending = ($conn instanceof mysqli) ? cpd_pending_application_count($conn) : 0;
 
 $q = $conn->query("SELECT COALESCE(SUM(points),0) s FROM cpd_points_ledger");
 if ($q) $k_points = (float)($q->fetch_assoc()['s'] ?? 0);
@@ -102,7 +93,7 @@ if ($q) $total_learners = (int)($q->fetch_assoc()['total_learners'] ?? 0);
 
 $q = $conn->query("
     SELECT COUNT(*) AS total_companies
-    FROM users
+    FROM user
     WHERE role = 'CONTRACTOR'
 ");
 if ($q) $total_companies = (int)($q->fetch_assoc()['total_companies'] ?? 0);
@@ -110,7 +101,7 @@ if ($q) $total_companies = (int)($q->fetch_assoc()['total_companies'] ?? 0);
 $q = $conn->query("
     SELECT COUNT(*) AS total_trainings
     FROM courses
-    WHERE status = 'CLOSED'
+    WHERE " . cpd_status_equals_sql('status', ['CLOSED']) . "
       AND start_date >= DATE_SUB(CURDATE(), INTERVAL 3 YEAR)
 ");
 if ($q) $total_trainings = (int)($q->fetch_assoc()['total_trainings'] ?? 0);
@@ -120,24 +111,28 @@ if ($q) $total_trainings = (int)($q->fetch_assoc()['total_trainings'] ?? 0);
 ========================= */
 $top_members = [];
 $top_performer = [
-    'name'     => 'John Dlamini',
-    'position' => 'Project Manager',
-       'Company' => 'MSA Construction',
-    'points'   => 28,
+    'name'     => 'No CPD activity',
+    'position' => '',
+    'Company'  => '',
+    'points'   => 0,
     'image'    => ''
 ];
 
 $top_sql = "
     SELECT 
-        COALESCE(u.full_name, a.full_name, 'Unknown User') AS full_name,
+        COALESCE(u.full_name, MAX(a.full_name), 'Unknown User') AS full_name,
         COALESCE(MAX(a.position), 'Member') AS position,
         COALESCE(MAX(a.company_name), '') AS company_name,
         COALESCE(SUM(l.points), 0) AS total_points,
         MAX(u.image) AS image
     FROM cpd_points_ledger l
     LEFT JOIN user u ON u.id = l.user_id
-    LEFT JOIN cpd_applications a ON a.email = u.email
-    GROUP BY l.user_id, u.full_name, a.full_name
+    LEFT JOIN (
+        SELECT email, MAX(full_name) AS full_name, MAX(position) AS position, MAX(company_name) AS company_name
+        FROM cpd_applications
+        GROUP BY email
+    ) a ON a.email = u.email
+    GROUP BY l.user_id, u.full_name
     ORDER BY total_points DESC, full_name ASC
     LIMIT 3
 ";
@@ -151,6 +146,7 @@ if (!empty($top_members)) {
     $top_performer = [
         'name'     => $top_members[0]['full_name'] ?? 'Top Member',
         'position' => $top_members[0]['position'] ?? 'Member',
+        'Company'  => $top_members[0]['company_name'] ?? '',
         'points'   => (float)($top_members[0]['total_points'] ?? 0),
         'image'    => $top_members[0]['image'] ?? ''
     ];
@@ -162,17 +158,26 @@ if (!empty($top_members)) {
 $employees = [];
 $employees_sql = "
     SELECT 
-        COALESCE(a.full_name, u.full_name, 'Unknown') AS full_name,
-        COALESCE(a.company_name, u.company_name, '-') AS company_name,
-        COALESCE(a.position, 'Member') AS position,
+        COALESCE(MAX(a.full_name), u.full_name, 'Unknown') AS full_name,
+        COALESCE(MAX(a.company_name), u.company_name, '-') AS company_name,
+        COALESCE(MAX(a.position), 'Member') AS position,
         COALESCE(SUM(l.points),0) AS employee_points,
-        GROUP_CONCAT(DISTINCT c.title ORDER BY c.start_date DESC SEPARATOR ', ') AS courses_attended
+        MAX(a.courses_attended) AS courses_attended
     FROM user u
     LEFT JOIN cpd_points_ledger l ON l.user_id = u.id
-    LEFT JOIN cpd_applications a ON a.email = u.email
-    LEFT JOIN courses c ON c.id = a.course_id
+    LEFT JOIN (
+        SELECT
+            applications.email,
+            MAX(applications.full_name) AS full_name,
+            MAX(applications.company_name) AS company_name,
+            MAX(applications.position) AS position,
+            GROUP_CONCAT(DISTINCT courses.title ORDER BY courses.start_date DESC SEPARATOR ', ') AS courses_attended
+        FROM cpd_applications applications
+        LEFT JOIN courses ON courses.id = applications.course_id
+        GROUP BY applications.email
+    ) a ON a.email = u.email
     WHERE u.role = 'CONTRACTOR'
-    GROUP BY u.id, a.full_name, u.full_name, a.company_name, u.company_name, a.position
+    GROUP BY u.id, u.full_name, u.company_name
     ORDER BY employee_points DESC, full_name ASC
     LIMIT 4
 ";
@@ -182,55 +187,36 @@ if ($employees_res && $employees_res->num_rows > 0) {
         $employees[] = $row;
     }
 }
-if (empty($employees)) {
-    $employees = [
-        ['full_name'=>'John Dlamini','company_name'=>'BuildTech Ltd.','position'=>'Project Manager','employee_points'=>28,'courses_attended'=>'Contract Training, Safety Mgmt'],
-        ['full_name'=>'Sarah Mthembu','company_name'=>'InfraWorks Inc.','position'=>'Procurement Officer','employee_points'=>15,'courses_attended'=>'Tendering Fundamentals'],
-        ['full_name'=>'Thabo Nkosi','company_name'=>'MegaConstruct','position'=>'Site Engineer','employee_points'=>20,'courses_attended'=>'Contract Training, Quality Mgmt'],
-        ['full_name'=>'Nomsa Khumalo','company_name'=>'Urban Develop SA','position'=>'HR Specialist','employee_points'=>12,'courses_attended'=>'Workforce Development'],
-    ];
-}
-
 /* =========================
    PIE DISTRIBUTION
 ========================= */
-$pie_labels = ['Contract Training', 'Safety Management', 'Tendering Fundamentals', 'Quality Mgmt'];
-$pie_values = [35, 25, 20, 20];
-
-$cat_counts = [
-    'Contract Training'      => 0,
-    'Safety Management'      => 0,
-    'Tendering Fundamentals' => 0,
-    'Quality Mgmt'           => 0
-];
-
-$course_dist_sql = "SELECT title FROM courses";
+$pie_labels = array_fill(0, 4, 'No course data');
+$pie_values = array_fill(0, 4, 0);
+$course_dist_sql = "
+    SELECT c.title, COALESCE(SUM(l.points), 0) AS total
+    FROM courses c
+    LEFT JOIN cpd_points_ledger l ON l.course_id = c.id
+    GROUP BY c.id, c.title
+    ORDER BY total DESC, c.title ASC
+    LIMIT 4
+";
 $course_dist_res = $conn->query($course_dist_sql);
 if ($course_dist_res && $course_dist_res->num_rows > 0) {
+    $distribution = [];
     while ($r = $course_dist_res->fetch_assoc()) {
-        $title = strtolower((string)($r['title'] ?? ''));
-        if (strpos($title, 'contract') !== false) {
-            $cat_counts['Contract Training']++;
-        } elseif (strpos($title, 'safety') !== false) {
-            $cat_counts['Safety Management']++;
-        } elseif (strpos($title, 'tender') !== false) {
-            $cat_counts['Tendering Fundamentals']++;
-        } elseif (strpos($title, 'quality') !== false) {
-            $cat_counts['Quality Mgmt']++;
-        }
+        $distribution[] = [
+            'title' => (string) ($r['title'] ?? 'Untitled course'),
+            'total' => (float) ($r['total'] ?? 0),
+        ];
     }
-
-    $sum = array_sum($cat_counts);
+    $sum = array_sum(array_column($distribution, 'total'));
     if ($sum > 0) {
-        $pie_labels = array_keys($cat_counts);
-        $pie_values = [];
-        foreach ($cat_counts as $v) {
-            $pie_values[] = round(($v / $sum) * 100);
+        foreach ($distribution as $index => $item) {
+            $pie_labels[$index] = $item['title'];
+            $pie_values[$index] = round(($item['total'] / $sum) * 100);
         }
         $diff = 100 - array_sum($pie_values);
-        if (isset($pie_values[0])) {
-            $pie_values[0] += $diff;
-        }
+        $pie_values[0] += $diff;
     }
 }
 
@@ -261,13 +247,6 @@ if ($up_res && $up_res->num_rows > 0) {
         $upcoming_courses[] = $row;
     }
 }
-if (empty($upcoming_courses)) {
-    $upcoming_courses = [
-        ['title' => 'Contract Training', 'start_date' => date('Y-04-01')],
-        ['title' => 'Safety Management', 'start_date' => date('Y-06-01')],
-    ];
-}
-
 require_once "../header.php";
 ?>
 
@@ -304,26 +283,26 @@ body{
   background:var(--eca-card);
   border:1px solid var(--eca-border);
   border-radius:10px;
-  padding:18px 28px;
-  margin-bottom:20px;
+  padding:10px 16px;
+  margin-bottom:12px;
   display:grid;
   grid-template-columns:1.5fr .9fr .8fr;
-  gap:24px;
+  gap:12px;
   box-shadow:var(--eca-shadow);
 }
 
 .info-stack{
   display:flex;
   flex-direction:column;
-  gap:10px;
+  gap:4px;
   min-width:0;
 }
 
 .info-line{
-  font-size:15px;
+  font-size:13px;
   font-weight:700;
   color:var(--eca-text);
-  line-height:1.2;
+  line-height:1.25;
 }
 
 .info-line strong{
@@ -333,16 +312,16 @@ body{
 
 .kpi-row{
   display:grid;
-  grid-template-columns:1fr 1fr 390px;
-  gap:16px;
-  margin-bottom:18px;
+  grid-template-columns:1fr 1fr 300px;
+  gap:10px;
+  margin:10px 0 12px;
   align-items:stretch;
 }
 
 .metric-card{
-  min-height:146px;
-  border-radius:16px;
-  padding:24px 28px;
+  min-height:72px;
+  border-radius:12px;
+  padding:12px 16px;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -364,7 +343,7 @@ body{
 }
 
 .metric-label{
-  font-size:20px;
+  font-size:13px;
   font-weight:800;
   line-height:1.2;
   position:relative;
@@ -372,7 +351,7 @@ body{
 }
 
 .metric-value{
-  font-size:50px;
+  font-size:28px;
   font-weight:900;
   line-height:1;
   position:relative;
@@ -390,21 +369,21 @@ body{
 .top-performer-head{
   background:#000066;
   color:#fff;
-  font-size:18px;
+  font-size:13px;
   font-weight:800;
-  padding:14px 20px;
+  padding:8px 12px;
 }
 
 .top-performer-body{
   display:flex;
   align-items:center;
-  gap:16px;
-  padding:14px 18px;
+  gap:10px;
+  padding:8px 12px;
 }
 
 .performer-photo{
-  width:78px;
-  height:78px;
+  width:44px;
+  height:44px;
   border-radius:8px;
   object-fit:cover;
   border:1px solid #d9dfe8;
@@ -413,11 +392,11 @@ body{
 }
 
 .performer-name{
-  font-size:20px;
+  font-size:14px;
   font-weight:800;
   color:var(--eca-text);
   line-height:1.1;
-  margin-bottom:4px;
+  margin-bottom:2px;
 }
 
 .performer-role{
@@ -429,21 +408,23 @@ body{
 
 .admin-grid{
   display:grid;
-  grid-template-columns:1.7fr .8fr;
-  gap:16px;
-  align-items:start;
+  grid-template-columns:1.35fr 1fr;
+  gap:12px;
+  align-items:stretch;
 }
 
 .left-grid{
   display:grid;
-  grid-template-columns:1.15fr .95fr;
-  gap:16px;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  min-width:0;
 }
 
 .right-stack{
-  display:flex;
-  flex-direction:column;
-  gap:16px;
+  display:grid;
+  grid-template-rows:auto 1fr;
+  gap:12px;
+  min-width:0;
 }
 
 .panel-box{
@@ -456,8 +437,8 @@ body{
 
 .panel-head{
   position:relative;
-  padding:14px 18px 10px;
-  font-size:17px;
+  padding:10px 14px 8px;
+  font-size:14px;
   font-weight:800;
   color:var(--eca-text);
 }
@@ -467,7 +448,7 @@ body{
   position:absolute;
   left:18px;
   right:18px;
-  top:28px;
+  top:22px;
   height:2px;
   background:#d7dde6;
 }
@@ -485,8 +466,8 @@ body{
 
 .distribution-wrap{
   display:grid;
-  grid-template-columns:190px 1fr;
-  gap:14px;
+  grid-template-columns:132px 1fr;
+  gap:10px;
   align-items:center;
 }
 
@@ -497,8 +478,8 @@ body{
 }
 
 .pie-chart{
-  width:178px;
-  height:178px;
+  width:120px;
+  height:120px;
   border-radius:50%;
   box-shadow:none;
 }
@@ -512,8 +493,8 @@ body{
 .legend-item{
   display:flex;
   align-items:center;
-  gap:10px;
-  font-size:16px;
+  gap:8px;
+  font-size:13px;
   font-weight:700;
   color:#27406d;
 }
@@ -841,7 +822,8 @@ body{
 
 .full-representatives-panel{
   width:100%;
-  margin-top:16px;
+  margin-top:0;
+  grid-column:1 / -1;
 }
 
 .full-representatives-panel .table-responsive{
@@ -921,6 +903,261 @@ body{
     grid-template-columns:1fr;
   }
 }
+
+/* Modern responsive dashboard */
+.admin-stage{
+  --dash-navy:#192754;
+  --dash-red:#d50d0e;
+  --dash-line:#e6eaf2;
+  --dash-muted:#667085;
+  --dash-card:#fff;
+  --dash-shadow:0 10px 28px rgba(25,39,84,.06);
+}
+.admin-stage .cpd-info-strip{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+  margin:0 0 14px;
+  padding:12px 14px;
+  border:1px solid var(--dash-line);
+  border-left:3px solid var(--dash-red);
+  border-radius:16px;
+  background:var(--dash-card);
+  box-shadow:var(--dash-shadow);
+}
+.admin-stage .info-stack{ display:contents; }
+.admin-stage .info-line{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  max-width:100%;
+  margin:0;
+  padding:6px 10px;
+  border-radius:999px;
+  background:#f4f6fb;
+  color:var(--dash-navy);
+  font-size:12px;
+  font-weight:700;
+  line-height:1.3;
+}
+.admin-stage .info-line strong{
+  color:var(--dash-muted);
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.admin-stage .kpi-row{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin:0 0 16px;
+}
+.admin-stage .metric-card,
+.admin-stage .top-performer-card,
+.admin-stage .panel-box{
+  border:1px solid var(--dash-line);
+  border-radius:14px;
+  background:var(--dash-card);
+  box-shadow:var(--dash-shadow);
+}
+.admin-stage .metric-card{
+  min-height:88px;
+  padding:14px 16px;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+}
+.admin-stage .metric-label,
+.admin-stage .top-performer-head{
+  color:var(--dash-muted);
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.admin-stage .metric-value{
+  color:var(--dash-navy);
+  font-size:1.75rem;
+  font-weight:800;
+}
+.admin-stage .top-performer-head{
+  background:transparent;
+  padding:14px 16px 0;
+}
+.admin-stage .top-performer-body{ padding:8px 16px 14px; }
+.admin-stage .performer-photo{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+}
+.admin-stage .performer-name{
+  color:var(--dash-navy);
+  font-size:14px;
+}
+.admin-stage .performer-role{
+  color:var(--dash-muted);
+  font-size:12px;
+}
+.admin-stage .admin-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.4fr) minmax(260px,0.9fr);
+  gap:12px;
+  margin:0 0 12px;
+}
+.admin-stage .left-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.admin-stage .right-stack{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.admin-stage .right-stack .panel-box{ flex:1 1 auto; }
+.admin-stage .full-representatives-panel{
+  grid-column:1 / -1;
+  margin-top:0;
+}
+.admin-stage .panel-head{
+  padding:14px 16px 4px;
+  color:var(--dash-navy);
+  font-family:"Plus Jakarta Sans",system-ui,sans-serif;
+  font-size:15px;
+}
+body.hub-admin.is-admin-dash .admin-stage .hub-tiles.hub-portals,
+.admin-stage .hub-tiles.hub-portals{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin:0 0 16px;
+}
+body.hub-admin.is-admin-dash .admin-stage .hub-portal-tile,
+.admin-stage .hub-portal-tile{
+  display:flex !important;
+  flex-direction:column;
+  min-height:138px;
+  padding:14px 14px 12px;
+}
+body.hub-admin.is-admin-dash .admin-stage .hub-portal-kicker,
+.admin-stage .hub-portal-kicker{
+  display:inline-flex !important;
+  align-items:center;
+  gap:6px;
+  margin:0 0 8px;
+  color:var(--dash-muted);
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+body.hub-admin.is-admin-dash .admin-stage .hub-portal-tile h3,
+.admin-stage .hub-portal-tile h3{
+  font-family:"Plus Jakarta Sans",system-ui,sans-serif !important;
+  font-size:0.98rem;
+  font-weight:800;
+}
+body.hub-admin.is-admin-dash .admin-stage .hub-portal-tile p,
+.admin-stage .hub-portal-tile p{
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  flex:1 1 auto;
+}
+body.hub-admin.is-admin-dash .admin-stage .hub-portal-tile > span,
+.admin-stage .hub-portal-tile > span{
+  margin-top:auto;
+  padding-top:8px;
+  color:var(--dash-navy);
+  font-size:12px;
+  font-weight:800;
+}
+body.hub-admin.is-admin-dash .admin-stage .hub-card-head,
+.admin-stage .hub-card-head{
+  margin:4px 0 10px !important;
+  align-items:end;
+}
+body.hub-admin.is-admin-dash .admin-stage .hub-card-head h2,
+.admin-stage .hub-card-head h2{
+  font-family:"Plus Jakarta Sans",system-ui,sans-serif !important;
+  font-size:1.2rem !important;
+  font-weight:800 !important;
+  letter-spacing:-0.02em;
+}
+.admin-stage .distribution-wrap{
+  min-height:160px;
+}
+.admin-stage .upcoming-list{
+  min-height:140px;
+}
+.admin-stage .panel-head::after{ display:none; }
+.admin-stage .panel-head span{
+  padding:0;
+  background:transparent;
+}
+.admin-stage .panel-body-pad{ padding:8px 16px 16px; }
+.admin-stage .legend-item{
+  color:var(--dash-navy);
+  font-size:13px;
+}
+.admin-stage .member-rank img{ border-color:var(--dash-navy); }
+.admin-stage .table-responsive{
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.admin-stage .table-cpd{
+  min-width:640px;
+  border-collapse:separate;
+  border-spacing:0;
+}
+.admin-stage .table-cpd th{
+  background:#f4f6fb;
+  color:var(--dash-navy);
+  border:0;
+  border-bottom:1px solid var(--dash-line);
+  font-size:12px;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.admin-stage .table-cpd td{
+  border:0;
+  border-bottom:1px solid var(--dash-line);
+  color:#243056;
+}
+@media (max-width:1200px){
+  .admin-stage .hub-tiles.hub-portals{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+}
+@media (max-width:1100px){
+  .admin-stage .kpi-row{ grid-template-columns:1fr 1fr; }
+  .admin-stage .top-performer-card{ grid-column:1 / -1; }
+  .admin-stage .admin-grid,
+  .admin-stage .left-grid,
+  .admin-stage .distribution-wrap{ grid-template-columns:1fr; }
+  .admin-stage .hub-tiles.hub-portals{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .admin-stage .pie-holder{ justify-content:flex-start; }
+}
+@media (max-width:700px){
+  .admin-stage .kpi-row,
+  .admin-stage .top-members-list{ grid-template-columns:1fr; }
+  .admin-stage .metric-card{
+    min-height:0;
+    padding:12px 14px;
+  }
+  .admin-stage .metric-label{ font-size:11px; }
+  .admin-stage .metric-value{ font-size:1.55rem; }
+  .admin-stage .performer-photo{ width:40px; height:40px; }
+  .admin-stage .performer-name{ font-size:14px; }
+  .admin-stage .pie-chart{ width:112px; height:112px; }
+  .admin-stage .cpd-info-strip{ padding:10px; }
+  .admin-stage .info-line{ font-size:12px; }
+}
 </style>
 
 
@@ -973,130 +1210,140 @@ body{
         </div>
     </div>
 
+    <?php if (function_exists('eca_super_admin_can_open_portals') && eca_super_admin_can_open_portals()): ?>
+    <div class="hub-card-head">
+        <h2>Portals</h2>
+        <a href="/admin/wellness/">Open Wellness</a>
+    </div>
+    <div class="hub-tiles hub-portals">
+        <a class="hub-tile hub-portal-tile hub-tile-lilac" href="/admin/wellness/">
+            <p class="hub-portal-kicker"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i> Portal</p>
+            <h3>Wellness</h3>
+            <p>Manage wellness events, resources and announcements.</p>
+            <span>Open →</span>
+        </a>
+        <a class="hub-tile hub-portal-tile hub-tile-mint" href="/wellness/">
+            <p class="hub-portal-kicker"><i class="fa-solid fa-spa" aria-hidden="true"></i> Portal</p>
+            <h3>Wellness Hub</h3>
+            <p>Public articles, videos, toolbox talks and support pages.</p>
+            <span>Open →</span>
+        </a>
+        <a class="hub-tile hub-portal-tile" href="/client/wellness/">
+            <p class="hub-portal-kicker"><i class="fa-solid fa-heart" aria-hidden="true"></i> Portal</p>
+            <h3>Member Wellness</h3>
+            <p>Signed-in member events, resources and announcements.</p>
+            <span>Open →</span>
+        </a>
+        <a class="hub-tile hub-portal-tile hub-tile-sand" href="/client/dashboard.php">
+            <p class="hub-portal-kicker"><i class="fa-solid fa-id-card" aria-hidden="true"></i> Portal</p>
+            <h3>Member Hub</h3>
+            <p>Membership, certificates, payments and documents.</p>
+            <span>Open →</span>
+        </a>
+        <a class="hub-tile hub-portal-tile" href="/learner-portal.php">
+            <p class="hub-portal-kicker"><i class="fa-solid fa-laptop" aria-hidden="true"></i> Portal</p>
+            <h3>Learner Portal</h3>
+            <p>Courses, applications and CPD records.</p>
+            <span>Open →</span>
+        </a>
+        <a class="hub-tile hub-portal-tile hub-tile-lilac" href="/admin/index.php">
+            <p class="hub-portal-kicker"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i> Portal</p>
+            <h3>Admin Hub</h3>
+            <p>Membership, finance and system administration.</p>
+            <span>Open →</span>
+        </a>
+        <a class="hub-tile hub-portal-tile hub-tile-sand" href="/cpd/officer/dashboard.php">
+            <p class="hub-portal-kicker"><i class="fa-solid fa-user-tie" aria-hidden="true"></i> Portal</p>
+            <h3>Officer Hub</h3>
+            <p>Review applications, attendance and participants.</p>
+            <span>Open →</span>
+        </a>
+        <a class="hub-tile hub-portal-tile hub-tile-mint" href="/education.php">
+            <p class="hub-portal-kicker"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i> Portal</p>
+            <h3>Education Hub</h3>
+            <p>Public training programmes, CPD and learning resources.</p>
+            <span>Open →</span>
+        </a>
+    </div>
+    <?php endif; ?>
+
     <div class="admin-grid">
-        <div>
-            <div class="left-grid">
-                <div class="panel-box">
-                    <div class="panel-head"><span>CPD Points Distribution</span></div>
-                    <div class="panel-body-pad">
-                        <div class="distribution-wrap">
-                            <div class="pie-holder">
-                                <div class="pie-chart"
-                                     style="background:
-                                     conic-gradient(
-                                        #f08d25 0% <?= $s1 ?>%,
-                                        #3f7ccb <?= $s1 ?>% <?= $s2 ?>%,
-                                        #52ab58 <?= $s2 ?>% <?= $s3 ?>%,
-                                        #f4b227 <?= $s3 ?>% <?= $s4 ?>%
-                                     );"></div>
+        <div class="left-grid">
+            <div class="panel-box">
+                <div class="panel-head"><span>CPD Points Distribution</span></div>
+                <div class="panel-body-pad">
+                    <div class="distribution-wrap">
+                        <div class="pie-holder">
+                            <div class="pie-chart"
+                                 style="background:
+                                 conic-gradient(
+                                    #f08d25 0% <?= $s1 ?>%,
+                                    #3f7ccb <?= $s1 ?>% <?= $s2 ?>%,
+                                    #52ab58 <?= $s2 ?>% <?= $s3 ?>%,
+                                    #f4b227 <?= $s3 ?>% <?= $s4 ?>%
+                                 );"></div>
+                        </div>
+                        <div class="legend-list">
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background:#f08d25;"></span>
+                                <span><?= e($pie_labels[0]) ?> <strong><?= (int)$pie_values[0] ?>%</strong></span>
                             </div>
-
-                            <div class="legend-list">
-                                <div class="legend-item">
-                                    <span class="legend-dot" style="background:#f08d25;"></span>
-                                    <span><?= e($pie_labels[0]) ?> <strong><?= (int)$pie_values[0] ?>%</strong></span>
-                                </div>
-                                <div class="legend-item">
-                                    <span class="legend-dot" style="background:#3f7ccb;"></span>
-                                    <span><?= e($pie_labels[1]) ?> <strong><?= (int)$pie_values[1] ?>%</strong></span>
-                                </div>
-                                <div class="legend-item">
-                                    <span class="legend-dot" style="background:#52ab58;"></span>
-                                    <span><?= e($pie_labels[2]) ?> <strong><?= (int)$pie_values[2] ?>%</strong></span>
-                                </div>
-                                <div class="legend-item">
-                                    <span class="legend-dot" style="background:#f4b227;"></span>
-                                    <span><?= e($pie_labels[3]) ?> <strong><?= (int)$pie_values[3] ?>%</strong></span>
-                                </div>
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background:#3f7ccb;"></span>
+                                <span><?= e($pie_labels[1]) ?> <strong><?= (int)$pie_values[1] ?>%</strong></span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background:#52ab58;"></span>
+                                <span><?= e($pie_labels[2]) ?> <strong><?= (int)$pie_values[2] ?>%</strong></span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background:#f4b227;"></span>
+                                <span><?= e($pie_labels[3]) ?> <strong><?= (int)$pie_values[3] ?>%</strong></span>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-             <div class="panel-box">
-    <div class="panel-head"><span>Upcoming Courses</span></div>
-    <div class="panel-body-pad">
-        <div class="upcoming-list">
-            <?php foreach ($upcoming_courses as $idx => $course): 
-                $title = $course['title'] ?? 'Course';
-                $date  = !empty($course['start_date']) 
-                    ? date('d M Y', strtotime($course['start_date'])) 
-                    : date('d M Y');
-
-                $month = !empty($course['start_date']) 
-                    ? date('M', strtotime($course['start_date'])) 
-                    : date('M');
-
-                $day = !empty($course['start_date']) 
-                    ? date('d', strtotime($course['start_date'])) 
-                    : date('d');
-            ?>
-                <div class="upcoming-course-item">
-                    <div class="course-date-box">
-                        <span class="course-day"><?= e($day) ?></span>
-                        <span class="course-month"><?= e($month) ?></span>
-                    </div>
-
-                    <div class="course-list-info">
-                        <div class="course-list-title"><?= e($title) ?></div>
-                        <div class="course-list-date">
-                            <i class="bi bi-calendar-event"></i>
-                            <?= e($date) ?>
-                        </div>
-                    </div>
-
-                    <div class="course-status-badge">
-                        Upcoming
+            <div class="panel-box">
+                <div class="panel-head"><span>Upcoming Courses</span></div>
+                <div class="panel-body-pad">
+                    <div class="upcoming-list">
+                        <?php if (empty($upcoming_courses)): ?>
+                            <p class="hub-sub" style="margin:0;">No upcoming courses are scheduled.</p>
+                        <?php endif; ?>
+                        <?php foreach ($upcoming_courses as $idx => $course):
+                            $title = $course['title'] ?? 'Course';
+                            $date  = !empty($course['start_date'])
+                                ? date('d M Y', strtotime($course['start_date']))
+                                : date('d M Y');
+                            $month = !empty($course['start_date'])
+                                ? date('M', strtotime($course['start_date']))
+                                : date('M');
+                            $day = !empty($course['start_date'])
+                                ? date('d', strtotime($course['start_date']))
+                                : date('d');
+                        ?>
+                            <div class="upcoming-course-item">
+                                <div class="course-date-box">
+                                    <span class="course-day"><?= e($day) ?></span>
+                                    <span class="course-month"><?= e($month) ?></span>
+                                </div>
+                                <div class="course-list-info">
+                                    <div class="course-list-title"><?= e($title) ?></div>
+                                    <div class="course-list-date">
+                                        <i class="bi bi-calendar-event"></i>
+                                        <?= e($date) ?>
+                                    </div>
+                                </div>
+                                <div class="course-status-badge">Upcoming</div>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
-            <?php endforeach; ?>
+            </div>
         </div>
-    </div>
-</div>
 
-           <div class="panel-box table-panel full-representatives-panel">
-    <div class="panel-head">
-        <span>Representatives Overview</span>
-    </div>
-
-    <div class="table-responsive">
-        <table class="table-cpd">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Company</th>
-                    <th>Position</th>
-                    <th>CPD Points</th>
-                    <th>Courses Attended</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <?php if (!empty($employees)): ?>
-                    <?php foreach ($employees as $emp): ?>
-                        <tr>
-                            <td><?= e($emp['full_name'] ?? '-') ?></td>
-                            <td><?= e($emp['company_name'] ?? '-') ?></td>
-                            <td><?= e($emp['position'] ?? '-') ?></td>
-                            <td class="points">
-                                <?= number_format((float)($emp['employee_points'] ?? 0), 0) ?>
-                            </td>
-                            <td class="course-cell">
-                                <?= e($emp['courses_attended'] ?? '-') ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="5" style="text-align:center; padding:25px; font-weight:800; color:#6f7c96;">
-                            No representatives found.
-                        </td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
-</div>
         <div class="right-stack">
             <div class="panel-box">
                 <div class="panel-head"><span>CPD Progress</span></div>
@@ -1131,8 +1378,53 @@ body{
                     <?php
                         $rank++;
                     endforeach;
+                    if ($rank === 1):
                     ?>
+                        <p class="hub-sub" style="margin:0;padding:4px 16px 16px;">No CPD leaderboard data yet.</p>
+                    <?php endif; ?>
                 </div>
+            </div>
+        </div>
+
+        <div class="panel-box table-panel full-representatives-panel">
+            <div class="panel-head">
+                <span>Representatives Overview</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table-cpd">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Company</th>
+                            <th>Position</th>
+                            <th>CPD Points</th>
+                            <th>Courses Attended</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($employees)): ?>
+                            <?php foreach ($employees as $emp): ?>
+                                <tr>
+                                    <td><?= e($emp['full_name'] ?? '-') ?></td>
+                                    <td><?= e($emp['company_name'] ?? '-') ?></td>
+                                    <td><?= e($emp['position'] ?? '-') ?></td>
+                                    <td class="points">
+                                        <?= number_format((float)($emp['employee_points'] ?? 0), 0) ?>
+                                    </td>
+                                    <td class="course-cell">
+                                        <?= e($emp['courses_attended'] ?? '-') ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="5" style="text-align:center; padding:25px; font-weight:800; color:#6f7c96;">
+                                    No representatives found.
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
