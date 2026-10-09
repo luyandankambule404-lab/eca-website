@@ -1,0 +1,19 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(self)
+  Cross-Origin-Opener-Policy: same-origin
+  Content-Security-Policy: default-src 'self' https: data:; object-src 'self' blob:; base-uri 'self'; frame-ancestors 'self'; form-action 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' https: data: blob:; font-src 'self' https: data:; connect-src 'self' https:; frame-src 'self' https: blob:; worker-src 'self' blob: https:
+
+/css/*
+  Cache-Control: public, max-age=2592000, immutable
+
+/js/*
+  Cache-Control: public, max-age=2592000, immutable
+
+/img/*
+  Cache-Control: public, max-age=2592000, immutable
+
+/lib/*
+  Cache-Control: public, max-age=2592000, immutable

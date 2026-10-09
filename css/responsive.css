@@ -1,0 +1,516 @@
+/* ECA site-wide responsive — phones, tablets, and small laptops */
+
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+html,
+body {
+    max-width: 100%;
+    overflow-x: clip;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+img,
+video,
+iframe,
+embed,
+object,
+svg {
+    max-width: 100%;
+    height: auto;
+}
+
+pre,
+code {
+    overflow-x: auto;
+    word-break: break-word;
+}
+
+.container,
+.container-fluid,
+.container-xxl,
+.container-lg,
+.container-md,
+.container-sm {
+    width: 100%;
+    max-width: 100%;
+}
+
+.eca-public .eca-landing-logo img,
+.eca-auth-nav img {
+    max-width: min(220px, 56vw);
+    height: auto;
+}
+
+.eca-utility-inner,
+.eca-masthead,
+.eca-inner-hero-inner,
+.eca-site-footer .container,
+.eca-landing-inner {
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+}
+
+.eca-table-scroll,
+.hub-card:has(.hub-table),
+.hub-card:has(table),
+.table-responsive,
+.eca-directory-wrap,
+.eca-form-panel,
+.eca-directory-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+}
+
+.hub-table,
+.eca-public table.table {
+    min-width: min(520px, 100%);
+}
+
+.eca-public input[type="text"],
+.eca-public input[type="email"],
+.eca-public input[type="password"],
+.eca-public input[type="search"],
+.eca-public input[type="tel"],
+.eca-public input[type="number"],
+.eca-public select,
+.eca-public textarea,
+body.hub-root input,
+body.hub-root select,
+body.hub-root textarea {
+    max-width: 100%;
+}
+
+/* ----- Tablets & small laptops ----- */
+@media (max-width: 1199.98px) {
+    .eca-utility-inner {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding-top: 8px;
+        padding-bottom: 8px;
+    }
+
+    .eca-utility-brand {
+        display: none;
+    }
+
+    .eca-utility-tools {
+        flex: 1 1 100%;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .eca-utility-tools .eca-search-suggest-wrap,
+    .eca-utility-search {
+        flex: 1 1 180px;
+        width: auto !important;
+        max-width: 220px !important;
+        min-width: 0;
+    }
+
+    .eca-login-drop {
+        flex: 0 0 auto;
+    }
+
+    .eca-login-drop .eca-nav-login {
+        width: auto;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .eca-public .eca-mega-menu-wide,
+    .eca-public .eca-mega-menu-wide:has(.eca-mega-col:nth-child(3)) {
+        min-width: 0;
+        width: 100%;
+        grid-template-columns: 1fr;
+    }
+
+    .eca-inner-hero {
+        padding-top: clamp(24px, 5vw, 40px);
+        padding-bottom: clamp(24px, 5vw, 40px);
+    }
+
+    .eca-inner-hero-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .eca-inner-hero h1 {
+        font-size: clamp(1.5rem, 6vw, 2.2rem);
+        line-height: 1.15;
+    }
+
+    .eca-inner-crumb {
+        font-size: 0.85rem;
+        word-break: break-word;
+    }
+
+    .eca-site-footer .row > [class*="col-"] {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .eca-register-panel {
+        max-width: calc(100% - 20px);
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .eca-hero-stats,
+    .eca-action-grid,
+    .eca-program-grid,
+    .eca-home-cta-panel,
+    .eca-home-intro-grid,
+    .eca-news-simple-grid,
+    .eca-landing-slide-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .eca-hero-stats {
+        margin-top: -20px;
+        width: calc(100% - 20px);
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    body:has(.layout > .sidebar):not(:has(.hub-shell)) .layout {
+        grid-template-columns: 1fr !important;
+        padding: 12px !important;
+        border-radius: 20px !important;
+    }
+
+    body:has(.layout > .sidebar):not(:has(.hub-shell)) .sidebar {
+        min-height: 0 !important;
+    }
+}
+
+/* ----- Large phones ----- */
+@media (max-width: 767.98px) {
+    .eca-public input[type="text"],
+    .eca-public input[type="email"],
+    .eca-public input[type="password"],
+    .eca-public input[type="search"],
+    .eca-public input[type="tel"],
+    .eca-public input[type="number"],
+    .eca-public select,
+    .eca-public textarea {
+        font-size: 16px;
+    }
+
+    .row:not(.g-0) {
+        --bs-gutter-x: 0.85rem;
+    }
+
+    .card,
+    .eca-faq-card,
+    .hub-card {
+        border-radius: 16px;
+    }
+
+    .eca-masthead {
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    .eca-public .eca-landing-logo img {
+        height: 48px;
+        max-width: min(200px, 52vw);
+    }
+
+    .eca-public .eca-landing-toggle {
+        margin-left: auto;
+    }
+
+    .eca-public .eca-mega-nav.is-open,
+    .eca-public .eca-landing-nav.eca-mega-nav.is-open {
+        left: 12px;
+        right: 12px;
+        max-height: min(72dvh, 560px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .eca-home .showcase-wrapper,
+    .eca-home .showcase-item,
+    .eca-home .showcase-item img.bg,
+    .eca-landing-slide {
+        height: auto !important;
+        min-height: min(68dvh, 480px) !important;
+        max-height: none !important;
+    }
+
+    .eca-home .showcase-caption {
+        max-width: none !important;
+        padding: 0 4px !important;
+    }
+
+    .eca-home .showcase-caption h2 {
+        font-size: clamp(1.45rem, 7vw, 2rem) !important;
+        line-height: 1.12 !important;
+    }
+
+    .eca-home .showcase-caption p {
+        font-size: 0.95rem !important;
+    }
+
+    .eca-home .showcase-caption .btns {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .eca-home .showcase-caption .btns a {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .eca-section {
+        padding: clamp(40px, 10vw, 64px) 0;
+    }
+
+    .btn-group,
+    .eca-form-actions {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .btn-group .btn,
+    .eca-form-actions .btn,
+    .eca-form-actions .hub-btn {
+        width: 100%;
+        margin: 0 0 8px !important;
+    }
+
+    .owner-row > [class*="col-"],
+    .eca-public .container .row > [class*="col-md-"],
+    .eca-public .container .row > [class*="col-lg-"] {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+/* ----- Standard phones ----- */
+@media (max-width: 575.98px) {
+    .row > [class*="col-sm-"],
+    .row > [class*="col-md-"],
+    .row > [class*="col-lg-"],
+    .row > [class*="col-xl-"] {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    body.hub-root,
+    body:has(.hub-shell) {
+        padding: 4px !important;
+    }
+
+    .hub-shell {
+        border-radius: 16px !important;
+    }
+
+    .hub-topbar {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 8px 10px !important;
+    }
+
+    .hub-brand img {
+        max-height: 40px;
+    }
+
+    .hub-title {
+        font-size: 0.95rem !important;
+        letter-spacing: 0.02em;
+        line-height: 1.25;
+    }
+
+    .hub-top-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .hub-chip {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .hub-filter-row,
+    .eca-directory-search,
+    .hub-card-head {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .hub-filter-row input,
+    .hub-filter-row select,
+    .hub-filter-row button,
+    .eca-directory-search input,
+    .eca-directory-search select,
+    .eca-directory-search button {
+        width: 100% !important;
+        flex: 1 1 auto !important;
+    }
+
+    .hub-table {
+        min-width: 440px;
+        font-size: 0.86rem;
+    }
+
+    .hub-table-actions {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 8px !important;
+    }
+
+    .dash-pager,
+    .hub-subnav,
+    .eca-auth-portals {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .eca-auth-portals a {
+        flex: 1 1 100%;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .eca-footer-copy {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+
+    .wh-shell {
+        padding-left: max(12px, env(safe-area-inset-left));
+        padding-right: max(12px, env(safe-area-inset-right));
+    }
+
+    .wh-nav {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .wh-nav button {
+        flex: 1 1 calc(50% - 6px);
+        min-width: 0;
+        font-size: 0.78rem;
+    }
+}
+
+/* ----- Small phones (e.g. 320px) ----- */
+@media (max-width: 374.98px) {
+    .eca-utility-social {
+        gap: 4px;
+    }
+
+    .eca-utility-social a {
+        width: 22px;
+        height: 22px;
+        font-size: 10px;
+    }
+
+    .eca-public .eca-landing-logo img {
+        height: 42px;
+    }
+
+    .eca-home .showcase-caption h2 {
+        font-size: 1.35rem !important;
+    }
+
+    .hub-table {
+        min-width: 360px;
+    }
+
+    .eca-register-panel a {
+        font-size: 1.05rem;
+        min-height: 64px;
+        padding: 0 16px;
+    }
+}
+
+.dash-pager {
+    margin-top: 14px;
+}
+
+.dash-pager-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.dash-pager-meta {
+    margin: 0;
+    color: #5b657d;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.dash-pager-buttons {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.dash-pager-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    min-height: 36px;
+    padding: 0 10px;
+    border: 1px solid #d7deea;
+    border-radius: 10px;
+    background: #fff;
+    color: #192754;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.dash-pager-btn.is-active {
+    border-color: #d50d0e;
+    background: #d50d0e;
+    color: #fff;
+}
+
+.dash-pager-ellipsis {
+    padding: 0 4px;
+    color: #6b7690;
+    font-weight: 800;
+}
+
+@media (pointer: coarse) {
+    .eca-public .eca-landing-toggle,
+    .eca-public .eca-nav-link,
+    .eca-public .eca-mega-nav > a,
+    .eca-public .eca-mega-menu a,
+    .mobile-toggle,
+    .hub-btn,
+    .eca-btn,
+    .eca-register-panel a {
+        min-height: 44px;
+    }
+}

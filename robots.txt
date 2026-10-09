@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /client/
+Disallow: /cpd/app/
+Disallow: /cpd/admin/
+Disallow: /cpd/officer/
+Disallow: /_private/
+Disallow: /uploads/documents/
+Disallow: /document-download.php
+Disallow: /certificate-download.php
+
+Sitemap: https://eca.co.sz/sitemap.php
